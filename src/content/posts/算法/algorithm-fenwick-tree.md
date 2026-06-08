@@ -1,8 +1,8 @@
 ---
 title: 树状数组完全解析
-published: 2025-06-07
-description: '从 lowbit 到进阶应用：全面掌握树状数组（Fenwick Tree）的原理、实现与常见变体'
-image: ''
+published: 2026-05-10
+description: "从 lowbit 到进阶应用：全面掌握树状数组（Fenwick Tree）的原理、实现与常见变体"
+image: ""
 tags: [算法, 树状数组, 数据结构, 竞赛编程]
 category: 算法
 draft: false
@@ -35,12 +35,12 @@ $$
 
 **示例**：
 
-| $x$ | 二进制 | lowbit(x) |
-|-----|--------|-----------|
-| 6 | $0110$ | $0010 = 2$ |
-| 8 | $1000$ | $1000 = 8$ |
-| 7 | $0111$ | $0001 = 1$ |
-| 12 | $1100$ | $0100 = 4$ |
+| $x$ | 二进制 | lowbit(x)  |
+| --- | ------ | ---------- |
+| 6   | $0110$ | $0010 = 2$ |
+| 8   | $1000$ | $1000 = 8$ |
+| 7   | $0111$ | $0001 = 1$ |
+| 12  | $1100$ | $0100 = 4$ |
 
 ### 为什么是用 `x & -x`？
 
@@ -273,11 +273,13 @@ int point_query(int pos) {
 **推导**：
 
 设差分数组 $d[i]$，那么：
+
 $$
 a[x] = \sum_{i=1}^{x} d[i]
 $$
 
 前缀和：
+
 $$
 \begin{aligned}
 \sum_{i=1}^{x} a[i] &= \sum_{i=1}^{x} \sum_{j=1}^{i} d[j] \\
@@ -355,24 +357,25 @@ struct Fenwick2D {
 
 ## 树状数组 vs 线段树
 
-| 维度 | 树状数组 | 线段树 |
-|------|----------|--------|
-| 代码量 | ~15 行 | ~60 行 |
-| 常数 | 极小 | 较大 |
-| 空间 | $O(n)$ | $O(4n)$ |
-| 功能范围 | 前缀和可推导的操作 | 任意区间信息 |
-| 区间修改 | 需要差分技巧 | 有懒标记原生支持 |
-| 不可减信息维护 | ❌（如最大值） | ✅ |
-| 动态开点 | 不可行 | 可行 |
-| 最值查询 | 仅前缀最大/最小 | 任意区间最大/最小 |
+| 维度           | 树状数组           | 线段树            |
+| -------------- | ------------------ | ----------------- |
+| 代码量         | ~15 行             | ~60 行            |
+| 常数           | 极小               | 较大              |
+| 空间           | $O(n)$             | $O(4n)$           |
+| 功能范围       | 前缀和可推导的操作 | 任意区间信息      |
+| 区间修改       | 需要差分技巧       | 有懒标记原生支持  |
+| 不可减信息维护 | ❌（如最大值）     | ✅                |
+| 动态开点       | 不可行             | 可行              |
+| 最值查询       | 仅前缀最大/最小    | 任意区间最大/最小 |
 
 :::tip[选择建议]
+
 - **先考虑树状数组**：代码短、常数小、不易出错
 - **需要区间最大/最小值** 且无法转化为前缀 → 用线段树
 - **需要复杂的区间合并信息**（如区间众数）→ 用线段树
 - **需要动态开点或线段树合并** → 用线段树
 - **数组不可差分**（如 xor 可逆但 max 不可逆）→ 注意 BIT 的局限
-:::
+  :::
 
 ---
 
@@ -407,23 +410,24 @@ long long count_inversions(vector<int>& a) {
 ## 常见错误
 
 :::caution[常见错误]
+
 1. **忘记 1-indexed**：树状数组的下标必须从 $1$ 开始，$0$ 会导致 `lowbit(0) = 0` 死循环
 2. **数组越界**：`add` 时 `pos <= n`；若 $n$ 估算小了会 RE
 3. **忘记离散化**：值域 $> 10^6$ 时不能直接开数组，先离散化
 4. **区间修改忘记处理差分**：直接 `add(l, val)` 然后 `add(r+1, -val)`，不是 `add(l..r, val)`
-:::
+   :::
 
 ---
 
 ## 练习题目推荐
 
-| 题目 | 难度 | 考察点 |
-|------|------|--------|
-| [LC 307. Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/) | Medium | BIT 基础 |
-| [洛谷 P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374) | 模板 | 单点修改 + 前缀和 |
-| [洛谷 P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368) | 模板 | 区间修改 + 单点查询 |
-| [LC 315. Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/) | Hard | BIT 求逆序 |
-| [洛谷 P1908 逆序对](https://www.luogu.com.cn/problem/P1908) | 经典 | BIT 求逆序对 |
+| 题目                                                                                                              | 难度   | 考察点              |
+| ----------------------------------------------------------------------------------------------------------------- | ------ | ------------------- |
+| [LC 307. Range Sum Query - Mutable](https://leetcode.com/problems/range-sum-query-mutable/)                       | Medium | BIT 基础            |
+| [洛谷 P3374 【模板】树状数组 1](https://www.luogu.com.cn/problem/P3374)                                           | 模板   | 单点修改 + 前缀和   |
+| [洛谷 P3368 【模板】树状数组 2](https://www.luogu.com.cn/problem/P3368)                                           | 模板   | 区间修改 + 单点查询 |
+| [LC 315. Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/) | Hard   | BIT 求逆序          |
+| [洛谷 P1908 逆序对](https://www.luogu.com.cn/problem/P1908)                                                       | 经典   | BIT 求逆序对        |
 
 ---
 

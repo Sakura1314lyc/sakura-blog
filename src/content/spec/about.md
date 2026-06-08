@@ -1,49 +1,35 @@
+# 👨‍💻 关于我 | About Me
 
-This website is built with the **Astro** framework using the [Mizuki](https://github.com/LyraVoid/Mizuki) theme.
+**你好 我是Sakura**  
+🎓 **中国矿业大学 (CUMT)** | 计算机科学专业 (即将步入大二)
+**QQ:1951521387**
 
-::github{repo="LyraVoid/Mizuki"}
+我是一名热爱算法竞赛与后端开发的计算机科学本科生。在追求极致代码效率的同时，我也热衷于构建稳健的工程系统。我相信计算不仅是逻辑的推演，更是创造力的延伸。
 
-## 🌟 Theme Features
+### 🚀 算法竞赛 (Competitive Programming)
 
-### 🎨 Design & User Experience
-- **Modern & Elegant Design** - Clean, minimalist interface with beautiful typography
-- **Fully Responsive** - Optimized for all devices from mobile to desktop
-- **Dark/Light Mode** - Automatic theme switching with smooth transitions
-- **Beautiful Typography** - Enhanced readability with JetBrains Mono font
-- **Smooth Animations** - Fluid page transitions and interactive elements
+作为一名 ACM/ICPC 竞赛选手，我在团队的“铁三角”阵容中担任**构造算法 (Constructive Algorithms) 与数理逻辑**专精的位置。
 
-### 🔍 Content & Search
-- **Advanced Search** - Powered by [Pagefind](https://pagefind.app/) for fast, accurate results
-- **Enhanced Markdown** - Extended syntax with code highlighting and math support
-- **Interactive Table of Contents** - Auto-scroll navigation for long articles
-- **RSS Feed Generation** - Stay updated with automatic feed generation
-- **Reading Time Estimation** - Know how long articles take to read
-- **Post Categorization** - Organize content with tags and categories
+- **近期荣誉**：2026 年江苏省大学生程序设计竞赛 (JSCPC) 铜奖。
+- **平台与目标**：活跃于 Codeforces (正向 1900 Candidate Master 迈进) 与 AtCoder，目前正积极投入暑期 ACM 多校联合训练。
+- **风格**：不喜欢模拟,热衷构造与dp。
 
+### 🛠️ 技术栈与工程实践 (Tech Stack & Engineering)
 
+在算法之外，我同样注重实际工程能力的培养，力求在系统设计与落地间找到平衡：
 
-### 📱 Special Pages
-- **Anime Tracking Page** - Track your anime watching progress with ratings
-- **Friends Links Page** - Showcase friend websites with beautiful cards
-- **Diary/Moments Page** - Share life moments like social media posts
-- **Archive Page** - Organized timeline view of all posts
-- **About Page** - Customizable personal introduction (this page!)
+- **编程语言**：
+  - `C++`：核心算法实现与竞赛主力。
+  - `Go`：主攻后端开发与高并发系统设计。
+- **基础设施与数据库**：熟练掌握 Docker 容器化部署，熟悉 PostgreSQL 数据库。
+- **当前项目**：使用Go, claude code, Docker, PostgreSQL搭建 agent项目。
+- **开发环境**：深度定制的 VS Code。
 
-### 🛠 Technical Features
-- **Enhanced Code Blocks** - Powered by [Expressive Code](https://expressive-code.com/)
-- **Math Support** - LaTeX rendering with KaTeX for mathematical expressions
-- **Image Optimization** - PhotoSwipe gallery with lazy loading
-- **SEO Optimized** - Built-in sitemap and meta tags for better search visibility
-- **Performance Optimized** - Fast loading with caching and optimization
-- **Comment System Ready** - Integration support for Twikoo comments
+### 🔬 学术意向 (Academic Interests)
 
-### 🎯 Advanced Markdown Features
-- **Callouts & Admonitions** - Beautiful info boxes with `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`
-- **Mathematical Equations** - Write LaTeX math with `$inline$` and `$$block$$` syntax
-- **GitHub Cards** - Embed repository cards with `::github{repo="user/repo"}`
-- **Syntax Highlighting** - Advanced code highlighting with line numbers
-- **Copy Code Buttons** - Easy code copying functionality
+我对**算法研究(Algorithm Study)** 与 **智能体 (Intelligent Agents)** 领域抱有浓厚的兴趣，目前正积极寻求成为科研助手 (Research Assistant) 的机会，期望在优秀的导师团队中深化理论认知并积累学术经验。
 
----
+### 🎮 业余生活 (Hobbies)
 
-*Built with ❤️ using Astro and inspired by modern web design principles.*
+- **ACG 爱好者**：热衷于二次元文化，目前担任校动漫社文案部部长，喜欢水群(), 喜欢二游, 喜欢巨乳()。
+- **游戏方面**：近期沉迷于Pjsk《初音未来世界计划》, 但依旧菜鸡()。
