@@ -22,6 +22,6 @@ export const pioConfig: PioConfig = {
     home: "Click here to go back to homepage!", // 首页提示
     skin: ["Want to see my new outfit?", "The new outfit looks great~"], // 换装提示
     close: "QWQ See you next time~", // 关闭提示
-    link: "https://github.com/Sakura1314lyc/sakura-blog", // 关于链接
+    link: "https://sakura-two-xi.vercel.app/", // 关于链接
   },
 };

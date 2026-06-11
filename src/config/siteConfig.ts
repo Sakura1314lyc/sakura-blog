@@ -147,7 +147,7 @@ export const siteConfig: SiteConfig = {
 
 		homeText: {
 			enable: true,
-			title: "Sakuraの部屋",
+			title: "Sakura",
 			switchable: true,
 
 			subtitle: [
