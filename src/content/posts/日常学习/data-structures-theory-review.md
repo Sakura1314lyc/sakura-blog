@@ -363,7 +363,7 @@ ListNode* mergeTwoLists(ListNode* a, ListNode* b) {
 ```
 
 > 📝 **OJ 练习**：
-> [LC 206 反转链表](https://leetcode.com/problems/reverse-linked-list/) | [LC 141 环形链表](https://leetcode.com/problems/linked-list-cycle/) | [LC 21 合并有序链表](https://leetcode.com/problems/merge-two-sorted-lists/) | [LC 876 链表中点](https://leetcode.com/problems/middle-of-the-linked-list/) | [LC 19 删除倒数第N个](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)
+> [LC 206 反转链表](https://leetcode.cn/problems/reverse-linked-list/) | [LC 141 环形链表](https://leetcode.cn/problems/linked-list-cycle/) | [LC 21 合并有序链表](https://leetcode.cn/problems/merge-two-sorted-lists/) | [LC 876 链表中点](https://leetcode.cn/problems/middle-of-the-linked-list/) | [LC 19 删除倒数第N个](https://leetcode.cn/problems/remove-nth-node-from-end-of-list/)
 
 ---
 
@@ -407,7 +407,7 @@ ListNode* mergeTwoLists(ListNode* a, ListNode* b) {
 
 **栈深度**：该表达式中辅助栈最大深度为 $4$（`(` `+` `*` `/` 四者同时在栈时不会出现——最深为 `( + *` 或 `( + /`，深度为 $3$）。
 
-> 📝 **OJ 练习**：[LC 20 有效括号](https://leetcode.com/problems/valid-parentheses/) | [洛谷 P1739 表达式括号匹配](https://www.luogu.com.cn/problem/P1739) | [洛谷 P1449 后缀表达式](https://www.luogu.com.cn/problem/P1449)
+> 📝 **OJ 练习**：[LC 20 有效括号](https://leetcode.cn/problems/valid-parentheses/) | [洛谷 P1739 表达式括号匹配](https://www.luogu.com.cn/problem/P1739) | [洛谷 P1449 后缀表达式](https://www.luogu.com.cn/problem/P1449)
 
 ---
 
@@ -607,7 +607,7 @@ $$
 
 $ASL_{成功} = (1+2\times2+4\times3+4\times4)/11 = 33/11 = 3.0$。
 
-> 📝 **练习**：[LC 704 二分查找](https://leetcode.com/problems/binary-search/) | [洛谷 P2249 查找](https://www.luogu.com.cn/problem/P2249)
+> 📝 **练习**：[LC 704 二分查找](https://leetcode.cn/problems/binary-search/) | [洛谷 P2249 查找](https://www.luogu.com.cn/problem/P2249)
 
 ### 6.2 二叉搜索树（BST）的查找分析
 
@@ -719,7 +719,7 @@ $ASL_{失败} = (1+5+4+3+2+1+4+3+2+1+4+3+2)/13 = 35/13 \approx 2.69$。
 
 $ASL_{失败} = (7\times 1 + 2 + 3 + 2 + 1 + 1 + 1)/13 = (7+10)/13 \approx 1.31$。
 
-> 📝 **练习**：[洛谷 P3370 字符串哈希](https://www.luogu.com.cn/problem/P3370) | [洛谷 P4305 不重复数字](https://www.luogu.com.cn/problem/P4305) | [LC 705 设计哈希集合](https://leetcode.com/problems/design-hashset/)
+> 📝 **练习**：[洛谷 P3370 字符串哈希](https://www.luogu.com.cn/problem/P3370) | [洛谷 P4305 不重复数字](https://www.luogu.com.cn/problem/P4305) | [LC 705 设计哈希集合](https://leetcode.cn/problems/design-hashset/)
 
 ### 6.6 查找算法总结
 
@@ -734,9 +734,9 @@ $ASL_{失败} = (7\times 1 + 2 + 3 + 2 + 1 + 1 + 1)/13 = (7+10)/13 \approx 1.31$
 
 | 题目 | 考点 | 链接 |
 |------|------|------|
-| LC 704 | 二分查找模板 | [leetcode.com/problems/binary-search](https://leetcode.com/problems/binary-search/) |
+| LC 704 | 二分查找模板 | [leetcode.cn/problems/binary-search](https://leetcode.cn/problems/binary-search/) |
 | 洛谷 P2249 | lower_bound | [luogu.com.cn/problem/P2249](https://www.luogu.com.cn/problem/P2249) |
-| LC 35 | 二分插入位置 | [leetcode.com/problems/search-insert-position](https://leetcode.com/problems/search-insert-position/) |
+| LC 35 | 二分插入位置 | [leetcode.cn/problems/search-insert-position](https://leetcode.cn/problems/search-insert-position/) |
 | 洛谷 P5076 | BST 操作 | [luogu.com.cn/problem/P5076](https://www.luogu.com.cn/problem/P5076) |
 | 洛谷 P3370 | 哈希表 | [luogu.com.cn/problem/P3370](https://www.luogu.com.cn/problem/P3370) |
 
@@ -946,14 +946,14 @@ i=7:  27插到38前 → [13 27 38 49 65 76 97]
 > 📝 **练习**：
 > [洛谷 P1177 排序模板](https://www.luogu.com.cn/problem/P1177) — 练快排/归并
 > [洛谷 P1271 选举学生会](https://www.luogu.com.cn/problem/P1271) — 基数排序
-> [LC 912 排序数组](https://leetcode.com/problems/sort-an-array/) — 练堆排
+> [LC 912 排序数组](https://leetcode.cn/problems/sort-an-array/) — 练堆排
 > [洛谷 P1138 第k小整数](https://www.luogu.com.cn/problem/P1138) — 快选/堆选
 
 ---
 
 ## 八、算法设计题（30 分）
 
-> 📝 **OJ 练习**：[LC 94 中序遍历](https://leetcode.com/problems/binary-tree-inorder-traversal/) | [LC 662 二叉树最大宽度](https://leetcode.com/problems/maximum-width-of-binary-tree/) | [洛谷 P1908 逆序对](https://www.luogu.com.cn/problem/P1908) | [LC 206 反转链表](https://leetcode.com/problems/reverse-linked-list/)
+> 📝 **OJ 练习**：[LC 94 中序遍历](https://leetcode.cn/problems/binary-tree-inorder-traversal/) | [LC 662 二叉树最大宽度](https://leetcode.cn/problems/maximum-width-of-binary-tree/) | [洛谷 P1908 逆序对](https://www.luogu.com.cn/problem/P1908) | [LC 206 反转链表](https://leetcode.cn/problems/reverse-linked-list/)
 
 ### 8.1 二叉树相关算法
 
