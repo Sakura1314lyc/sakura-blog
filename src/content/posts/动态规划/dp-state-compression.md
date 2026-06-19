@@ -30,16 +30,16 @@ $n$ 个元素的集合有 $2^n$ 个子集。当 $n=20$ 时，$2^{20} \approx 10^
 
 ### 基本操作
 
-| 操作 | 代码 | 含义 |
-|------|------|------|
-| 判断第 $i$ 位是否为 1 | `(mask >> i) & 1` | 返回 0 或 1 |
-| 将第 $i$ 位置为 1 | `mask | (1 << i)` | 加入元素 $i$ |
-| 将第 $i$ 位置为 0 | `mask & ~(1 << i)` | 移除元素 $i$ |
-| 翻转第 $i$ 位 | `mask ^ (1 << i)` | 切换元素 $i$ |
-| 判断 submask 是否是 mask 的子集 | `(mask & submask) == submask` | 常用 |
-| 取最低位的 1 | `mask & (-mask)` | lowbit |
-| 去掉最低位的 1 | `mask & (mask - 1)` | 常用于枚举 |
-| 统计 1 的个数 | `__builtin_popcount(mask)` | GCC 内建函数 |
+| 操作                            | 代码                          | 含义         |
+| ------------------------------- | ----------------------------- | ------------ |
+| 判断第 $i$ 位是否为 1           | `(mask >> i) & 1`             | 返回 0 或 1  |
+| 将第 $i$ 位置为 1               | `mask \| (1 << i)`            | 加入元素 $i$ |
+| 将第 $i$ 位置为 0               | `mask & ~(1 << i)`            | 移除元素 $i$ |
+| 翻转第 $i$ 位                   | `mask ^ (1 << i)`             | 切换元素 $i$ |
+| 判断 submask 是否是 mask 的子集 | `(mask & submask) == submask` | 常用         |
+| 取最低位的 1                    | `mask & (-mask)`              | lowbit       |
+| 去掉最低位的 1                  | `mask & (mask - 1)`           | 常用于枚举   |
+| 统计 1 的个数                   | `__builtin_popcount(mask)`    | GCC 内建函数 |
 
 ### 子集枚举
 
@@ -455,6 +455,7 @@ double solve(int n) {
 ```
 
 **要点**：
+
 - 期望 DP 中如果转移方程两边出现了同一个 $dp[mask]$（自环），需要移项求解，而不是简单递推。
 - 状态转移图是 DAG（按 $|mask|$ 递增方向），倒推时按 $|mask|$ 递减顺序即可。
 - 更复杂的期望 DP（如转移图非 DAG）可能需要高斯消元。
@@ -508,18 +509,18 @@ int nxt = mask ^ (1 << lo);     // 去掉最低位的 1
 
 按难度递进：
 
-| 题目 | 难度 | 考点 |
-|------|------|------|
-| [洛谷 P1896 互不侵犯](https://www.luogu.com.cn/problem/P1896) | 普及+/提高 | 行状态压缩，预处理 |
-| [洛谷 P1171 售货员的难题](https://www.luogu.com.cn/problem/P1171) | 提高+/省选 | TSP 模板 |
-| [洛谷 P2704 炮兵阵地](https://www.luogu.com.cn/problem/P2704) | 提高+/省选 | 多行状态压缩 |
-| [洛谷 P1879 Corn Fields G](https://www.luogu.com.cn/problem/P1879) | 普及+/提高 | 网格覆盖状压 |
-| [洛谷 P2836 合影效果](https://www.luogu.com.cn/problem/P2836) | 提高+/省选 | 集合划分 |
-| [洛谷 P4363 一双木棋](https://www.luogu.com.cn/problem/P4363) | 省选/NOI− | 轮廓线 + 博弈 |
-| [洛谷 P5056 插头DP](https://www.luogu.com.cn/problem/P5056) | NOI/NOI+/CTSC | 插头 DP 模板 |
-| [AtCoder ABC180E](https://atcoder.jp/contests/abc180/tasks/abc180_e) | 普及+/提高 | TSP 变体 |
-| [Codeforces 11D](https://codeforces.com/problemset/problem/11/D) | 提高+/省选 | 状压统计简单环 |
-| [Codeforces 16E](https://codeforces.com/problemset/problem/16/E) | 提高+/省选 | 概率 + 状压 DP |
+| 题目                                                                 | 难度          | 考点               |
+| -------------------------------------------------------------------- | ------------- | ------------------ |
+| [洛谷 P1896 互不侵犯](https://www.luogu.com.cn/problem/P1896)        | 普及+/提高    | 行状态压缩，预处理 |
+| [洛谷 P1171 售货员的难题](https://www.luogu.com.cn/problem/P1171)    | 提高+/省选    | TSP 模板           |
+| [洛谷 P2704 炮兵阵地](https://www.luogu.com.cn/problem/P2704)        | 提高+/省选    | 多行状态压缩       |
+| [洛谷 P1879 Corn Fields G](https://www.luogu.com.cn/problem/P1879)   | 普及+/提高    | 网格覆盖状压       |
+| [洛谷 P2836 合影效果](https://www.luogu.com.cn/problem/P2836)        | 提高+/省选    | 集合划分           |
+| [洛谷 P4363 一双木棋](https://www.luogu.com.cn/problem/P4363)        | 省选/NOI−     | 轮廓线 + 博弈      |
+| [洛谷 P5056 插头DP](https://www.luogu.com.cn/problem/P5056)          | NOI/NOI+/CTSC | 插头 DP 模板       |
+| [AtCoder ABC180E](https://atcoder.jp/contests/abc180/tasks/abc180_e) | 普及+/提高    | TSP 变体           |
+| [Codeforces 11D](https://codeforces.com/problemset/problem/11/D)     | 提高+/省选    | 状压统计简单环     |
+| [Codeforces 16E](https://codeforces.com/problemset/problem/16/E)     | 提高+/省选    | 概率 + 状压 DP     |
 
 ---
 
