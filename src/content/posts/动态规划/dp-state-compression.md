@@ -36,7 +36,7 @@ $n$ 个元素的集合有 $2^n$ 个子集。当 $n=20$ 时，$2^{20} \approx 10^
 | 将第 $i$ 位置为 1 | `mask | (1 << i)` | 加入元素 $i$ |
 | 将第 $i$ 位置为 0 | `mask & ~(1 << i)` | 移除元素 $i$ |
 | 翻转第 $i$ 位 | `mask ^ (1 << i)` | 切换元素 $i$ |
-| 判断 mask 是否是 submask 的子集 | `(mask & submask) == submask` | 常用 |
+| 判断 submask 是否是 mask 的子集 | `(mask & submask) == submask` | 常用 |
 | 取最低位的 1 | `mask & (-mask)` | lowbit |
 | 去掉最低位的 1 | `mask & (mask - 1)` | 常用于枚举 |
 | 统计 1 的个数 | `__builtin_popcount(mask)` | GCC 内建函数 |
@@ -52,7 +52,7 @@ for (int sub = mask; sub; sub = (sub - 1) & mask) {
 }
 ```
 
-**时间复杂度**：枚举所有子集的复杂度为 $O(3^n)$——因为每个元素有三种状态（不在 mask 中、在 mask 中但不在 sub 中、同时在 mask 和 sub 中）。
+**时间复杂度**：对所有 $2^n$ 个 mask 分别枚举其所有子集的总复杂度为 $O(3^n)$——因为每个元素有三种状态（不在 mask 中、在 mask 中但不在 sub 中、同时在 mask 和 sub 中）。若只枚举单个 mask 的子集，复杂度为 $O(2^{|mask|})$。
 
 ### 例题引入
 
@@ -140,7 +140,7 @@ int main() {
 
 [洛谷 P1171](https://www.luogu.com.cn/problem/P1171)：$n \le 20$，标准的 TSP 问题，用上述模板即可解决。
 
-### 例题：ATCODER ABC180E Traveling Salesman among Aerial Cities
+### 例题：AtCoder ABC180E Traveling Salesman among Aerial Cities
 
 [ABC180E](https://atcoder.jp/contests/abc180/tasks/abc180_e)：三维空间中的 TSP，距离计算方式略有变化，但 DP 部分完全一致。
 
@@ -182,9 +182,9 @@ void dfs(int col, int i, int cur, int nxt) {
         dfs(col, i + 1, cur, nxt);
         return;
     }
-    // 竖着放：占当前列和下一列的同一行
+    // 横着放：占当前列和下一列的同一行
     dfs(col, i + 1, cur, nxt | (1 << i));
-    // 横着放：占当前列的两行（前提是下一行也未被覆盖）
+    // 竖着放：占当前列的两行（前提是下一行也未被覆盖）
     if (i + 1 < n && !(cur & (1 << (i + 1)))) {
         dfs(col, i + 2, cur, nxt);
     }
@@ -270,11 +270,11 @@ int main() {
 
 ---
 
-## 四、经典模型三：轮廓线 DP（插头 DP）
+## 四、经典模型三：轮廓线 DP
 
 ### 模型描述
 
-轮廓线 DP 是状压 DP 的进阶形态。当处理网格 DP 时，不按「整行/整列」压缩，而是按**处理顺序的轮廓线**来压缩状态。一条轮廓线贯穿 $m$ 个格子，状态只需 $m$ 位（而非整行的 $m$ 位），因此复杂度从 $O(m \cdot 2^{2m})$ 压缩到了 $O(nm \cdot 2^m)$。
+轮廓线 DP 是状压 DP 的进阶形态。当处理网格 DP 时，不按「整行/整列」压缩，而是按**处理顺序的轮廓线**来压缩状态。一条轮廓线贯穿 $m$ 个格子，状态只需 $m$ 位，且逐格转移只需检查相邻几格，因此复杂度从按列 DP 枚举相邻列状态的 $O(m \cdot 4^n)$ 降到了 $O(nm \cdot 2^m)$。
 
 ### 例题：铺砖问题（轮廓线法）
 
@@ -338,7 +338,7 @@ ll solve() {
 
 将集合分成若干组，每组满足特定条件，求最小组数或最大分数。核心思想是：**先预处理所有合法分组，再在合法分组上用子集枚举转移**。
 
-### 例题：洛谷 P2836 分组问题
+### 例题：洛谷 P2836 合影效果
 
 > $n$ 个人，知道他们互相是否认识。要将所有人分成若干组，每组内必须两两认识（形成团），求最少组数。$n \le 15$。
 
@@ -414,21 +414,50 @@ for (int sub = mask; sub; sub = (sub - 1) & mask) {
 
 ### 模型描述
 
-在某些期望问题中，当前已发生的「事件集合」构成状态，可以建立关于期望的 DP 方程。
+当 DP 的每一步带有随机性时，可以将「已发生的事件集合」作为状态，建立期望方程。这类问题通常从目标状态倒推（因为目标状态的期望值已知）。
 
-### 例题：洛谷 P6834 梦魇
+### 例题：收集物品的期望次数
 
-> 有一个 $n$ 项的序列，每次随机选择一个没有变成 $-1$ 的位置将其置为 $-1$。当序列中出现连续的 $k$ 个 $-1$ 时结束。求期望操作步数。$n \le 20$。
+> 有 $n$ 种物品，每次随机获得一种（每种等概率 $1/n$）。求集齐所有物品的期望次数。$n \le 20$。
 
-$dp[mask]$：当前被置为 $-1$ 的位置集合 $mask$ 时，到结束的期望步数。转移需要根据当前状态是否已满足终止条件来决定。
+**状态定义**：$dp[mask]$ 表示已经收集到集合 $mask$ 后，到集齐所有物品还需的期望次数。
+
+目标状态 $dp[(1 \ll n)-1] = 0$（已集齐，不需要再抽）。从后往前推：
 
 $$
-dp[mask] = 1 + \frac{1}{|S|}\sum_{j \notin mask} dp[mask \cup \{j\}]
+dp[mask] = 1 + \frac{|mask|}{n} \cdot dp[mask] + \frac{1}{n}\sum_{j \notin mask} dp[mask \cup \{j\}]
 $$
 
-其中 $S$ 为可选的下一步集合。
+移项整理得：
 
-期望 DP 通常需要**目标状态已知，从目标状态倒推**，或使用高斯消元。
+$$
+dp[mask] = \frac{n + \sum_{j \notin mask} dp[mask \cup \{j\}]}{n - |mask|}
+$$
+
+```cpp
+double dp[1 << 20];
+
+double solve(int n) {
+    int full = (1 << n) - 1;
+    dp[full] = 0;
+    for (int mask = full - 1; mask >= 0; mask--) {
+        int cnt = __builtin_popcount(mask);
+        double sum = n;  // 每次抽取的代价（1 次 * n）
+        for (int j = 0; j < n; j++) {
+            if (!(mask & (1 << j))) {
+                sum += dp[mask | (1 << j)];
+            }
+        }
+        dp[mask] = sum / (n - cnt);
+    }
+    return dp[0];
+}
+```
+
+**要点**：
+- 期望 DP 中如果转移方程两边出现了同一个 $dp[mask]$（自环），需要移项求解，而不是简单递推。
+- 状态转移图是 DAG（按 $|mask|$ 递增方向），倒推时按 $|mask|$ 递减顺序即可。
+- 更复杂的期望 DP（如转移图非 DAG）可能需要高斯消元。
 
 ---
 
@@ -488,7 +517,7 @@ int nxt = mask ^ (1 << lo);     // 去掉最低位的 1
 | [洛谷 P2836 合影效果](https://www.luogu.com.cn/problem/P2836) | 提高+/省选 | 集合划分 |
 | [洛谷 P4363 一双木棋](https://www.luogu.com.cn/problem/P4363) | 省选/NOI− | 轮廓线 + 博弈 |
 | [洛谷 P5056 插头DP](https://www.luogu.com.cn/problem/P5056) | NOI/NOI+/CTSC | 插头 DP 模板 |
-| [ATCODER ABC180E](https://atcoder.jp/contests/abc180/tasks/abc180_e) | 普及+/提高 | TSP 变体 |
+| [AtCoder ABC180E](https://atcoder.jp/contests/abc180/tasks/abc180_e) | 普及+/提高 | TSP 变体 |
 | [Codeforces 11D](https://codeforces.com/problemset/problem/11/D) | 提高+/省选 | 状压统计简单环 |
 | [Codeforces 16E](https://codeforces.com/problemset/problem/16/E) | 提高+/省选 | 概率 + 状压 DP |
 
