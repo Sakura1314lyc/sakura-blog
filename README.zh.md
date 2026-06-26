@@ -9,7 +9,7 @@
 - 🎓 计算机科学与技术专业在读
 - ⌨️ 专注于算法竞赛 (C++) 与后端架构设计 (Go)
 - 🐳 日常折腾后端基建 (Docker / PostgreSQL)
-- 🎮 ACG 爱好者 / VTuber 观众 / 音游玩家
+- 🎮 ACG 爱好者 / VTuber 观众 / 啤酒烧烤
 
 ## 🛠️ 博客技术栈
 
@@ -36,8 +36,6 @@ pnpm new-post <文章文件名>
 ```
 
 ## 🙏 致谢与开源声明
-
-本博客的精美外观与核心逻辑并非从零手写，而是站在了巨人的肩膀上。
 
 - 主题基于 [LyraVoid/Mizuki](https://github.com/LyraVoid/Mizuki) 深度定制。
 - Mizuki 主题衍生自优秀的 [Fuwari](https://github.com/saicaca/fuwari) 模板。
