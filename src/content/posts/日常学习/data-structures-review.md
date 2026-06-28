@@ -556,7 +556,7 @@ int main() {
         hasParent[v] = true;
     }
     for (int i = 0; i < MAXN; i++)
-        if (!hasParent[i] && !tree[i].empty()) { preorder(i); break; }
+        if (!hasParent[i]) { preorder(i); break; }
     cout << endl;
     return 0;
 }
@@ -753,14 +753,17 @@ using namespace std;
 
 const int maxn = 40;
 int pos1[maxn], pos2[maxn], a1[maxn], a2[maxn];
-int L[maxn], R[maxn];
+int L[maxn], R[maxn], n;
 bool notonly = false;
 
 void dfs(int l, int r) {
     if (l >= r) return;
     int root = a1[l];
+    if (l + 1 > n) return;           // 无剩余节点
     int lroot = a1[l + 1];
-    int rroot = a2[pos2[root] - 1];
+    int rroot = 0;
+    if (pos2[root] > 1)              // 边界保护：root 若非后序第一个
+        rroot = a2[pos2[root] - 1];
     if (lroot == rroot) {
         R[root] = rroot;
         notonly = true;
@@ -768,6 +771,7 @@ void dfs(int l, int r) {
         return;
     }
     int lsize = pos1[rroot] - pos1[lroot];
+    if (lsize <= 0) return;          // 无效划分
     L[root] = lroot; R[root] = rroot;
     dfs(l + 1, l + lsize);
     dfs(l + lsize + 1, r);
@@ -781,7 +785,7 @@ void inorder(int now) {
 }
 
 int main() {
-    int n; cin >> n;
+    cin >> n;
     for (int i = 1; i <= n; i++) { cin >> a1[i]; pos1[a1[i]] = i; }
     for (int i = 1; i <= n; i++) { cin >> a2[i]; pos2[a2[i]] = i; }
     dfs(1, n);
