@@ -53,6 +53,8 @@ src/data/bilibili-data.json
 
 # Lighthouse CI
 .lighthouseci/
+.artifacts/
+.preview-*.log
 
 # Live2D editor source files
 *.psd

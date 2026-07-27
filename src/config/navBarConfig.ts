@@ -128,109 +128,55 @@ import { LinkPreset } from "../types/config";
  */
 export const navBarConfig: NavBarConfig = {
 	links: [
-		// 预设链接：首页
 		LinkPreset.Home,
-		// 预设链接：归档
+		{
+			name: "AI 学习地图",
+			url: "/ai-roadmap/",
+			icon: "material-symbols:route",
+		},
 		LinkPreset.Archive,
-
-		// 自定义一级下拉菜单示例：外部链接集合
 		{
-			name: "Links",
-			url: "/links/",
-			icon: "material-symbols:link",
+			name: "专题",
+			url: "#",
+			icon: "material-symbols:topic-outline",
 			children: [
 				{
-					name: "GitHub",
-					url: "https://github.com/Sakura1314lyc/sakura-blog",
-					external: true, // 外部链接，新标签页打开
-					icon: "fa7-brands:github",
+					name: "深度学习基础",
+					url: "/archive/?category=AI·深度学习",
+					icon: "material-symbols:neurology",
 				},
 				{
-					name: "Bilibili",
-					url: "https://space.bilibili.com/198170603",
-					external: true,
-					icon: "fa7-brands:bilibili",
+					name: "LLM 与多模态",
+					url: "/archive/?category=AI·大模型",
+					icon: "material-symbols:chat",
 				},
 				{
-					name: "Gitee",
-					url: "https://gitee.com/Sakuralyc",
-					external: true,
-					icon: "mdi:git",
+					name: "推理与后训练",
+					url: "/archive/?category=AI·推理与后训练",
+					icon: "material-symbols:model-training",
+				},
+				{
+					name: "Agent 工程",
+					url: "/archive/?category=AI·Agent",
+					icon: "material-symbols:robot-2-outline",
+				},
+				{
+					name: "科研实战",
+					url: "/archive/?category=AI·科研实战",
+					icon: "material-symbols:science-outline",
 				},
 			],
 		},
-
-		// 自定义一级下拉菜单示例：个人内容页面
 		{
-			name: "My",
-			url: "/content/",
-			icon: "material-symbols:person",
-			children: [
-				{
-					name: "Anime",
-					url: "/anime/",
-					icon: "material-symbols:movie",
-				},
-				{
-					name: "Diary",
-					url: "/diary/",
-					icon: "material-symbols:book",
-				},
-				{
-					name: "Gallery",
-					url: "/albums/",
-					icon: "material-symbols:photo-library",
-				},
-				{
-					name: "Devices",
-					url: "/devices/",
-					icon: "material-symbols:devices",
-					external: false, // 内部链接，当前页导航
-				},
-			],
+			name: "关于",
+			url: "/about/",
+			icon: "material-symbols:person-outline",
 		},
-
-		// 自定义一级下拉菜单示例：关于相关
 		{
-			name: "About",
-			url: "/content/",
-			icon: "material-symbols:info",
-			children: [
-				{
-					name: "About",
-					url: "/about/",
-					icon: "material-symbols:person",
-				},
-				{
-					name: "Friends",
-					url: "/friends/",
-					icon: "material-symbols:group",
-				},
-			],
-		},
-
-		// 自定义一级下拉菜单示例：其他页面
-		{
-			name: "Others",
-			url: "#", // "#" 作为占位 URL，点击不会跳转
-			icon: "material-symbols:more-horiz",
-			children: [
-				{
-					name: "Projects",
-					url: "/projects/",
-					icon: "material-symbols:work",
-				},
-				{
-					name: "Skills",
-					url: "/skills/",
-					icon: "material-symbols:psychology",
-				},
-				{
-					name: "Timeline",
-					url: "/timeline/",
-					icon: "material-symbols:timeline",
-				},
-			],
+			name: "GitHub",
+			url: "https://github.com/Sakura1314lyc/sakura-blog",
+			external: true,
+			icon: "fa7-brands:github",
 		},
 	],
 };

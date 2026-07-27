@@ -1,0 +1,204 @@
+---
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { Icon } from "astro-icon/components";
+
+const phases = [
+	{
+		kicker: "START HERE",
+		title: "起点 · 科研与学习方法",
+		weeks: "第 0 周",
+		color: "rose",
+		description: "先建立全局地图和科研闭环，再进入模型细节。你会知道每一章为什么要学、学到什么程度。",
+		posts: [
+			["完整学习路线与 8 周计划", "/ai-learning-guide/", "路线"],
+			["论文检索、阅读与复现方法", "/research-literacy/", "科研"],
+		],
+	},
+	{
+		kicker: "FOUNDATION",
+		title: "基础 · 深度学习工具箱",
+		weeks: "第 1–2 周",
+		color: "peach",
+		description: "从梯度与反向传播开始，串起 CNN、ResNet、RNN、GNN，并真正写出可训练的 PyTorch 工程。",
+		posts: [
+			["神经网络、反向传播与优化", "/neural-network-backprop/", "数学"],
+			["CNN、ResNet、RNN 与 GNN", "/deep-learning-architectures/", "架构"],
+			["PyTorch、GPU 与 Hugging Face", "/pytorch-huggingface-gpu/", "工程"],
+		],
+	},
+	{
+		kicker: "LANGUAGE & VISION",
+		title: "核心 · 大模型与多模态",
+		weeks: "第 3–4 周",
+		color: "violet",
+		description: "理解 Transformer 的信息流，比较主流模型家族，再把相同思想扩展到图像、视频与视觉语言模型。",
+		posts: [
+			["Transformer 从注意力到生成", "/transformer-core/", "原理"],
+			["BERT、GPT、LLaMA、Qwen", "/llm-families/", "模型"],
+			["ViT、LLaVA 与 Qwen-VL", "/vision-multimodal-models/", "多模态"],
+		],
+	},
+	{
+		kicker: "REASONING",
+		title: "进阶 · 推理与后训练",
+		weeks: "第 5–6 周",
+		color: "plum",
+		description: "从提示与思维链进入训练：SFT、DPO、PPO、GRPO、OPD 的目标、数据、损失与适用场景逐一拆开。",
+		posts: [
+			["Prompt、CoT 与 API 实践", "/prompt-cot-api/", "推理"],
+			["SFT、DPO、PPO、GRPO、OPD", "/llm-post-training/", "训练"],
+			["GSM8K、MATH 与评测科学", "/reasoning-benchmarks/", "评测"],
+			["Rationale Learning 与可信学习", "/rationale-learning/", "可信"],
+		],
+	},
+	{
+		kicker: "AGENTS & LAB",
+		title: "落地 · Agent 与科研实战",
+		weeks: "第 7–8 周",
+		color: "blue",
+		description: "把模型装进可执行的闭环：规划、工具、记忆、技能与测试；最后完成两套可复现的结课项目。",
+		posts: [
+			["Agent 架构与 Harness 工程", "/agent-architecture-harness/", "Agent"],
+			["Skill、MCP 与软件测试", "/agent-skills-mcp-testing/", "工程"],
+			["SFT / OPD / GRPO 微调实验", "/reasoning-finetune-lab/", "实验"],
+			["OpenClaw / Hermes / Codex 实战", "/agent-systems-lab/", "实战"],
+		],
+	},
+];
+---
+
+<MainGridLayout
+	title="AI 学习地图"
+	description="Sakura 的 6–8 周人工智能、大模型推理与 Agent 学习路线"
+>
+	<section class="roadmap-shell">
+		<header class="roadmap-hero card-base">
+			<div class="hero-copy">
+				<span class="eyebrow">SAKURA AI FIELD NOTES</span>
+				<h1>从 0 到 1，<br /><em>把 AI 学成体系。</em></h1>
+				<p>
+					这不是链接收藏夹，而是一套可以执行的 6–8 周课程。每一阶段都包含概念、公式、代码、
+					实验与检查点，最终落到一次推理模型微调和一次 Agent 系统搭建。
+				</p>
+				<div class="hero-actions">
+					<a class="primary-action" href="/ai-learning-guide/">
+						开始第一章
+						<Icon name="material-symbols:arrow-forward-rounded" />
+					</a>
+					<a class="secondary-action" href="/archive/?tag=AI学习路线">查看全部专题</a>
+				</div>
+			</div>
+			<div class="hero-orbit" aria-hidden="true">
+				<div class="orbit orbit-one"></div>
+				<div class="orbit orbit-two"></div>
+				<div class="core">S</div>
+				<span class="node n1"></span><span class="node n2"></span>
+				<span class="node n3"></span><span class="node n4"></span>
+			</div>
+		</header>
+
+		<div class="outcomes">
+			<div><strong>16</strong><span>篇系统长文</span></div>
+			<div><strong>8 周</strong><span>可执行路线</span></div>
+			<div><strong>2</strong><span>完整结课项目</span></div>
+			<div><strong>1</strong><span>科研闭环</span></div>
+		</div>
+
+		<div class="phase-list">
+			{phases.map((phase, index) => (
+				<article class={`phase phase-${phase.color} card-base`}>
+					<div class="phase-index">{String(index + 1).padStart(2, "0")}</div>
+					<div class="phase-copy">
+						<div class="phase-meta">
+							<span>{phase.kicker}</span>
+							<span>{phase.weeks}</span>
+						</div>
+						<h2>{phase.title}</h2>
+						<p>{phase.description}</p>
+					</div>
+					<div class="phase-posts">
+						{phase.posts.map(([title, href, tag]) => (
+							<a href={href}>
+								<span class="post-tag">{tag}</span>
+								<strong>{title}</strong>
+								<Icon name="material-symbols:arrow-outward-rounded" />
+							</a>
+						))}
+					</div>
+				</article>
+			))}
+		</div>
+
+		<aside class="completion card-base">
+			<div>
+				<span class="eyebrow">THE FINISH LINE</span>
+				<h2>读完不等于学完，产出才算闭环。</h2>
+				<p>每周保留一份实验记录：问题、假设、配置、结果、失败原因与下一步。第 8 周把两项实战整理为可复现仓库和实验报告。</p>
+			</div>
+			<a href="/reasoning-finetune-lab/">查看结课标准 <Icon name="material-symbols:arrow-forward-rounded" /></a>
+		</aside>
+	</section>
+</MainGridLayout>
+
+<style>
+	.roadmap-shell { display: grid; gap: 1rem; }
+	.roadmap-hero {
+		position: relative; min-height: 28rem; padding: clamp(2rem, 5vw, 4.25rem);
+		overflow: hidden; border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--line-divider));
+		background:
+			radial-gradient(circle at 82% 20%, color-mix(in srgb, var(--primary) 22%, transparent), transparent 31%),
+			linear-gradient(135deg, color-mix(in srgb, var(--card-bg) 95%, #fff0f6), var(--card-bg));
+	}
+	.roadmap-hero::after {
+		content: ""; position: absolute; inset: auto -8rem -12rem auto; width: 31rem; height: 31rem;
+		border-radius: 50%; background: color-mix(in srgb, var(--primary) 7%, transparent);
+	}
+	.hero-copy { position: relative; z-index: 2; max-width: 40rem; }
+	.eyebrow { color: var(--primary); font-weight: 800; letter-spacing: .14em; font-size: .72rem; }
+	h1 { margin: 1.1rem 0 1.25rem; font-size: clamp(2.65rem, 6vw, 5.1rem); line-height: .98; letter-spacing: -.055em; font-weight: 850; }
+	h1 em { color: var(--primary); font-style: normal; }
+	.hero-copy > p { max-width: 37rem; color: var(--text-75); line-height: 1.85; font-size: 1.04rem; }
+	.hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
+	.hero-actions a, .completion > a { display: inline-flex; align-items: center; gap: .55rem; padding: .8rem 1.1rem; border-radius: .85rem; font-weight: 750; }
+	.primary-action { background: var(--primary); color: white; box-shadow: 0 10px 28px color-mix(in srgb, var(--primary) 28%, transparent); }
+	.secondary-action { border: 1px solid var(--line-divider); color: var(--text-90); }
+	.hero-orbit { position: absolute; z-index: 1; width: 20rem; height: 20rem; right: 1.5rem; top: 3.5rem; }
+	.orbit { position: absolute; inset: 0; border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent); border-radius: 50%; }
+	.orbit-two { inset: 2.8rem; }
+	.core { position: absolute; inset: 6.5rem; display: grid; place-items: center; border-radius: 2rem; color: white; font-size: 3.8rem; font-weight: 850; background: linear-gradient(145deg, #f18aaa, #9d4673); box-shadow: 0 24px 60px rgba(138, 54, 98, .28); }
+	.node { position: absolute; width: .8rem; height: .8rem; border: 3px solid var(--card-bg); border-radius: 50%; background: var(--primary); }
+	.n1 { left: 1rem; top: 5rem; }.n2 { right: 1.4rem; top: 4rem; }.n3 { left: 4rem; bottom: 1.5rem; }.n4 { right: 2rem; bottom: 5rem; }
+	.outcomes { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; }
+	.outcomes > div { padding: 1.25rem; border: 1px solid var(--line-divider); border-radius: 1rem; background: var(--card-bg); }
+	.outcomes strong { display: block; font-size: 1.65rem; color: var(--primary); }.outcomes span { color: var(--text-50); font-size: .82rem; }
+	.phase-list { display: grid; gap: 1rem; }
+	.phase { display: grid; grid-template-columns: 4rem minmax(13rem, .78fr) 1.22fr; gap: 1.4rem; padding: 1.5rem; overflow: visible; }
+	.phase-index { width: 3.2rem; height: 3.2rem; display: grid; place-items: center; border-radius: 1rem; color: white; background: var(--primary); font-weight: 850; }
+	.phase-meta { display: flex; flex-wrap: wrap; gap: .65rem; color: var(--primary); font-weight: 800; letter-spacing: .08em; font-size: .68rem; }
+	.phase-meta span:last-child { color: var(--text-50); }.phase h2 { margin: .55rem 0; font-size: 1.35rem; }.phase-copy p { color: var(--text-50); line-height: 1.7; font-size: .88rem; }
+	.phase-posts { display: grid; gap: .55rem; }
+	.phase-posts a { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .75rem; padding: .72rem .85rem; border: 1px solid var(--line-divider); border-radius: .8rem; transition: .2s ease; }
+	.phase-posts a:hover { border-color: var(--primary); transform: translateX(3px); background: color-mix(in srgb, var(--primary) 4%, transparent); }
+	.post-tag { color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, transparent); padding: .2rem .45rem; border-radius: .45rem; font-size: .68rem; font-weight: 800; }
+	.phase-posts strong { font-size: .86rem; }
+	.completion { display: flex; align-items: end; justify-content: space-between; gap: 2rem; padding: 2rem; background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 10%, var(--card-bg)), var(--card-bg)); }
+	.completion h2 { font-size: 1.6rem; margin: .55rem 0; }.completion p { color: var(--text-50); max-width: 42rem; line-height: 1.7; }
+	.completion > a { flex: none; color: white; background: var(--primary); }
+	@media (max-width: 900px) {
+		.hero-orbit { opacity: .22; right: -8rem; }
+		.outcomes { grid-template-columns: repeat(2, 1fr); }
+		.phase { grid-template-columns: 3.5rem 1fr; }
+		.phase-posts { grid-column: 1 / -1; }
+	}
+	@media (max-width: 600px) {
+		.roadmap-hero { min-height: 0; padding: 2rem 1.35rem; }
+		.hero-orbit { display: none; }
+		.outcomes > div { padding: 1rem; }
+		.phase { grid-template-columns: 1fr; padding: 1.15rem; }
+		.phase-index { width: 2.7rem; height: 2.7rem; }
+		.phase-posts { grid-column: auto; }
+		.phase-posts a { grid-template-columns: auto 1fr; }
+		.phase-posts a :global(svg) { display: none; }
+		.completion { align-items: flex-start; flex-direction: column; }
+	}
+</style>

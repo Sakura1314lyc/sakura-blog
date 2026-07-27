@@ -1,0 +1,75 @@
+:root {
+  --sakura-pink: #e85f8e;
+  --sakura-deep: #8b3f68;
+  --sakura-soft: #fff1f6;
+  --sakura-cream: #fffaf7;
+}
+
+body {
+  background:
+    radial-gradient(circle at 10% 8%, color-mix(in srgb, var(--sakura-pink) 8%, transparent), transparent 28rem),
+    linear-gradient(180deg, var(--page-bg) 0%, color-mix(in srgb, var(--page-bg) 94%, #fff1f6) 100%);
+}
+
+.banner-text-overlay {
+  background: linear-gradient(90deg, rgba(62, 25, 48, 0.38), rgba(62, 25, 48, 0.1) 58%, rgba(62, 25, 48, 0.22));
+}
+
+.banner-title {
+  font-weight: 800 !important;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+  text-shadow: 0 3px 28px rgba(79, 29, 58, 0.36) !important;
+}
+
+.banner-subtitle {
+  font-weight: 500;
+  letter-spacing: 0.035em;
+  text-shadow: 0 2px 18px rgba(74, 30, 56, 0.42) !important;
+}
+
+#navbar > div:not(.absolute) {
+  border-radius: 1.15rem;
+}
+
+#navbar a[href="/"] img {
+  filter: drop-shadow(0 4px 10px rgba(180, 59, 105, 0.18));
+}
+
+.card-base {
+  box-shadow: 0 12px 36px rgba(104, 54, 77, 0.055);
+}
+
+.enable-card-border .card-base:hover {
+  border-color: color-mix(in srgb, var(--primary) 36%, var(--line-divider));
+  box-shadow: 0 18px 44px rgba(126, 54, 86, 0.11);
+  transform: translateY(-2px);
+}
+
+.post-card,
+#content-wrapper > .card-base {
+  isolation: isolate;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--sakura-pink) 28%, transparent);
+  color: inherit;
+}
+
+@media (max-width: 767px) {
+  .banner-title {
+    font-size: clamp(2.35rem, 11vw, 4rem) !important;
+    line-height: 1.02;
+  }
+
+  .banner-subtitle {
+    font-size: 1rem !important;
+    line-height: 1.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enable-card-border .card-base:hover {
+    transform: none;
+  }
+}
