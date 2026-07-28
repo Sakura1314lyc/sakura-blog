@@ -21,6 +21,8 @@ $$\mathrm{Attention}(Q,K,V)=\mathrm{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}+M\r
 
 除以 $\sqrt{d_k}$ 是为了避免维度增大导致点积过大、softmax 饱和。掩码 $M$ 把不可见位置加上负无穷：padding mask 排除补齐 token；causal mask 禁止生成位置看到未来。
 
+若输入形状是 `(B, N, d_model)`，投影并拆头后 Q/K/V 常为 `(B, h, N, d_head)`；分数矩阵为 `(B, h, N, N)`。softmax 沿最后一个 key 维度进行，所以每个 query 对可见 key 的权重和为 1。最常见的实现错误是 mask 的布尔含义相反，或无法广播到 `(B, h, N, N)`。
+
 ```python
 def attention(q, k, v, mask=None):
     scores = q @ k.transpose(-2, -1) / q.size(-1) ** 0.5
@@ -36,6 +38,8 @@ def attention(q, k, v, mask=None):
 $$\mathrm{MHA}(X)=\mathrm{Concat}(head_1,\dots,head_h)W_O$$
 
 头数增加不会自动增加总隐藏维度；通常 $d_{head}=d_{model}/h$。注意张量常变形成 `(batch, heads, seq, head_dim)`。
+
+多查询注意力（MQA）让所有 query 头共享一组 K/V，分组查询注意力（GQA）让若干 query 头共享一组 K/V。它们主要减少解码期 KV Cache 与内存带宽，不等于减少 query 头数；具体模型使用哪种实现应查配置。
 
 ## 一个 Transformer Block
 
@@ -58,6 +62,8 @@ Self-Attention 本身对顺序不敏感，需要位置编码。原始 Transforme
 - **Decoder-only**：因果注意力，预测下一个 token，易扩展为通用生成模型，GPT/LLaMA/Qwen 属于此类。
 - **Encoder–Decoder**：编码输入，解码器对历史输出做自注意力并对编码结果做交叉注意力，适合翻译、摘要等序列到序列任务，T5 是代表。
 
+交叉注意力与自注意力的区别在来源：query 来自解码器当前状态，key/value 来自编码器输出。因此解码器既要遵守因果掩码，又能读取整个已编码输入。
+
 ## 自回归生成与 KV Cache
 
 语言模型学习：
@@ -72,3 +78,9 @@ Greedy 每步选最大概率；temperature 调整分布尖锐度；top-k/top-p �
 
 手算 3 个 token 的单头注意力；写出 causal mask；说明 Q、K、V 各自扮演什么角色；比较三种架构的信息可见范围；解释 KV Cache 加速了什么、没有加速什么。
 
+## 原始资料
+
+- [Attention Is All You Need](https://arxiv.org/abs/1706.03762)；
+- [The Annotated Transformer](https://nlp.seas.harvard.edu/annotated-transformer/)；
+- [FlashAttention](https://arxiv.org/abs/2205.14135)；
+- [Happy-LLM](https://datawhalechina.github.io/happy-llm/)。

@@ -33,7 +33,15 @@ sample_id → prompt → raw_response → extracted_answer
 
 `accuracy = 正确题数 / 总题数`。当每题采样 $k$ 次时，`pass@k` 衡量至少一个候选正确的概率，但必须报告 $k$ 和采样参数。多数投票衡量 self-consistency，与 pass@k 不是同一指标。
 
+若一题一共生成 $n$ 个候选，其中 $c$ 个正确，从中均匀抽取 $k$ 个时，常用无偏估计为：
+
+$$\mathrm{pass@}k=1-\frac{\binom{n-c}{k}}{\binom{n}{k}}$$
+
+只有在 $n\ge k$ 且保留了独立候选时这个估计才有意义。直接从同一组样本里挑最好的答案是 oracle 上界，不是用户一次请求能得到的准确率。
+
 报告 bootstrap 置信区间或多次运行波动。两个模型差 0.3 分但置信区间高度重叠，不应宣称显著领先。
+
+对固定题集比较两个模型时，最好按题目做 paired bootstrap，因为两者面对的是同一批样本。样本很少时置信区间会很宽；报告区间不能弥补数据集不代表目标场景的问题。
 
 ## 公平比较
 
@@ -67,3 +75,9 @@ sample_id → prompt → raw_response → extracted_answer
 
 实现一个可保存原始响应的评测器；为 100 道题写单元测试覆盖分数、百分数和 LaTeX；报告 accuracy、置信区间、平均输出 token、延迟；给 20 个失败样例做分类。
 
+## 基准原始资料
+
+- [GSM8K](https://arxiv.org/abs/2110.14168)；
+- [MATH](https://arxiv.org/abs/2103.03874)；
+- [MathVista](https://arxiv.org/abs/2310.02255)；
+- [WeMath](https://arxiv.org/abs/2407.01284)。

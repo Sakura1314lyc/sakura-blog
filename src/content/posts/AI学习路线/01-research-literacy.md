@@ -36,6 +36,8 @@ site:arxiv.org on-policy distillation reasoning
 
 建立表格记录：问题、核心假设、模型、数据、指标、算力、主要结论、局限、代码地址。文献地图的价值是比较，而非囤积 PDF。
 
+检索时保留完整查询式和日期。arXiv 可用标题、作者、摘要字段缩小范围；DBLP 用于核对计算机论文的正式会议元数据；找到论文后再回到会议论文集或作者仓库确认版本。模型卡、README 和论文之间不一致时，记录差异，不要自行拼成一个“看起来合理”的配置。
+
 ## 三遍阅读法
 
 第一遍 10 分钟：标题、摘要、图 1、结论，回答“解决什么问题、为何重要、结论是什么”。不相关就停止。
@@ -72,6 +74,18 @@ def seed_everything(seed=42):
 
 固定种子提高可诊断性，但不能代替多次运行。正式比较至少报告多个种子的均值与标准差。
 
+### 复现排查顺序
+
+结果与论文不一致时，从最便宜、最常见的问题开始：
+
+1. 核对数据版本、split、样本数量与哈希；
+2. 打印 tokenizer、chat template、截断位置和 label mask；
+3. 对照评测脚本、答案抽取与生成参数；
+4. 检查模型权重、精度、依赖版本和随机性；
+5. 最后才怀疑论文结论或硬件差异。
+
+每次只修一个变量并保留前后结果。一次同时改数据、学习率和评测器，即使数字变好也无法解释原因。
+
 ## 如何写实验结论
 
 “A 比 B 高 2 分”只是现象。进一步问：提升来自算法、更多 token、更强基座还是额外数据？一次只改变一个因素；无法控制的因素写进局限。
@@ -86,3 +100,10 @@ def seed_everything(seed=42):
 
 选择一个 topic，交付：10 篇核心论文的对比表、1 张引用关系图、1 篇两页精读笔记，以及一个能在小样本上运行的官方仓库。能够解释复现差异，才进入下一阶段。
 
+## 官方入口
+
+- [arXiv](https://arxiv.org/)：预印本与版本记录；
+- [Google Scholar](https://scholar.google.com/)：跨来源检索与引用追踪；
+- [DBLP](https://dblp.org/)：计算机领域出版元数据；
+- [Hugging Face Hub 文档](https://huggingface.co/docs/hub/index)：模型、数据集、模型卡与仓库；
+- [NeurIPS 论文集](https://proceedings.neurips.cc/)、[ICML/PMLR](https://proceedings.mlr.press/)、[ICLR/OpenReview](https://openreview.net/group?id=ICLR.cc)：核对正式发表版本。

@@ -37,6 +37,8 @@ Qwen 系列覆盖稠密/MoE、代码、数学、视觉语言等方向，对中�
 
 不同代际 tokenizer 和模板可能不兼容。不能把旧模型 prompt 格式原样套到新模型，再据此判断能力。
 
+模型系列名不能替代具体版本。实验报告应写完整仓库 ID、revision/commit、量化方式和推理后端。例如同属 Qwen 的 Base、Instruct、Thinking、Coder 或 VL checkpoint，训练目标和输入接口都可能不同；把它们放进同一张“参数量排行榜”会制造错误结论。
+
 ## Tokenizer 是模型的一部分
 
 Tokenizer 把字符串映射为 token ID。BPE/Unigram 等方法在词表大小、稀有词、中文、代码上有不同切分。相同文本在不同模型中 token 数不同，直接影响上下文成本和训练长度。
@@ -62,3 +64,11 @@ Tokenizer 把字符串映射为 token ID。BPE/Unigram 等方法在词表大小�
 
 任选 BERT、一个 LLaMA 系和一个 Qwen 系模型，记录训练目标、架构、参数量、词表、上下文、许可证、模板与显存；用相同 20 个样例和解码配置比较，而不是凭聊天印象下结论。
 
+## 原始资料
+
+- [BERT](https://arxiv.org/abs/1810.04805)；
+- [GPT-3 与上下文学习](https://arxiv.org/abs/2005.14165)；
+- [LLaMA](https://arxiv.org/abs/2302.13971)；
+- [Qwen 官方组织与模型卡](https://huggingface.co/Qwen)。
+
+论文解释设计动机，模型卡说明具体 checkpoint 的使用边界。涉及许可证、上下文上限和部署参数时，以所用版本的模型卡为准。

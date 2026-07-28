@@ -21,6 +21,24 @@ Agent 是“模型 + 状态 + 工具 + 控制循环”。模型不直接改变�
 
 Harness 是承载这个循环的工程系统：提示组装、工具注册、上下文压缩、权限、超时、重试、沙箱、日志、评测和用户确认都属于它。
 
+一个最小控制循环可以写成状态机，而不是无限调用模型：
+
+```python
+for step in range(max_steps):
+    context = build_context(goal, state, recent_events)
+    proposal = model(context, tools=allowed_tools)
+    if proposal.is_final:
+        return verify_and_finish(proposal)
+    call = validate(proposal.tool_call)
+    if call.requires_confirmation:
+        call = ask_user_before_execute(call)
+    observation = execute_with_timeout(call)
+    state = update_state(state, call, observation)
+raise BudgetExceeded(max_steps)
+```
+
+真实系统还要保存事件 ID、调用参数摘要、权限决定和可重放结果。模型回复不是状态真相；文件是否写入、邮件是否发出、测试是否通过，都要由工具返回或外部查询确认。
+
 ## 规划
 
 简单任务直接 ReAct：思考当前动作、执行、观察、继续。复杂任务使用显式计划，把目标拆成有完成条件的步骤。计划不是一成不变；工具失败或新证据出现时应重规划。
@@ -41,6 +59,8 @@ Harness 是承载这个循环的工程系统：提示组装、工具注册、上
 - **程序记忆**：可复用 skill/流程。
 
 记忆写入应有来源、时间、置信度和过期策略。模型“推测的事实”不能静默存成长期记忆。检索记忆后仍要判断是否与当前任务相关、是否过时。
+
+上下文窗口不是数据库。把全部历史原样塞回模型会增加成本、稀释关键指令并扩大提示注入面。更稳妥的做法是保留少量最近事件，结构化存储目标与计划，按需检索长期记忆，并让摘要能追溯到原始事件。
 
 ## 执行与终止
 
@@ -64,3 +84,9 @@ Agent 评测除了最终成功率，还看工具选择正确率、无效调用�
 
 实现一个最多 8 步的 Agent，提供读取文件、计算器、检索三个只读工具；加入 schema 校验、超时、重复检测和轨迹 JSONL；用 20 个任务统计成功率、平均调用数和失败类别。
 
+## 官方入口
+
+- [OpenAI Codex](https://developers.openai.com/codex/)；
+- [OpenClaw](https://openclaw.ai/)；
+- [Hermes Agent](https://github.com/NousResearch/hermes-agent)；
+- [Claude Code 文档](https://docs.anthropic.com/en/docs/claude-code/overview)。

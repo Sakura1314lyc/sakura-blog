@@ -43,7 +43,7 @@ LLaVA 的经典路线是“预训练视觉编码器 + 投影器 + LLM”。第�
 - 是否支持区域指代、OCR、文档与 GUI 操作；
 - 稠密与 MoE 版本的激活参数和部署条件。
 
-Qwen3-VL 报告进一步强调交错图文长上下文、空间—时间建模、ViT 多层特征和视频时间对齐。具体能力与部署要求应以对应 checkpoint 模型卡和官方仓库为准。
+Qwen3-VL 技术报告进一步讨论交错图文长上下文、空间—时间建模、ViT 多层特征和视频时间对齐。技术报告描述模型家族，不能自动证明每个尺寸、量化或部署版本都具备同样表现；具体输入格式、能力与显存要求应以对应 checkpoint 模型卡和官方仓库为准。
 
 ## 多模态数据与模板
 
@@ -76,3 +76,11 @@ MathVista 测视觉数学推理，MMMU 覆盖多学科，文档/OCR、图表、�
 
 手算一张 `224×224` 图像在 patch size 16 下的 token 数；画出 LLaVA 数据流；用同一张图测试描述、OCR、空间和推理四类问题；对错误进行归因，不能笼统写“模型看错了”。
 
+答案是 $14\times14=196$ 个图像 patch；是否再加 `[CLS]`、图像起止符或压缩后的视觉 token，取决于具体架构。不要把 patch 数直接当成最终送入 LLM 的 token 数。
+
+## 原始资料
+
+- [Vision Transformer](https://arxiv.org/abs/2010.11929)；
+- [LLaVA](https://arxiv.org/abs/2304.08485) 与 [官方代码](https://github.com/haotian-liu/LLaVA)；
+- [Qwen3-VL 技术报告](https://arxiv.org/abs/2511.21631) 与 [官方仓库](https://github.com/QwenLM/Qwen3-VL)；
+- [MathVista](https://arxiv.org/abs/2310.02255)、[MMMU](https://arxiv.org/abs/2311.16502)。

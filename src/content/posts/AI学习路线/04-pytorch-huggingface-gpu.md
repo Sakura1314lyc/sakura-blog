@@ -64,7 +64,7 @@ with torch.autocast("cuda", dtype=torch.bfloat16):
 loss.backward()
 ```
 
-BF16 动态范围更大，现代 GPU 上通常更稳。不要把标签、索引等整数张量转成浮点。
+BF16 动态范围更大，在支持 BF16 的 GPU 上通常比 FP16 更稳；不支持时不能强行使用。FP16 训练通常还需要 `GradScaler` 防止小梯度下溢，BF16 通常不需要。不要把标签、索引等整数张量转成浮点，也不要假定混合精度下每个算子都会降精度。
 
 ## Hugging Face Transformers
 
@@ -85,7 +85,7 @@ out = model.generate(**inputs, max_new_tokens=256, do_sample=False)
 print(tok.decode(out[0][inputs.input_ids.shape[1]:], skip_special_tokens=True))
 ```
 
-`max_new_tokens` 控制输出长度；`temperature/top_p` 只在采样时有意义；做可比评测时固定生成配置。
+这里的 `device_map="auto"` 是推理示例；训练时应由 Trainer、Accelerate、FSDP/DeepSpeed 或明确的单设备逻辑管理模型放置。`max_new_tokens` 控制输出长度；`temperature/top_p` 只在采样时有意义；做可比评测时固定生成配置。
 
 ## Checkpoint 与可复现
 
@@ -95,3 +95,17 @@ print(tok.decode(out[0][inputs.input_ids.shape[1]:], skip_special_tokens=True))
 
 构建一个可从命令行传配置的训练项目；支持训练/验证、断点恢复、混合精度；用 100 个样本过拟合以验证管线；再用 Hugging Face 完成一次批量生成并只解码新增 token。
 
+## 工程自检清单
+
+- 开始长训练前，能否让 32–100 个样本明显过拟合？
+- 保存和恢复后，step、学习率和优化器动量是否连续？
+- 验证时是否同时使用 `model.eval()` 与 `inference_mode()`？
+- token/s 与显存峰值是否记录，数据等待是否成为瓶颈？
+- 评测是否保存样本 ID、原始输出和生成配置？
+
+## 官方资料
+
+- [PyTorch DataLoader](https://docs.pytorch.org/docs/stable/data.html)；
+- [PyTorch Automatic Mixed Precision](https://docs.pytorch.org/docs/stable/amp.html)；
+- [Hugging Face Transformers 文档](https://huggingface.co/docs/transformers/index)；
+- [Hugging Face Chat Templates](https://huggingface.co/docs/transformers/chat_templating)。

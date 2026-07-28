@@ -37,6 +37,8 @@ agent-lab/
 
 API key 放本地秘密存储/环境变量，`.gitignore` 排除 `.env`、日志中的 token 和配置凭证。
 
+运行前先做一次“权限清点”：允许读取哪些路径、允许连接哪些域名、哪些工具可写、哪些动作必须确认、日志会保存什么。实验结束后撤销临时密钥并检查轨迹中是否意外记录了秘密。沙箱能降低影响范围，但不能代替最小权限和人工确认。
+
 ## 统一任务集
 
 设计四类各 5 个任务：
@@ -54,9 +56,13 @@ API key 放本地秘密存储/环境变量，`.gitignore` 排除 `.env`、日志
 
 关注工作区、bootstrap 文件、会话/渠道、tools、skills、plugins 和多 Agent 路由。它适合持续运行的个人助理场景，更要检查渠道身份绑定、命令审批和提示注入。
 
+官方站点提供一行安装命令，但课程实验仍应先核对脚本来源和目标环境；更适合在专用虚拟机、容器或无敏感数据的测试账户中试运行。渠道接入后要验证“消息来自谁”和“这个身份能触发什么”，不能只验证机器人能回复。
+
 ### Hermes Agent
 
 关注模型提供商、toolsets、长期记忆、skills、gateway 和轨迹。测试一次“从失败经验生成/改进 Skill”的循环，并检查学到的内容是否准确、是否污染长期记忆。
+
+把自动生成或改写的 Skill 当作代码变更：先看 diff，再在隔离任务集上回归，通过后才进入常用环境。一次成功轨迹可能依赖偶然工具结果，不能直接沉淀成永久规则。
 
 ### Codex
 
@@ -96,5 +102,5 @@ Codex 面向软件开发，可在本地仓库中理解、修改、审查、调�
 - [OpenClaw](https://openclaw.ai/)
 - [Hermes Agent](https://github.com/NousResearch/hermes-agent)
 - [OpenAI Codex](https://developers.openai.com/codex/)
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview)
 - [Skills Radar](https://mangooai.github.io/skills-radar/)
-

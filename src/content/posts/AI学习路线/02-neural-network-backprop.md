@@ -51,6 +51,14 @@ $$
 
 交叉熵把正确类别概率 $p_y$ 转成 $-\log p_y$；预测越自信且错误，惩罚越大。
 
+### Softmax 与交叉熵为什么常放在一起
+
+设 logits 为 $z$，softmax 概率为 $p_j=\exp(z_j)/\sum_k\exp(z_k)$，真实标签 one-hot 向量为 $y$。单样本交叉熵对 logit 的梯度有简洁形式：
+
+$$\frac{\partial L}{\partial z_j}=p_j-y_j$$
+
+这说明正确类概率不足时对应 logit 会被推高，错误类概率过高时会被压低。实现时使用 `cross_entropy(logits, target)`，框架会用数值稳定的 log-sum-exp；先算 softmax 再取对数既重复计算，也更容易数值下溢。
+
 ## 梯度下降与优化器
 
 最基本更新为 $\theta\leftarrow\theta-\eta\nabla_\theta L$。学习率太大时震荡或发散，太小时收敛慢。SGD with momentum 累积方向，AdamW 按参数自适应缩放并把权重衰减与梯度更新解耦。AdamW 易用，但不意味着任何任务都优于 SGD。
@@ -77,6 +85,10 @@ for x, y in loader:
 - **欠拟合**：训练集也差。检查容量、优化时间、学习率和特征。
 - **数据问题**：标签错位、标准化泄漏、类别不平衡往往比换模型更致命。
 
+BatchNorm 在训练期使用当前批统计并更新移动统计，LayerNorm 则在单个样本的特征维度上归一化；它们不是可以随意互换的“稳定训练开关”。初始化也要和激活匹配：ReLU 网络常用 He/Kaiming 初始化，tanh 常考虑 Xavier 初始化。初始化、残差和归一化共同影响信号与梯度能否跨层传播。
+
+诊断时同时看训练损失、验证损失、梯度范数、学习率和样本级预测。`loss=nan` 先查输入中的 NaN/Inf、除零、log/exp 溢出和过大学习率；损失完全不动先查参数是否进入优化器、是否误用 `no_grad`、标签是否恒定。
+
 ## 梯度检查
 
 用有限差分验证某个参数：
@@ -92,3 +104,8 @@ $$
 
 手写一个 NumPy 两层网络；逐项说明每个梯度形状；在一个小分类数据集上画训练/验证曲线；故意使用过大学习率并解释异常。能从曲线定位问题，比记住优化器名字更重要。
 
+## 继续阅读
+
+- [《动手学深度学习》线性神经网络与多层感知机](https://zh.d2l.ai/chapter_linear-networks/index.html)；
+- [PyTorch Autograd 机制](https://docs.pytorch.org/docs/stable/notes/autograd.html)；
+- [PyTorch `CrossEntropyLoss`](https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html)。

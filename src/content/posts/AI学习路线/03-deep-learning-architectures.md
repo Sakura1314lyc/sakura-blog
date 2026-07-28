@@ -39,14 +39,15 @@ $$h_t=\tanh(W_xx_t+W_hh_{t-1}+b)$$
 
 一层 GNN 可概括为：
 
-$$m_v^{(k)}=\mathrm{AGG}\{h_u^{(k)}:u\in\mathcal N(v)\},\quad
-h_v^{(k+1)}=\mathrm{UPDATE}(h_v^{(k)},m_v^{(k)})$$
+$$m_v^{(k)}=\mathrm{AGG}\{h_u^{(k)}:u\in\mathcal N(v)\},\qquad h_v^{(k+1)}=\mathrm{UPDATE}(h_v^{(k)},m_v^{(k)})$$
 
 - **GCN** 使用归一化邻接矩阵做加权平均：$H'=\sigma(\tilde D^{-1/2}\tilde A\tilde D^{-1/2}HW)$。
 - **GAT** 学习邻居注意力权重，让不同邻居贡献不同。
 - **GIN** 使用求和聚合与 MLP，理论上能达到 Weisfeiler–Lehman 图同构测试对应的区分能力。
 
 图任务分节点分类、边预测和图分类。图分类还需要 readout，把节点表示聚合成图表示。
+
+GCN 的归一化包含自环：$\tilde A=A+I$，$\tilde D_{ii}=\sum_j\tilde A_{ij}$。这样节点在聚合邻居时也保留自身信息，并避免高阶节点因简单求和而产生过大的数值。GAT 的注意力只在已有邻接边上归一化，不等于 Transformer 默认的全连接注意力。GIN 的“与 WL 同样强”需要满足求和聚合与 MLP 等条件，也不表示它能区分 WL 本身无法区分的所有图。
 
 ## GNN 的典型问题
 
@@ -67,3 +68,8 @@ h_v^{(k+1)}=\mathrm{UPDATE}(h_v^{(k)},m_v^{(k)})$$
 
 用 PyTorch 分别打印四类模型每层张量形状；计算 CNN 的感受野；解释残差相加为何要求形状一致；在一个小图上手算一层 GCN；比较 mean 与 sum 聚合会丢失什么信息。
 
+## 原始资料
+
+- [ResNet](https://arxiv.org/abs/1512.03385)；
+- [GCN](https://arxiv.org/abs/1609.02907)、[GAT](https://arxiv.org/abs/1710.10903)、[GIN](https://arxiv.org/abs/1810.00826)；
+- [PyTorch Geometric 消息传递教程](https://pytorch-geometric.readthedocs.io/en/latest/tutorial/create_gnn.html)。

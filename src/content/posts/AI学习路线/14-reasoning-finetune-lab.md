@@ -19,6 +19,8 @@ permalink: reasoning-finetune-lab
 
 主实验建议 `Qwen 1.5B/3B Base + LoRA/QLoRA`。先用 GSM8K 建闭环，再加 MATH；多模态可把同样框架迁移到 MathVista/WeMath。
 
+先写清“提升”的操作性定义：主指标是 exact/等价答案正确率，辅助指标包括格式通过率、输出长度、推理成本和训练域外准确率。若只提高格式通过率，就不能把结论写成推理能力提升。
+
 ## 实验矩阵
 
 | 组 | 初始化 | 训练 | 作用 |
@@ -62,6 +64,8 @@ $$B_{eff}=B_{device}\times grad\_accum\times GPU\_count$$
 
 在线教师成本高，可缓存，但缓存会逐渐变成 off-policy。教师与学生 tokenizer 不同会使逐 token 蒸馏困难。使用 verl/EasyOPD 类框架时仍要验证 rollout、教师一致性和 mask。
 
+在正式训练前做三个单元测试：同一前缀下教师与学生 token 是否一一对齐；padding 与用户 token 是否被 mask；人为构造教师更偏好某 token 时，单步更新是否提高学生对该 token 的概率。框架能启动不代表蒸馏目标实现正确。
+
 ## GRPO 最小流程
 
 同一题采样 $G$ 个回答，抽取答案，规则奖励正确性与格式，再做组内标准化。奖励必须防 hacking：不能只检查答案字符串是否出现在输出中；对无法解析的答案给明确惩罚，并记录各奖励分量。
@@ -90,3 +94,12 @@ $$B_{eff}=B_{device}\times grad\_accum\times GPU\_count$$
 最重要的不是追平论文数字，而是形成可审计证据链：哪一步改变了什么，以及你如何知道。
 :::
 
+## 框架与数据入口
+
+- [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory)；
+- [verl](https://github.com/volcengine/verl)；
+- [TRL](https://github.com/huggingface/trl)；
+- [PEFT](https://github.com/huggingface/peft)；
+- [GSM8K](https://huggingface.co/datasets/openai/gsm8k) 与 [MATH](https://huggingface.co/datasets/EleutherAI/hendrycks_math)。
+
+依赖版本、模型 revision、数据 revision 和训练命令必须一起冻结；只写框架名不足以复现。

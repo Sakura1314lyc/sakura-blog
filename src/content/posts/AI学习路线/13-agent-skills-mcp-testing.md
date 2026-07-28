@@ -35,6 +35,14 @@ Agent Host ── MCP Client ── MCP Server ── Files / DB / SaaS
 
 服务器应提供最小权限工具、清晰 schema、分页、幂等性和结构化错误。写工具最好支持 dry-run；密钥留在服务器端。资源是可读取上下文，不应伪装成无副作用工具。
 
+三种原语要分清：
+
+- **tools** 是模型可请求执行的动作，可能有副作用；
+- **resources** 是由应用读取的上下文数据，可使用 URI 标识；
+- **prompts** 是服务器提供的可复用提示模板，不拥有更高指令优先级。
+
+连接到 MCP Server 只说明协议握手成功，不说明工具可信。宿主仍要显示来源、限制可用能力、校验参数，并在写操作前执行授权策略。
+
 ## 测试金字塔
 
 - **单元测试**：参数校验、路径规范化、答案解析、奖励函数。
@@ -57,6 +65,8 @@ def test_path_stays_in_workspace(tool):
 
 安全测试至少覆盖 prompt injection、路径穿越、命令注入、SSRF、秘密外泄、越权写入和重复副作用。用户授权范围必须在执行层强制，而不是只写在 prompt 里。
 
+故障注入不能只看 Agent 最终有没有“回答”。例如返回 429 后应按策略退避；工具返回部分成功时应避免重放已完成步骤；schema 改版时应得到明确的契约错误；读取到网页中的恶意指令时不应扩大权限。把这些行为写成断言，才是可回归的软件测试。
+
 ## 轨迹调优
 
 先用评测定位瓶颈，再改 Skill：
@@ -73,3 +83,9 @@ def test_path_stays_in_workspace(tool):
 
 写一个论文检索 Skill，连接一个只读 MCP/模拟服务器；提供 10 个正常任务、5 个边界任务、5 个恶意输入；测试触发率、结果正确率、越权率、平均调用数和失败恢复。
 
+## 继续阅读
+
+- [Model Context Protocol 官方文档](https://modelcontextprotocol.io/docs/)；
+- [Skills Radar](https://mangooai.github.io/skills-radar/)；
+- [OWASP Top 10 for LLM Applications](https://genai.owasp.org/llm-top-10/)；
+- [pytest 文档](https://docs.pytest.org/)。

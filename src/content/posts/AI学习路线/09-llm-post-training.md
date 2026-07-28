@@ -37,9 +37,9 @@ $$
 
 PPO 从当前策略采样回答，用奖励模型/规则奖励打分，估计 advantage，并通过截断概率比限制更新：
 
-$$\min(r_tA_t,\mathrm{clip}(r_t,1-\epsilon,1+\epsilon)A_t)$$
+$$J_{\mathrm{clip}}(\theta)=\mathbb E_t\left[\min\left(r_t(\theta)A_t,\mathrm{clip}(r_t(\theta),1-\epsilon,1+\epsilon)A_t\right)\right]$$
 
-通常还训练 value/critic，并对参考模型加 KL 约束。PPO 通用但系统复杂：策略、参考、奖励、价值模型和 rollout 都占资源。
+其中 $r_t(\theta)=\pi_\theta(a_t|s_t)/\pi_{\mathrm{old}}(a_t|s_t)$。策略最大化 $J_{\mathrm{clip}}$；若写成训练 loss，则最小化它的负值。RLHF 中通常还训练 value/critic，并对参考模型加 KL 约束。PPO 通用但系统复杂：策略、参考、奖励、价值模型和 rollout 都占资源。
 
 ## GRPO：组内相对优势
 
@@ -54,6 +54,8 @@ $$A_i=\frac{r_i-\mathrm{mean}(r)}{\mathrm{std}(r)+\epsilon}$$
 OPD 让**学生当前策略**生成轨迹，再由教师对这些状态提供密集的 token 分布监督。它同时缓解固定离线蒸馏的分布偏移，并比稀疏终局奖励提供更密集信号。代价是在线教师推理昂贵；教师一致性、tokenizer/模板和温度都会影响目标。
 
 不要把 OPD 与 DPO 混淆：DPO 学成对偏好；OPD 学教师在学生访问状态上的分布。
+
+“on-policy”描述的是训练状态来自当前学生策略，不代表教师也在采样动作。标准 OPD 往往需要训练期间持续查询教师；离线近似可以预计算教师信号，但一旦学生分布继续变化就可能重新产生偏移。2026 年的 Lightning OPD 表明，在其设定中教师一致性是离线方案能接近标准 OPD 的关键条件；这是一项具体方法的结论，不应泛化成所有蒸馏任务都可免费离线化。
 
 ## R1-like 训练链路
 
@@ -83,3 +85,10 @@ DeepSeek-R1 的核心启发是可验证任务上的强化学习能诱发推理�
 
 对五种方法分别写出数据来源、模型副本、损失、on/off-policy、主要成本与失败模式；解释为何 SFT 可能记忆、RL 可能泛化；设计一个不会只奖励答案格式的数学奖励函数。
 
+## 原始资料
+
+- [Direct Preference Optimization（DPO）](https://arxiv.org/abs/2305.18290)；
+- [Proximal Policy Optimization（PPO）](https://arxiv.org/abs/1707.06347)；
+- [DeepSeek-R1 与 GRPO/R1-like 路线](https://arxiv.org/abs/2501.12948)；
+- [SFT Memorizes, RL Generalizes](https://arxiv.org/abs/2501.17161)；
+- [Lightning OPD](https://arxiv.org/abs/2604.13010)。
