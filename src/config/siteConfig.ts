@@ -4,28 +4,28 @@ import type { SiteConfig } from "../types/config";
 const SITE_LANG = "zh_CN"; // 语言代码，例如：'en', 'zh_CN', 'ja' 等。
 
 export const siteConfig: SiteConfig = {
-	title: "Sakura",
-	subtitle: "AI Learning Notes",
+	title: "Mizuki",
+	subtitle: "Sakura",
 	siteURL: "https://sakura-two-xi.vercel.app/", // 请替换为你的站点URL，以斜杠结尾
 	siteStartDate: "2026-06-07", // 站点开始运行日期，用于站点统计组件计算运行天数
 
 	lang: SITE_LANG,
 
 	themeColor: {
-		hue: 346, // Sakura rose
+		hue: 240, // 主题色的默认色相，范围从 0 到 360。例如：红色：0，青色：200，蓝绿色：250，粉色：345
 		fixed: false, // 对访问者隐藏主题色选择器
 	},
 
 	// 特色页面开关配置（关闭未使用的页面有助于提升 SEO，关闭后请记得在 navbarConfig 中移除对应链接）
 	featurePages: {
-		anime: false,
-		diary: false,
-		friends: false,
-		projects: false,
-		skills: false,
-		timeline: false,
-		albums: false,
-		devices: false,
+		anime: true, // 番剧页面开关
+		diary: true, // 日记页面开关
+		friends: true, // 友链页面开关
+		projects: true, // 项目页面开关
+		skills: true, // 技能页面开关
+		timeline: true, // 时间线页面开关
+		albums: true, // 相册页面开关
+		devices: true, // 设备页面开关
 	},
 
 	// 顶栏标题配置
@@ -35,7 +35,7 @@ export const siteConfig: SiteConfig = {
 		// 顶栏标题文本
 		text: "Sakura",
 		// 顶栏标题图标路径，默认使用 public/assets/home/home.webp
-		icon: "assets/sakura/s-mark.svg",
+		icon: "assets/home/home.webp",
 		// 网站Logo图片路径
 		logo: "assets/home/default-logo.webp",
 	},
@@ -107,14 +107,24 @@ export const siteConfig: SiteConfig = {
 	banner: {
 		// 支持单张图片或图片数组，当数组长度 > 1 时自动启用轮播
 		src: {
-			desktop: ["/assets/sakura/sakura-ai-hero.webp"],
-			mobile: ["/assets/sakura/sakura-ai-hero.webp"],
+			desktop: [
+				"/assets/desktop-banner/1.webp",
+				"/assets/desktop-banner/2.webp",
+				"/assets/desktop-banner/3.webp",
+				"/assets/desktop-banner/4.webp",
+			], // 桌面横幅图片
+			mobile: [
+				"/assets/mobile-banner/1.webp",
+				"/assets/mobile-banner/2.webp",
+				"/assets/mobile-banner/3.webp",
+				"/assets/mobile-banner/4.webp",
+			], // 移动横幅图片
 		}, // 使用本地横幅图片
 
 		position: "center", // 等同于 object-position，仅支持 'top', 'center', 'bottom'。默认为 'center'
 
 		carousel: {
-			enable: false,
+			enable: true,
 			interval: 3,
 			switchable: true,
 		},
@@ -137,13 +147,14 @@ export const siteConfig: SiteConfig = {
 
 		homeText: {
 			enable: true,
-			title: "Sakura · AI 学习手记",
+			title: "Sakura",
 			switchable: true,
 
 			subtitle: [
-				"从神经网络出发，走向推理、智能体与真实科研",
-				"不只收藏知识，也解释公式、代码与实验",
-				"6–8 周，完成从 0 到 1 的 AI 学习闭环",
+				"04.24,和sakura去东京天空树,世界上最暖和的地方在天空树的顶上。",
+				"04.26,和sakura去明治神宫,有人在那里聚办婚礼",
+				"04.25,和sakura去迪士尼,鬼屋很可怕,但有sakura在,所以不可怕",
+				"sakura最好了",
 			],
 			typewriter: {
 				enable: true, // 启用副标题打字机效果
@@ -171,15 +182,17 @@ export const siteConfig: SiteConfig = {
 		desktopSidebar: true, // 电脑端右侧边栏 TOC
 		floating: true, // 悬浮 TOC 按钮
 		depth: 2, // 目录深度，1-6，1 表示只显示 h1 标题，2 表示显示 h1 和 h2 标题，依此类推
-		useJapaneseBadge: false,
+		useJapaneseBadge: true, // 使用日语假名标记（あいうえお...）代替数字，开启后会将 1、2、3... 改为 あ、い、う...
 	},
 	showCoverInContent: true, // 在文章内容页显示文章封面
 	generateOgImages: false, // 启用生成OpenGraph图片功能,注意开启后要渲染很长时间，不建议本地调试的时候开启
 	favicon: [
-		{
-			src: "/assets/sakura/s-mark.svg",
-			sizes: "any",
-		},
+		// 留空以使用默认 favicon
+		// {
+		//   src: '/favicon/icon.png',    // 图标文件路径
+		//   theme: 'light',              // 可选，指定主题 'light' | 'dark'
+		//   sizes: '32x32',              // 可选，图标大小
+		// }
 	],
 
 	// 字体配置
@@ -189,17 +202,17 @@ export const siteConfig: SiteConfig = {
 		asciiFont: {
 			// 英文字体 - 优先级最高
 			// 指定为英文字体则无论字体包含多大范围，都只会保留 ASCII 字符子集
-			fontFamily: "system-ui",
+			fontFamily: "ZenMaruGothic-Medium",
 			fontWeight: "400",
-			localFonts: [],
-			enableCompress: false,
+			localFonts: ["ZenMaruGothic-Medium.ttf"],
+			enableCompress: true, // 启用字体子集优化，减少字体文件大小
 		},
 		cjkFont: {
 			// 中日韩字体 - 作为回退字体
-			fontFamily: "system-ui",
-			fontWeight: "400",
-			localFonts: [],
-			enableCompress: false,
+			fontFamily: "萝莉体 第二版",
+			fontWeight: "500",
+			localFonts: ["loli.ttf"],
+			enableCompress: true, // 启用字体子集优化，减少字体文件大小
 		},
 	},
 	showLastModified: true, // 控制"上次编辑"卡片显示的开关

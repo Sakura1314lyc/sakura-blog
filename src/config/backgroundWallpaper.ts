@@ -1,10 +1,20 @@
 import type { FullscreenWallpaperConfig } from "../types/config";
 
 export const fullscreenWallpaperConfig: FullscreenWallpaperConfig = {
-  enable: false,
+  enable: true,
   src: {
-    desktop: ["/assets/sakura/sakura-ai-hero.webp"],
-    mobile: ["/assets/sakura/sakura-ai-hero.webp"],
+    desktop: [
+      "/assets/desktop-banner/1.webp",
+      "/assets/desktop-banner/2.webp",
+      "/assets/desktop-banner/3.webp",
+      "/assets/desktop-banner/4.webp",
+    ],
+    mobile: [
+      "/assets/mobile-banner/1.webp",
+      "/assets/mobile-banner/2.webp",
+      "/assets/mobile-banner/3.webp",
+      "/assets/mobile-banner/4.webp",
+    ],
   },
   position: "center",
   carousel: {

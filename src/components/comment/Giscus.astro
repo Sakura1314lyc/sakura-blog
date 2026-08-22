@@ -11,19 +11,7 @@ const config = {
 };
 ---
 
-<div
-	id="giscus-container"
-	class="giscus-container"
-	aria-label="文章评论区"
->
-	<div class="comment-placeholder">
-		<span class="comment-placeholder__mark">✦</span>
-		<div>
-			<strong>评论区</strong>
-			<p>滚动到这里后自动加载，欢迎留下你的问题与补充。</p>
-		</div>
-	</div>
-</div>
+<div id="giscus-container" class="giscus-container"></div>
 
 <script is:inline define:vars={{ config }}>
 	(function () {
@@ -182,41 +170,6 @@ const config = {
 
 <style>
 	.giscus-container {
-		min-height: 108px;
-	}
-
-	.comment-placeholder {
-		min-height: 108px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.85rem;
-		border: 1px dashed color-mix(in srgb, var(--primary) 24%, transparent);
-		border-radius: 1rem;
-		color: var(--text-50);
-		background: color-mix(in srgb, var(--primary) 4%, transparent);
-		text-align: left;
-	}
-
-	.comment-placeholder__mark {
-		display: grid;
-		width: 2.25rem;
-		height: 2.25rem;
-		place-items: center;
-		border-radius: 999px;
-		background: color-mix(in srgb, var(--primary) 12%, transparent);
-		color: var(--primary);
-		font-size: 1.1rem;
-	}
-
-	.comment-placeholder strong {
-		display: block;
-		color: var(--text-75);
-		font-size: 0.95rem;
-	}
-
-	.comment-placeholder p {
-		margin: 0.2rem 0 0;
-		font-size: 0.8rem;
+		min-height: 200px;
 	}
 </style>
