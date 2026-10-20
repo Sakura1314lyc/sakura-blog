@@ -1,1 +1,0 @@
-import{a as e}from"./announcement.D94bowfx.js";function t(){e()}document.readyState!==`loading`&&t(),document.addEventListener(`astro:page-load`,t);

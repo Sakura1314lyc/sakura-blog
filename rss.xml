@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/rss/feed.xsl" type="text/xsl"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>上杉绘梨衣の博客</title><description>我们都是小怪兽，有一天会被正义的奥特曼杀死</description><link>https://sakuralyc-blog.vercel.app</link><item><title>数据库核心原理与实战</title><link>https://sakuralyc-blog.vercel.app/post/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%AD%A6%E4%B9%A0/cs-database</link><guid isPermaLink="false">计算机学习/cs-database</guid><description>深入理解关系型数据库核心原理：索引、事务、SQL 优化、范式设计，以及 Redis 缓存实战</description><pubDate>Mon, 07 Sep 2026 16:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;为什么学数据库？&lt;a href=&quot;#为什么学数据库&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/h2&gt;
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/rss/feed.xsl" type="text/xsl"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>上杉绘梨衣の博客</title><description>我们都是小怪兽，有一天会被正义的奥特曼杀死</description><link>https://sakuralyc-blog.vercel.app</link><item><title>谈谈对算法的浅显见解</title><link>https://sakuralyc-blog.vercel.app/post/%E6%9D%82%E8%B0%88/thoughts-on-algorithms</link><guid isPermaLink="false">杂谈/thoughts-on-algorithms</guid><description>内容还在整理中，之后再补上。</description><pubDate>Mon, 19 Oct 2026 16:00:00 GMT</pubDate><content:encoded>&lt;p&gt;内容还在整理中，之后再补上。&lt;/p&gt;</content:encoded><category>category:杂谈</category><category>tag:算法</category><category>tag:杂谈</category></item><item><title>数据库核心原理与实战</title><link>https://sakuralyc-blog.vercel.app/post/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%AD%A6%E4%B9%A0/cs-database</link><guid isPermaLink="false">计算机学习/cs-database</guid><description>深入理解关系型数据库核心原理：索引、事务、SQL 优化、范式设计，以及 Redis 缓存实战</description><pubDate>Mon, 07 Sep 2026 16:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;为什么学数据库？&lt;a href=&quot;#为什么学数据库&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;数据库是几乎所有应用的核心——数据在哪里，系统的瓶颈就在哪里。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;面试高频&lt;/strong&gt;：索引原理、事务隔离级别、SQL 优化&lt;/li&gt;
@@ -5798,29 +5798,4 @@ KVL：&lt;span&gt;&lt;span&gt;∑E+∑IR=0\sum\mathcal{E} + \sum IR = 0&lt;/span
 &lt;li&gt;自感电动势 &lt;span&gt;&lt;span&gt;EL=−LdIdt\mathcal{E}_L = -L\frac{dI}{dt}&lt;/span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;span&gt;E&lt;/span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;span&gt;L&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;​&lt;/span&gt;&lt;/span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;−&lt;/span&gt;&lt;span&gt;L&lt;/span&gt;&lt;span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;d&lt;/span&gt;&lt;span&gt;t&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;d&lt;/span&gt;&lt;span&gt;I&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;​&lt;/span&gt;&lt;/span&gt;&lt;span&gt;&lt;span&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt; 总是&lt;strong&gt;阻碍&lt;/strong&gt;电流的变化&lt;/li&gt;
 &lt;li&gt;位移电流不是真正的电流，但在产生磁场这一点上与传导电流等价&lt;/li&gt;
 &lt;li&gt;麦克斯韦方程组的对称美：变化的电场 ↔ 变化的磁场互相激发&lt;/li&gt;
-&lt;/ul&gt;</content:encoded><category>category:大学物理1复习</category><category>tag:大学物理</category><category>tag:物理复习</category><category>tag:电磁感应</category><category>tag:电磁学</category></item><item><title>军事理论题库</title><link>https://sakuralyc-blog.vercel.app/post/%E6%97%A5%E5%B8%B8%E5%AD%A6%E4%B9%A0/%E5%86%9B%E4%BA%8B%E7%90%86%E8%AE%BA%E9%A2%98%E5%BA%93</link><guid isPermaLink="false">日常学习/军事理论题库</guid><description>军事理论课程在线刷题工具：支持浏览模式与答题模式，分章节整理，含单选题、多选题、判断题</description><pubDate>Thu, 18 Jun 2026 16:00:00 GMT</pubDate><content:encoded>
-&lt;div&gt;
-  &lt;h2&gt;🎖️ 军事理论在线题库&lt;/h2&gt;
-  &lt;p&gt;覆盖全章节 · 单选 / 多选 / 判断 · 浏览模式 + 答题模式&lt;/p&gt;
-  &lt;a href=&quot;/军事理论题库.html&quot;&gt;🚀 进入题库&lt;/a&gt;
-  &lt;div&gt;3 秒后自动跳转…&lt;/div&gt;
-&lt;/div&gt;
-&lt;div&gt;
-  &lt;div&gt;
-    &lt;div&gt;📖&lt;/div&gt;
-    &lt;h4&gt;浏览模式&lt;/h4&gt;
-    &lt;p&gt;按章节分类查看，点击显示答案&lt;/p&gt;
-  &lt;/div&gt;
-  &lt;div&gt;
-    &lt;div&gt;✍️&lt;/div&gt;
-    &lt;h4&gt;答题模式&lt;/h4&gt;
-    &lt;p&gt;随机抽题或顺序答题，即时判断对错&lt;/p&gt;
-  &lt;/div&gt;
-  &lt;div&gt;
-    &lt;div&gt;📊&lt;/div&gt;
-    &lt;h4&gt;题型齐全&lt;/h4&gt;
-    &lt;p&gt;单选题 · 多选题 · 判断题全覆盖&lt;/p&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-&lt;p&gt;&lt;/p&gt;&lt;p&gt;请点击上方按钮进入题库（浏览器不支持自动跳转）。&lt;/p&gt;&lt;p&gt;&lt;/p&gt;
-</content:encoded><category>category:日常学习</category><category>tag:军事理论</category><category>tag:题库</category><category>tag:刷题</category><category>tag:在线工具</category></item></channel></rss>
+&lt;/ul&gt;</content:encoded><category>category:大学物理1复习</category><category>tag:大学物理</category><category>tag:物理复习</category><category>tag:电磁感应</category><category>tag:电磁学</category></item></channel></rss>

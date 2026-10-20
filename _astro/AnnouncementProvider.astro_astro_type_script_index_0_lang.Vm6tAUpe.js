@@ -1,0 +1,1 @@
+import{a as e}from"./announcement.BV_Hl-Fw.js";function t(){e()}document.readyState!==`loading`&&t(),document.addEventListener(`astro:page-load`,t);

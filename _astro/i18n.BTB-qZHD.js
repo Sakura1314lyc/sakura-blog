@@ -1,0 +1,1 @@
+import"./useTranslation.CtyvyH5q.js";
