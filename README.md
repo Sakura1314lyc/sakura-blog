@@ -2,7 +2,7 @@
 
 个人博客，使用 [astro-koharu](https://github.com/cosZone/astro-koharu) 的完整主题框架。
 
-- 线上地址：<https://sakura-two-xi.vercel.app>
+- 线上地址：<https://sakuralyc-blog.vercel.app>
 - 文章目录：`src/content/blog`
 - 站点设置：`config/site.yaml`
 - 关于页面：`src/pages/about.md`

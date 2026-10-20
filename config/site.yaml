@@ -1,7 +1,7 @@
 # Sakura · astro-koharu
 # 文章保留在 src/content/blog，站点设置统一从这里读取。
 site:
-  title: Sakuraの博客
+  title: 上杉绘梨衣の博客
   alternate: Sakura
   subtitle: 我们都是小怪兽，有一天会被正义的奥特曼杀死
   name: Sakura
@@ -9,7 +9,7 @@ site:
   avatar: /img/avatar.webp
   showLogo: false
   author: Sakura
-  url: https://sakura-two-xi.vercel.app
+  url: https://sakuralyc-blog.vercel.app
   defaultOgImage: /img/avatar.webp
   startYear: 2026
   timezone: Asia/Shanghai
