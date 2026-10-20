@@ -1,0 +1,1 @@
+import{t as e}from"./atom.DwFXeciQ.js";var t=function(e){return e.HOME=`home`,e.POST=`post`,e.NONE=`none`,e}({}),n=function(e){return e.INFO=`info`,e.DIRECTORY=`directory`,e.SERIES=`series`,e}({}),r=e(n.INFO);export{n,t as r,r as t};

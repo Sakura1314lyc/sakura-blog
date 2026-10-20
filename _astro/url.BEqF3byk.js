@@ -1,0 +1,1 @@
+var e=e=>e?.split(`/`).map(encodeURIComponent).join(`/`)??``;export{e as t};

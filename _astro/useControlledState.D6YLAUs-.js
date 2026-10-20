@@ -1,0 +1,1 @@
+import{o as e}from"./rolldown-runtime.C_JxhDyB.js";import{i as t}from"./react-runtime.B25GH435.js";var n=e(t(),1);function r({value:e,defaultValue:t,onChange:r}){let i=e!==void 0,a=(0,n.useRef)(i);(0,n.useEffect)(()=>{a.current=i},[i]);let[o,s]=(0,n.useState)(t);return[i?e:o,(0,n.useCallback)(e=>{i||s(e),r?.(e)},[i,r])]}export{r as t};

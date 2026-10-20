@@ -1,0 +1,1 @@
+var e={type:`spring`,damping:24},t={type:`spring`,stiffness:300,damping:24};export{t as n,e as t};

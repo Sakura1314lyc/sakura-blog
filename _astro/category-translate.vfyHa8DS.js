@@ -1,0 +1,1 @@
+import{t as e}from"./site.BQLAAAx5.js";var t={};function n(e,n){return t[e]?.categories?.[n]}function r(t,r){let i=e[t];return!i||!r?t:n(r,i)??t}export{r as t};

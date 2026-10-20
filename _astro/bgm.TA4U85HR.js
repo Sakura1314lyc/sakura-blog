@@ -1,0 +1,1 @@
+import{t as e}from"./atom.DwFXeciQ.js";var t=e(!1);if(typeof window<`u`){let e=()=>{t.get()&&window.dispatchEvent(new Event(`koharu:bgm-open`))};t.listen(e),window.addEventListener(`koharu:bgm-ready`,e)}function n(){t.set(!t.get())}function r(){t.set(!1)}export{r as n,n as r,t};

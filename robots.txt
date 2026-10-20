@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sakura-two-xi.vercel.app/sitemap-index.xml

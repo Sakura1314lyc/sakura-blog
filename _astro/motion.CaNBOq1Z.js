@@ -1,0 +1,1 @@
+var e=[`lively`,`subtle`,`reduced`],t={level:`lively`,heroPetals:!0,clickBurst:!0};function n(t){return e.includes(t)}function r(e){let r=e??{};return{level:n(r.level)?r.level:t.level,heroPetals:typeof r.heroPetals==`boolean`?r.heroPetals:t.heroPetals,clickBurst:typeof r.clickBurst==`boolean`?r.clickBurst:t.clickBurst}}export{r as n,n as t};
