@@ -1,12 +1,42 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { load } from 'js-yaml';
 
 const posts = JSON.parse(readFileSync(new URL('../config/migrated-posts.json', import.meta.url), 'utf8'));
 
-test('the homepage and article tabs share the optimized profile avatar favicon', () => {
+test('restored navigation points to built pages using the configured personal accounts', () => {
+  const config = load(readFileSync(new URL('../config/site.yaml', import.meta.url), 'utf8'));
+  const home = readFileSync(new URL('../dist/index.html', import.meta.url), 'utf8');
+  for (const route of ['/friends', '/about', '/music', '/editor', '/bangumi']) {
+    assert.ok(home.includes(`href="${route}"`), `Missing navigation: ${route}`);
+    const html = readFileSync(new URL(`../dist${route}/index.html`, import.meta.url), 'utf8');
+    assert.ok(!html.includes('http-equiv="refresh"'), `Unexpected redirect: ${route}`);
+  }
+  const music = readFileSync(new URL('../dist/music/index.html', import.meta.url), 'utf8');
+  const escapeAttribute = (value) => value.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
+  assert.ok(music.includes(`data-src="${escapeAttribute(JSON.stringify(config.bgm.audio))}"`));
+  const bangumi = readFileSync(new URL('../dist/bangumi/index.html', import.meta.url), 'utf8');
+  assert.ok(bangumi.includes(`userId&quot;:[0,&quot;${config.bangumi.userId}&quot;]`));
+  assert.ok(bangumi.includes(`href="https://bangumi.tv/user/${config.bangumi.userId}"`));
+  const editor = readFileSync(new URL('../dist/editor/index.html', import.meta.url), 'utf8');
+  assert.ok(editor.includes(`写作室 · ${config.site.title}`));
+});
+
+test('blog, feature and writing-room tabs share the optimized profile avatar favicon', () => {
   let sharedIcon;
-  for (const route of ['', '/about', '/archives', '/categories', ...posts.map(({ newPath }) => newPath)]) {
+  for (const route of [
+    '',
+    '/about',
+    '/archives',
+    '/categories',
+    '/friends',
+    '/music',
+    '/bangumi',
+    '/editor',
+    '/editor/preview',
+    ...posts.map(({ newPath }) => newPath),
+  ]) {
     const html = readFileSync(new URL(`../dist${route}/index.html`, import.meta.url), 'utf8');
     const icon = html.match(/<link\b[^>]*\brel="icon"[^>]*>/)?.[0];
     assert.ok(icon, `Missing favicon on ${route || '/'}`);

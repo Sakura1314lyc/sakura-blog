@@ -40,6 +40,7 @@ type Panel = 'drafts' | 'syntax' | 'properties' | 'copy' | 'service' | 'import' 
 interface Props {
   ogEndpoint?: string;
   colophon?: EditorColophonGroup[];
+  siteName?: string;
 }
 
 const draftTime = new Intl.DateTimeFormat('zh-CN', {
@@ -58,7 +59,7 @@ function createDraft(source = createEditorSource(), filename?: string, importedF
   return { id: crypto.randomUUID(), title: documentTitle(source), source, updated: Date.now(), filename, importedFrom };
 }
 
-export default function Editor({ ogEndpoint = '/api/editor/og', colophon = [] }: Props) {
+export default function Editor({ ogEndpoint = '/api/editor/og', colophon = [], siteName = 'Koharu' }: Props) {
   const [previewEndpoint, setPreviewEndpoint] = useState(ogEndpoint);
   const [draft, setDraft] = useState<EditorDraft>(() => createDraft());
   const [drafts, setDrafts] = useState<DraftSummary[]>([]);
@@ -434,7 +435,7 @@ export default function Editor({ ogEndpoint = '/api/editor/og', colophon = [] }:
     >
       <header className="editor-header">
         <a className="editor-brand" href="/" title="返回博客">
-          <span>Koharu</span>
+          <span>{siteName}</span>
           <small>写作室</small>
         </a>
         <div className="editor-document-name">

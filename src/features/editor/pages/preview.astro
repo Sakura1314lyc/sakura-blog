@@ -1,4 +1,5 @@
 ---
+import SiteIcon from '@components/common/SiteIcon.astro';
 import { defaultContentConfig } from '@constants/content-config';
 import { siteConfig } from '@constants/site-config';
 import BootScripts from '@layouts/BootScripts.astro';
@@ -13,7 +14,8 @@ import '../editor.css';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
     <meta name="description" content="实时预览 Markdown 博文的排版、代码高亮与图表效果。" />
-    <title>博文预览 · Koharu</title>
+    <title>博文预览 · {siteConfig.title}</title>
+    <SiteIcon />
     <link rel="stylesheet" href="/katex/katex.min.css" />
     <BootScripts />
   </head>

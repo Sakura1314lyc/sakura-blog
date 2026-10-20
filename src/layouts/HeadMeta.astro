@@ -7,6 +7,7 @@ interface Props {
 
 import { getImage } from 'astro:assets';
 import RoundedFonts from '@components/common/RoundedFonts.astro';
+import SiteIcon from '@components/common/SiteIcon.astro';
 import { siteConfig } from '@constants/site-config';
 import {
   defaultHeroImage,
@@ -33,9 +34,6 @@ const canonicalHref = meta.canonical ?? Astro.url.href;
 const ogUrl = resolveAbsoluteUrl(openGraph?.url) ?? canonicalHref;
 
 const keywords = meta.keywords || siteConfig.keywords || [siteConfig.title];
-// Derive a small, cache-versioned tab icon from the configured profile avatar.
-const avatar = siteConfig.avatar ? await resolveResponsiveImage(siteConfig.avatar, 64) : undefined;
-const favicon = avatar ? await getImage({ src: avatar.src, width: 64, height: 64, fit: 'cover', format: 'png' }) : undefined;
 const rssFeeds = meta.rssFeeds ?? [
   { href: new URL(localizedPath('/rss.xml', locale), Astro.site).href, title: siteConfig.title },
 ];
@@ -66,7 +64,7 @@ const portraitHero =
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<link rel="icon" type={favicon ? 'image/png' : 'image/x-icon'} sizes={favicon ? '64x64' : undefined} href={favicon?.src ?? '/favicon.ico'} />
+<SiteIcon />
 <meta name="generator" content={Astro.generator} />
 {heroImages.length > 0 && <link rel="preload" as="image" type="image/avif" media={portraitHero ? wideHeroMedia : undefined} imagesrcset={heroImages.map(({ width, image }) => `${image.src} ${width}w`).join(', ')} imagesizes="100vw" fetchpriority="high" />}
 {portraitHero && <link rel="preload" as="image" type="image/avif" media={portraitHeroMedia} href={portraitHero.src} imagesrcset={portraitHero.srcSet.attribute} fetchpriority="high" />}

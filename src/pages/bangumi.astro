@@ -5,6 +5,7 @@ import Cover from '@components/ui/cover/Cover.astro';
 import { bangumiConfig, siteConfig } from '@constants/site-config';
 import Layout from '@layouts/Layout.astro';
 import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { Icon } from 'astro-icon/components';
 import { Comment } from '@/components/comment';
 import { defaultLocale, t } from '@/i18n';
 
@@ -12,12 +13,11 @@ interface Props {
   locale?: string;
 }
 
-if (!bangumiConfig) return Astro.redirect('/404');
-
 // Root pages render the default locale; `[lang]/` mirrors pass their locale in explicitly.
 const { locale = defaultLocale } = Astro.props;
 const title = `${t(locale, 'bangumi.title')} | ${siteConfig.title}`;
 const description = t(locale, 'bangumi.description');
+const userId = bangumiConfig?.userId.trim();
 ---
 
 <Layout locale={locale} title={title} description={description}>
@@ -25,8 +25,35 @@ const description = t(locale, 'bangumi.description');
     <Cover compact slot="cover" title={t(locale, 'bangumi.title')} />
     <HomeSider slot="sider" />
     <div class="index-surface shadow-box flex flex-col gap-8">
-      <BangumiCollection client:load userId={bangumiConfig.userId} />
-      <Comment />
+      {userId ? (
+        <>
+          <a
+            href={`https://bangumi.tv/user/${encodeURIComponent(userId)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="self-start text-primary text-sm underline-offset-4 hover:underline"
+          >
+            我的 Bangumi 主页 ↗
+          </a>
+          <BangumiCollection client:load userId={userId} />
+          <Comment />
+        </>
+      ) : (
+        <section
+          data-bangumi-unconfigured
+          aria-labelledby="bangumi-empty-title"
+          class="flex min-h-[300px] flex-col items-center justify-center gap-4 px-4 py-12 text-center"
+        >
+          <div class="flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Icon name="ri:bilibili-fill" class="size-8" aria-hidden="true" />
+          </div>
+          <h2 id="bangumi-empty-title" class="font-semibold text-foreground text-xl">追番清单还在准备中</h2>
+          <p class="max-w-md text-muted-foreground text-sm leading-7">
+            尚未连接我的 Bangumi 账号。接入后，这里会展示我在看、看过和想看的作品。
+          </p>
+          <p class="text-muted-foreground text-xs">暂不展示示例数据，也不会加载其他人的收藏。</p>
+        </section>
+      )}
     </div>
   </TwoColumnLayout>
 </Layout>

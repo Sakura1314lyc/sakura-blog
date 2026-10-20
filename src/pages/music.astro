@@ -1,0 +1,50 @@
+---
+import CustomContent from '@components/common/CustomContent.astro';
+import HomeSider from '@components/layout/HomeSider.astro';
+import Cover from '@components/ui/cover/Cover.astro';
+import { bgmConfig, siteConfig } from '@constants/site-config';
+import Layout from '@layouts/Layout.astro';
+import TwoColumnLayout from '@layouts/TwoColumnLayout.astro';
+import { Icon } from 'astro-icon/components';
+import { defaultLocale, t } from '@/i18n';
+
+interface Props {
+  locale?: string;
+}
+
+const { locale = defaultLocale } = Astro.props;
+const title = t(locale, 'nav.music');
+const audioGroups = bgmConfig.audio.filter((group) => group.list.length > 0);
+---
+
+<Layout locale={locale} title={`${title} | ${siteConfig.title}`} description="留给喜欢的旋律的一角。">
+  <TwoColumnLayout>
+    <Cover compact slot="cover" title={title} />
+    <HomeSider slot="sider" />
+    <section class="index-surface shadow-box flex flex-col gap-8" aria-label={title}>
+      {audioGroups.length > 0 ? (
+        <CustomContent config={{ enhanceCodeBlock: true }}>
+          <p class="mb-6 text-muted-foreground">留给喜欢的旋律的一角。点击歌曲，开始播放。</p>
+          <div data-audio-player data-src={JSON.stringify(audioGroups)} data-api={bgmConfig.metingApi} />
+          <noscript>启用 JavaScript 后即可加载和播放歌单。</noscript>
+          <div class="mt-6 flex flex-col gap-3 text-sm text-muted-foreground">
+            <p>部分歌曲受版权或平台限制，无法加载或播放时，可以前往原站收听。</p>
+            {audioGroups.map((group) => group.list.map((url, index) => (
+              <a href={url} target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">
+                {group.title ?? '我的歌单'}{group.list.length > 1 ? ` ${index + 1}` : ''} · 原站收听 ↗
+              </a>
+            )))}
+          </div>
+        </CustomContent>
+      ) : (
+        <div class="flex min-h-64 flex-col items-center justify-center gap-4 px-4 py-10 text-center">
+          <Icon name="ri:music-2-line" class="size-12 text-primary" aria-hidden="true" />
+          <h2 class="text-xl font-medium">歌单还在准备中</h2>
+          <p class="max-w-md text-sm leading-7 text-muted-foreground">
+            这里会放我自己的歌单，等整理好喜欢的音乐再分享给你。
+          </p>
+        </div>
+      )}
+    </section>
+  </TwoColumnLayout>
+</Layout>

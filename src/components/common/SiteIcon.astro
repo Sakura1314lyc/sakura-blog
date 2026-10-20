@@ -1,0 +1,11 @@
+---
+import { getImage } from 'astro:assets';
+import { siteConfig } from '@lib/config/site';
+import { resolveResponsiveImage } from '@lib/responsive-image';
+
+// Share the configured, cache-versioned avatar across blog and writing-room tabs.
+const avatar = siteConfig.avatar ? await resolveResponsiveImage(siteConfig.avatar, 64) : undefined;
+const favicon = avatar ? await getImage({ src: avatar.src, width: 64, height: 64, fit: 'cover', format: 'png' }) : undefined;
+---
+
+<link rel="icon" type={favicon ? 'image/png' : 'image/x-icon'} sizes={favicon ? '64x64' : undefined} href={favicon?.src ?? '/favicon.ico'} />

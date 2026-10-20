@@ -1,12 +1,10 @@
 import assert from 'node:assert/strict';
-import { createServer } from 'node:http';
 import { test } from 'node:test';
-import handler from '../../../../api/editor/og';
+import { createEditorOGServer } from './http';
 
-test('Vercel adapter shares request boundaries and always completes unmatched routes', async () => {
-  const server = createServer((request, response) => {
-    void handler(request, response);
-  });
+test('local preview server shares request boundaries and always completes unmatched routes', async () => {
+  // This static blog does not deploy a Vercel OG function; exercise the supported local server instead.
+  const server = createEditorOGServer();
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   const address = server.address();
   assert.ok(address && typeof address !== 'string');
