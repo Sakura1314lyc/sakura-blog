@@ -1,0 +1,1 @@
+import{t as e}from"./site.BKXpxC0j.js";var t={};function n(e,n){return t[e]?.categories?.[n]}function r(t,r){let i=e[t];return!i||!r?t:n(r,i)??t}export{r as t};
