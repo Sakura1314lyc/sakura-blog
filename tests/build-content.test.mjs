@@ -5,6 +5,28 @@ import { load } from 'js-yaml';
 
 const posts = JSON.parse(readFileSync(new URL('../config/migrated-posts.json', import.meta.url), 'utf8'));
 
+test('the musings placeholder is published with the requested title and discoverable in its category', () => {
+  const config = load(readFileSync(new URL('../config/site.yaml', import.meta.url), 'utf8'));
+  assert.equal(config.categoryMap.杂谈, 'musings');
+  const source = readFileSync(new URL('../src/content/blog/杂谈/thoughts-on-algorithms.md', import.meta.url), 'utf8');
+  const [, frontmatter, body] = source.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+  const data = load(frontmatter);
+  assert.equal(data.title, '谈谈对算法的浅显见解');
+  assert.equal(data.draft, false);
+  assert.deepEqual(data.categories, ['杂谈']);
+  assert.equal(body.trim(), '内容还在整理中，之后再补上。');
+  const article = readFileSync(new URL(`../dist/post/${data.link}/index.html`, import.meta.url), 'utf8');
+  assert.ok(article.includes(data.title));
+  assert.ok(article.includes(body.trim()));
+  assert.ok(article.includes('data-pagefind-body'));
+  const category = readFileSync(new URL('../dist/categories/musings/index.html', import.meta.url), 'utf8');
+  const href = `/post/${data.link.split('/').map(encodeURIComponent).join('/')}`;
+  assert.ok(category.includes(`href="${href}"`));
+  assert.ok(category.includes(data.title));
+  const categories = readFileSync(new URL('../dist/categories/index.html', import.meta.url), 'utf8');
+  assert.ok(categories.includes('href="/categories/musings"'));
+});
+
 test('header variants are generated from the single maintained source, including writing-room previews', () => {
   const sourceFiles = readdirSync(new URL('../public/img/', import.meta.url)).filter((name) =>
     /^site_header_\d+\.webp$/.test(name),

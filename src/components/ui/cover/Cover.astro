@@ -54,6 +54,7 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
   class:list={[
     'cover-hero relative z-0 flex overflow-hidden',
     compact ? 'h-[42svh] min-h-72 max-h-120 tablet:h-[36svh] tablet:min-h-64' : 'h-[60svh] max-h-200',
+    { 'cover-home': !title && !data },
   ]}
 >
   <div class="cover-scrim absolute inset-0 h-full"></div>
@@ -137,11 +138,17 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
         </>
       ) : (
         <>
-          <h2 class="motion-rise shadow-text font-chill-round text-5xl/[1.2]">{siteConfig?.alternate}</h2>
-          <h1 class="motion-rise shadow-text font-chill-round mt-3 text-5xl/[1.2] font-bold tracking-widest" style="--i: 1">
+          <h2 class="home-cover-alternate motion-rise shadow-text font-chill-round text-5xl/[1.2]">{siteConfig?.alternate}</h2>
+          <h1 class="home-cover-title motion-rise shadow-text font-chill-round mt-3 text-center text-5xl/[1.2] font-bold tracking-widest" style="--i: 1">
             {siteConfig?.title}
           </h1>
-          <p class="motion-rise shadow-text mt-5 text-sm tracking-[0.2em]" style="--i: 2">= {siteConfig?.subtitle} =</p>
+          <p class="home-cover-subtitle motion-rise shadow-text mt-5 text-center text-sm tracking-[0.2em]" style="--i: 2">
+            <span aria-hidden="true">=</span>
+            <span class="home-cover-tagline">
+              {(siteConfig?.subtitle ?? '').split(/(?<=，)/).map((phrase) => <span class="home-cover-phrase">{phrase}</span>)}
+            </span>
+            <span aria-hidden="true">=</span>
+          </p>
         </>
       )
     }

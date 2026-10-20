@@ -30,6 +30,7 @@ categoryMap:
   日常学习: study
   大学物理1复习: physics
   数学: mathematics
+  杂谈: musings
 
 featuredCategories:
   - link: algorithms

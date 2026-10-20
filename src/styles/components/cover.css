@@ -32,6 +32,58 @@
     0 0.4rem 1.6rem rgb(233 84 107 / 0.35);
 }
 
+.home-cover-title {
+  max-inline-size: 100%;
+  text-wrap: balance;
+}
+
+.home-cover-subtitle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  max-inline-size: 100%;
+}
+
+.home-cover-tagline {
+  min-inline-size: 0;
+  text-wrap: balance;
+}
+
+.home-cover-phrase {
+  display: inline-block;
+  max-inline-size: 100%;
+}
+
+@media (width <= 768px) {
+  .cover-home {
+    min-height: 22rem;
+  }
+
+  .cover-home .cover-copy {
+    bottom: 6svh;
+    padding-top: 3.5rem;
+  }
+
+  .home-cover-alternate {
+    font-size: clamp(2rem, 9vw, 2.75rem);
+  }
+
+  .home-cover-title {
+    font-size: clamp(1.5rem, 7vw, 2.25rem);
+    line-height: 1.35;
+    letter-spacing: 0.04em;
+  }
+
+  .home-cover-subtitle {
+    max-inline-size: min(100%, 28rem);
+    margin-top: 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.8;
+    letter-spacing: 0.06em;
+  }
+}
+
 @media screen and (prefers-reduced-motion: no-preference) {
   html:is([data-motion="lively"], [data-motion="subtle"]) .cover-copy .motion-rise {
     animation-name: motion-rise-focus;
