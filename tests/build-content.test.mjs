@@ -1,9 +1,32 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import { load } from 'js-yaml';
 
 const posts = JSON.parse(readFileSync(new URL('../config/migrated-posts.json', import.meta.url), 'utf8'));
+
+test('header variants are generated from the single maintained source, including writing-room previews', () => {
+  const sourceFiles = readdirSync(new URL('../public/img/', import.meta.url)).filter((name) =>
+    /^site_header_\d+\.webp$/.test(name),
+  );
+  assert.deepEqual(sourceFiles, ['site_header_1920.webp']);
+  const retired = /site_header_(?:800|1200|1600)\.webp/;
+  for (const width of [800, 1200, 1600]) {
+    assert.ok(!existsSync(new URL(`../dist/img/site_header_${width}.webp`, import.meta.url)));
+  }
+  for (const route of ['', '/about', '/music', '/bangumi', '/editor/preview', ...posts.map(({ newPath }) => newPath)]) {
+    const html = readFileSync(new URL(`../dist${route}/index.html`, import.meta.url), 'utf8');
+    assert.doesNotMatch(html, retired, `Retired header referenced on ${route || '/'}`);
+    const variants = new Set(html.match(/\/_astro\/site_header_1920\.[\w.-]+\.(?:avif|webp)/g));
+    assert.ok(variants.size >= 4, `Missing responsive header variants on ${route || '/'}`);
+    for (const src of variants) {
+      assert.ok(existsSync(new URL(`../dist${src}`, import.meta.url)), `Missing generated image: ${src}`);
+    }
+  }
+  for (const file of readdirSync(new URL('../dist/_astro/', import.meta.url)).filter((name) => name.endsWith('.js'))) {
+    assert.doesNotMatch(readFileSync(new URL(`../dist/_astro/${file}`, import.meta.url), 'utf8'), retired, file);
+  }
+});
 
 test('restored navigation points to built pages using the configured personal accounts', () => {
   const config = load(readFileSync(new URL('../config/site.yaml', import.meta.url), 'utf8'));

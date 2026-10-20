@@ -1,11 +1,30 @@
 ---
+import { getImage } from 'astro:assets';
 import SiteIcon from '@components/common/SiteIcon.astro';
 import { defaultContentConfig } from '@constants/content-config';
 import { siteConfig } from '@constants/site-config';
 import BootScripts from '@layouts/BootScripts.astro';
+import { defaultHeroImage, resolveResponsiveImage, responsiveImageQuality } from '@lib/responsive-image';
 import PreviewSurface from '../PreviewSurface';
 import '@styles/index.css';
 import '../editor.css';
+
+const hero = await resolveResponsiveImage(defaultHeroImage);
+const optimizedHero = hero
+  ? await getImage({
+      src: hero.src,
+      width: hero.width,
+      widths: hero.widths,
+      format: 'webp',
+      quality: responsiveImageQuality,
+    })
+  : undefined;
+const heroImage = {
+  src: optimizedHero?.src ?? defaultHeroImage,
+  srcSet: optimizedHero?.srcSet.attribute,
+  width: optimizedHero?.attributes.width,
+  height: optimizedHero?.attributes.height,
+};
 ---
 <!doctype html>
 <html lang="zh">
@@ -19,5 +38,7 @@ import '../editor.css';
     <link rel="stylesheet" href="/katex/katex.min.css" />
     <BootScripts />
   </head>
-  <body class="editor-preview-page"><PreviewSurface client:only="react" config={defaultContentConfig} author={siteConfig.name} /></body>
+  <body class="editor-preview-page">
+    <PreviewSurface client:only="react" config={defaultContentConfig} author={siteConfig.name} heroImage={heroImage} />
+  </body>
 </html>

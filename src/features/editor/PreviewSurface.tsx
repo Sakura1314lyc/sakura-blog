@@ -16,6 +16,12 @@ import { enhanceEditorPreview } from './preview-enhance';
 interface Props {
   config: ContentConfig;
   author: string;
+  heroImage: {
+    src: string;
+    srcSet?: string;
+    width?: number;
+    height?: number;
+  };
 }
 interface Preview {
   html: string;
@@ -43,7 +49,7 @@ function sanitizePreviewHtml(html: string): string {
   });
 }
 
-export default function PreviewSurface({ config, author }: Props) {
+export default function PreviewSurface({ config, author, heroImage }: Props) {
   const [preview, setPreview] = useState<Preview>({ html: '', data: {}, headings: [], mode: 'body', version: 0 });
   const [error, setError] = useState('');
   const widePreview = useMediaQuery('(min-width: 960px)');
@@ -140,7 +146,7 @@ export default function PreviewSurface({ config, author }: Props) {
       <div className={preview.mode === 'article' ? 'editor-article' : 'editor-body-preview'}>
         {preview.mode === 'article' && (
           <header className="editor-article-cover">
-            <img src="/img/site_header_800.webp" alt="博客横幅" />
+            <img {...heroImage} sizes="100vw" alt="博客横幅" />
             <div>
               <h1>{title}</h1>
               <p>

@@ -14,9 +14,6 @@ export const portraitHeroTransform = {
   fit: 'cover' as const,
   position: 'centre',
 };
-export const defaultHeroSrcset =
-  '/img/site_header_800.webp 800w, /img/site_header_1200.webp 1200w, /img/site_header_1600.webp 1600w, /img/site_header_1920.webp 1928w';
-
 export async function resolveResponsiveImage(src: string, maxWidth = 1600) {
   const image = await images[`/public${src}`]?.();
   if (!image) return undefined;

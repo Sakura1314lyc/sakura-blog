@@ -9,7 +9,7 @@ import { getPostReadingTime } from '@lib/content/posts';
 import { displayDate } from '@lib/date';
 import { getLqipStyle } from '@lib/lqip';
 import { postTitleMorphName } from '@lib/morph-transitions';
-import { defaultHeroImage, defaultHeroSrcset } from '@lib/responsive-image';
+import { defaultHeroImage, resolveResponsiveImage } from '@lib/responsive-image';
 import { routeBuilder } from '@lib/route';
 import { Icon } from 'astro-icon/components';
 import type { BlogPost } from 'types/blog';
@@ -35,7 +35,8 @@ const readState = data ? getPostReadingTime(data) : null;
 const isDraft = import.meta.env.DEV && draft === true;
 
 // 获取横幅图片的 LQIP 样式
-const bannerLqipStyle = compact ? undefined : getLqipStyle('/img/site_header_1920.webp');
+const bannerLqipStyle = compact ? undefined : getLqipStyle(defaultHeroImage);
+const runtimeHero = Astro.isPrerendered ? undefined : await resolveResponsiveImage(defaultHeroImage);
 
 const locale = getLocaleFromUrl(Astro.url.pathname);
 
@@ -158,7 +159,7 @@ const copyFailedLabel = t(locale, 'common.copyFailed');
       loading="eager"
       fetchpriority="high"
       decoding="async"
-    /> : <img src={defaultHeroImage} srcset={defaultHeroSrcset} alt="" class="h-full w-full object-cover" width="1928" height="1080" sizes="100vw" loading="eager" fetchpriority="high" decoding="async" />}
+    /> : <img src={defaultHeroImage} alt="" class="h-full w-full object-cover" width={runtimeHero?.src.width} height={runtimeHero?.src.height} loading="eager" fetchpriority="high" decoding="async" />}
   </div>
   <WaveSvg />
 </div>

@@ -23,6 +23,13 @@ pnpm test:built-blog
 pnpm preview
 ```
 
+## 更换顶部封面
+
+只需要替换 `public/img/site_header_1920.webp`，保持文件名不变即可。
+首页、文章页和写作室预览共用这张原图，构建时自动生成适配不同屏幕的图片，
+输出到 `dist/_astro`；无需手动保存 800、1200、1600 等尺寸，也无需提交构建产物。
+运行 `pnpm build` 可在本地验证，推送 GitHub 后由现有 Vercel 部署自动更新。
+
 ## 侧栏与个人数据
 
 友链、关于、歌单、写作室和追番入口已启用，导航在 `config/site.yaml` 的 `navigation` 中维护。

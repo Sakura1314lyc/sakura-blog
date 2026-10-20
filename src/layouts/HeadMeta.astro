@@ -11,7 +11,6 @@ import SiteIcon from '@components/common/SiteIcon.astro';
 import { siteConfig } from '@constants/site-config';
 import {
   defaultHeroImage,
-  defaultHeroSrcset,
   portraitHeroMedia,
   portraitHeroTransform,
   resolveResponsiveImage,
@@ -43,7 +42,7 @@ const alternateUrl = (target: string) => new URL(getAlternateUrl(Astro.url.pathn
 const hreflangLinks = showLocaleAlternates
   ? localeList.map((loc) => ({ lang: getHtmlLang(loc), href: alternateUrl(loc) }))
   : [];
-// Dynamic routes use the existing static variants so their first visitor need not wait for AVIF encoding.
+// Dynamic routes fall back to the single source image, avoiding on-demand AVIF encoding.
 const runtimeHero = !Astro.isPrerendered && meta.heroImage !== null && (!meta.heroImage || meta.heroImage === defaultHeroImage);
 const hero =
   meta.heroImage === null || runtimeHero ? undefined : await resolveResponsiveImage(meta.heroImage ?? defaultHeroImage);
@@ -68,7 +67,7 @@ const portraitHero =
 <meta name="generator" content={Astro.generator} />
 {heroImages.length > 0 && <link rel="preload" as="image" type="image/avif" media={portraitHero ? wideHeroMedia : undefined} imagesrcset={heroImages.map(({ width, image }) => `${image.src} ${width}w`).join(', ')} imagesizes="100vw" fetchpriority="high" />}
 {portraitHero && <link rel="preload" as="image" type="image/avif" media={portraitHeroMedia} href={portraitHero.src} imagesrcset={portraitHero.srcSet.attribute} fetchpriority="high" />}
-{runtimeHero && <link rel="preload" as="image" type="image/webp" imagesrcset={defaultHeroSrcset} imagesizes="100vw" fetchpriority="high" />}
+{runtimeHero && <link rel="preload" as="image" type="image/webp" href={defaultHeroImage} fetchpriority="high" />}
 <RoundedFonts locale={locale} />
 
 <!-- SEO 元数据由 astro-seo 管理 -->
