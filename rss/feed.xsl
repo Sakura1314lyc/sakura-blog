@@ -39,7 +39,7 @@
                             <div class="profile-info">
                                 <h1 class="site-title">Sakuraの博客</h1>
                                 <p class="site-subtitle">我们都是小怪兽，有一天会被正义的奥特曼杀死</p>
-                                <p class="site-bio">Sakura 的学习笔记，记录算法、计算机基础、大模型与日常。</p>
+                                <p class="site-bio">Sakura 看番日记 | 算法学习 | 大模型与磕盐。</p>
 
                                 <div class="social-links">
                                                     <a href="https://github.com/Sakura1314lyc" target="_blank" class="social-btn github" title="Github">
