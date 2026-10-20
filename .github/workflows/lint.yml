@@ -2,9 +2,9 @@ name: Lint
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   workflow_dispatch:
 
 concurrency:
@@ -58,6 +58,9 @@ jobs:
         run: pnpm astro check
         env:
           ENABLE_CONTENT_SYNC: false
+
+      - name: Verify migrated blog links
+        run: pnpm test:blog-migration
 
   build:
     name: Build

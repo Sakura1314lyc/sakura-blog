@@ -1,0 +1,189 @@
+---
+/**
+ * SearchPortal Component
+ *
+ * Provides the Pagefind search UI that gets portal'd into SearchDialog.
+ * Listens for search-dialog-open/close events to move the search component.
+ *
+ * TODO(i18n): Pagefind search result links are not locale-aware — they always
+ * point to root-level URLs (e.g., /post/xxx) regardless of the current locale.
+ * A future iteration could use custom result rendering to prepend locale prefix.
+ */
+import { getHtmlLang, getLocaleFromUrl, t } from '@/i18n';
+
+const locale = getLocaleFromUrl(Astro.url.pathname);
+const lang = getHtmlLang(locale);
+const bundlePath = `${import.meta.env.BASE_URL}pagefind/`;
+---
+
+<link id="pagefind-search-styles" rel="stylesheet" data-href={`${bundlePath}pagefind-component-ui.css`} disabled />
+<!-- Search Component - will be portal'd into dialog -->
+<div id="search-component-portal" data-bundle-path={bundlePath} data-loading={t(locale, 'common.loading')} data-load-error={t(locale, 'search.loadError')}>
+  <div id="search-for-dialog">
+    <output data-search-loading class="block px-4 py-5 text-muted-foreground text-sm">{t(locale, 'common.loading')}</output>
+    <pagefind-config lang={lang} bundle-path={bundlePath}></pagefind-config>
+    <pagefind-searchbox class="pagefind-search" placeholder={t(locale, 'search.placeholder')} hide-shortcut show-keyboard-hints="false"></pagefind-searchbox>
+  </div>
+</div>
+
+<script>
+  import { $isSearchOpen } from '@store/modal';
+  let searchUI: Promise<unknown> | undefined;
+
+  function loadSearchStyles() {
+    const link = document.getElementById('pagefind-search-styles') as HTMLLinkElement | null;
+    if (!link) return Promise.reject(new Error('Search stylesheet is missing'));
+    const path = link.dataset.href;
+    if (!path) return Promise.reject(new Error('Search stylesheet URL is missing'));
+    if (link.sheet && !link.disabled) return Promise.resolve();
+
+    return new Promise<void>((resolve, reject) => {
+      const cleanup = () => {
+        link.removeEventListener('load', onLoad);
+        link.removeEventListener('error', onError);
+        document.removeEventListener('astro:before-swap', onSwap);
+      };
+      const onLoad = () => {
+        cleanup();
+        resolve();
+      };
+      const onError = () => {
+        cleanup();
+        link.disabled = true;
+        link.removeAttribute('href');
+        reject(new Error('Search stylesheet failed to load'));
+      };
+      const onSwap = () => {
+        cleanup();
+        reject(new DOMException('Search stylesheet loading was cancelled', 'AbortError'));
+      };
+      link.addEventListener('load', onLoad);
+      link.addEventListener('error', onError);
+      document.addEventListener('astro:before-swap', onSwap, { once: true });
+      link.disabled = false;
+      link.href = path;
+    });
+  }
+
+  async function loadSearchUI() {
+    // The body stylesheet is replaced on navigation; check the current link on every open.
+    await loadSearchStyles();
+    const portal = document.getElementById('search-component-portal');
+    const path = `${portal?.dataset.bundlePath ?? '/pagefind/'}pagefind-component-ui.js`;
+    searchUI ??= import(/* @vite-ignore */ path).catch((error) => {
+      searchUI = undefined;
+      throw error;
+    });
+    return searchUI;
+  }
+
+  function moveSearchToDialog() {
+    const dialogContainer = document.getElementById('search-dialog-container');
+    const searchPortal = document.getElementById('search-component-portal');
+    const searchComponent = document.getElementById('search-for-dialog');
+
+    if (!dialogContainer || !searchPortal || !searchComponent) return;
+
+    // Check if search component is already in the dialog
+    if (dialogContainer.contains(searchComponent)) return;
+
+    // Move search component to dialog
+    dialogContainer.appendChild(searchComponent);
+  }
+
+  function moveSearchBack() {
+    const searchComponent = document.getElementById('search-for-dialog');
+    const searchPortal = document.getElementById('search-component-portal');
+
+    if (!searchComponent || !searchPortal) return;
+
+    // Move search component back to portal if it's not already there
+    if (!searchPortal.contains(searchComponent)) {
+      searchPortal.appendChild(searchComponent);
+    }
+  }
+
+  async function handleDialogOpen() {
+    const searchComponent = document.getElementById('search-for-dialog');
+    const loading = searchComponent?.querySelector<HTMLOutputElement>('[data-search-loading]');
+    const messages = document.getElementById('search-component-portal')?.dataset;
+    // A retry after a failed load reuses the placeholder, which still shows the previous error.
+    if (loading) loading.textContent = messages?.loading ?? '';
+    // Pagefind may already be upgraded after SPA navigation, before this page's CSS is ready.
+    searchComponent?.setAttribute('data-search-pending', '');
+    // Move the placeholder immediately; the Pagefind runtime upgrades it on first open.
+    requestAnimationFrame(() => {
+      if ($isSearchOpen.get()) moveSearchToDialog();
+    });
+    try {
+      await loadSearchUI();
+      if (!searchComponent?.isConnected) return;
+      searchComponent.removeAttribute('data-search-pending');
+      loading?.remove();
+      if (!$isSearchOpen.get()) return;
+      moveSearchToDialog();
+      requestAnimationFrame(() => {
+        if ($isSearchOpen.get()) {
+          document.querySelector<HTMLInputElement>('#search-dialog-container .pf-searchbox-input')?.focus();
+        }
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      console.error('[Search] Failed to load:', error);
+      if (loading) loading.textContent = messages?.loadError ?? '';
+    }
+  }
+
+  function handleDialogClose() {
+    // Move search back immediately before DOM is removed
+    moveSearchBack();
+  }
+
+  let initialized = false;
+
+  function initSearchPortal() {
+    if (initialized) return;
+    initialized = true;
+
+    window.addEventListener('search-dialog-open', handleDialogOpen);
+    window.addEventListener('search-dialog-close', handleDialogClose);
+  }
+
+  function cleanupSearchPortal() {
+    if (!initialized) return;
+
+    window.removeEventListener('search-dialog-open', handleDialogOpen);
+    window.removeEventListener('search-dialog-close', handleDialogClose);
+    initialized = false;
+  }
+
+  // Initialize immediately if DOM is ready
+  if (document.readyState !== 'loading') {
+    initSearchPortal();
+  }
+
+  document.addEventListener('astro:page-load', initSearchPortal);
+  document.addEventListener('astro:before-swap', cleanupSearchPortal);
+</script>
+
+<style>
+  /* Hide the portal container */
+  #search-component-portal {
+    display: none;
+    position: absolute;
+    pointer-events: none;
+    visibility: hidden;
+  }
+</style>
+<style is:global>
+  #search-for-dialog[data-search-pending] pagefind-searchbox {
+    display: none !important;
+  }
+
+  /* Ensure search is visible when in dialog */
+  #search-dialog-container #search-for-dialog {
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+</style>

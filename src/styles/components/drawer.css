@@ -1,0 +1,257 @@
+/*
+  Mobile navigation drawer (MobileDrawer.astro).
+  The sheet slides in on an expo curve and its rows follow a beat later, like paper settling. While a
+  finger drags it, [data-dragging] drops the transitions; on release the controller sets --drawer-dur
+  and --drawer-ease so the settle starts at the finger's speed.
+*/
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  visibility: hidden;
+  background: rgb(24 12 30 / 0.46);
+  opacity: 0;
+  transition:
+    opacity var(--drawer-dur, 280ms) var(--ease-in-quart),
+    visibility 0s linear var(--drawer-dur, 280ms);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.drawer-overlay.is-open {
+  visibility: visible;
+  opacity: 1;
+  transition:
+    opacity var(--drawer-dur, 420ms) var(--ease-out-quart),
+    visibility 0s;
+}
+
+.drawer-sheet {
+  position: fixed;
+  inset-block: 0;
+  left: 0;
+  z-index: 50;
+  width: min(86vw, 22.5rem);
+  height: 100dvh;
+  flex-direction: column;
+  padding-left: env(safe-area-inset-left);
+  border-radius: 0 1.5rem 1.5rem 0;
+  background: var(--gradient-bg-start);
+  box-shadow:
+    inset -1px 0 0 hsl(var(--primary) / 0.12),
+    1.5rem 0 3rem -1.5rem rgb(40 12 32 / 0.35);
+  /* Past the edge by the shadow's reach, so nothing of it peeks in while closed. */
+  translate: calc(-100% - 3rem) 0;
+  visibility: hidden;
+  content-visibility: hidden;
+  transition:
+    translate var(--drawer-dur, 300ms) var(--drawer-ease, var(--ease-in-quart)),
+    visibility 0s linear var(--drawer-dur, 300ms),
+    content-visibility var(--drawer-dur, 300ms) allow-discrete;
+}
+
+.drawer-sheet[data-state="open"] {
+  translate: 0 0;
+  visibility: visible;
+  content-visibility: visible;
+  transition:
+    translate var(--drawer-dur, 560ms) var(--drawer-ease, var(--ease-out-expo)),
+    visibility 0s,
+    content-visibility var(--drawer-dur, 560ms) allow-discrete;
+}
+
+/*
+  The effective touch-action is intersected only up to the nearest scroll container, and the sider and TOC
+  are scrollers of their own, so every element opts out of horizontal panning for the drag to receive it.
+*/
+.drawer-sheet,
+.drawer-sheet * {
+  touch-action: pan-y pinch-zoom;
+}
+
+.drawer-sheet:focus {
+  outline: none;
+}
+
+.drawer-sheet[data-dragging],
+.drawer-overlay[data-dragging] {
+  transition: none;
+}
+
+:root.dark .drawer-sheet {
+  box-shadow:
+    inset -1px 0 0 hsl(var(--primary) / 0.16),
+    1.5rem 0 3rem -1.5rem rgb(0 0 0 / 0.6);
+}
+
+/* Reduced motion: no travel. The sheet fades in place and moves off-screen only once invisible. */
+html:is([data-motion="reduced"], .motion-off) .drawer-sheet {
+  opacity: 0;
+  translate: 0 0;
+  transition:
+    opacity 160ms linear,
+    visibility 0s linear 160ms,
+    content-visibility 160ms allow-discrete;
+}
+
+html:is([data-motion="reduced"], .motion-off) .drawer-sheet[data-state="open"] {
+  opacity: 1;
+  transition:
+    opacity 160ms linear,
+    visibility 0s,
+    content-visibility 160ms allow-discrete;
+}
+
+.drawer-head {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  /* Mirrors #mobile-menu-container (fixed, top-0, left-3, h-14) so the close X lands on the hamburger's X. */
+  height: calc(3.5rem + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) 0.75rem 0;
+}
+
+.drawer-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.2);
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 200ms var(--ease-out-quart),
+    scale 200ms var(--ease-out-quart);
+}
+
+.drawer-close:active {
+  scale: 0.9;
+  background: hsl(var(--foreground) / 0.08);
+}
+
+.drawer-locale > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2.5rem;
+  padding-inline: 0.875rem 0.625rem;
+  border-radius: 9999px;
+  background: hsl(var(--foreground) / 0.05);
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+  list-style: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 200ms var(--ease-out-quart),
+    color 200ms var(--ease-out-quart);
+}
+
+.drawer-locale > summary::-webkit-details-marker {
+  display: none;
+}
+
+.drawer-locale[open] > summary {
+  background: hsl(var(--foreground) / 0.09);
+  color: hsl(var(--foreground));
+}
+
+.drawer-locale-menu {
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  right: 0;
+  z-index: 10;
+  display: flex;
+  min-width: 8rem;
+  flex-direction: column;
+  padding: 0.25rem;
+  border-radius: 1rem;
+  background: hsl(var(--popover));
+  box-shadow:
+    0 0 0 1px hsl(var(--border)),
+    0 1rem 2rem -1rem rgb(40 12 32 / 0.35);
+  transform-origin: top right;
+}
+
+.drawer-locale-menu > a {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: 0.875rem;
+  border-radius: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+}
+
+.drawer-locale-menu > a[aria-current] {
+  background-image: var(--gradient-shoka-button);
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Entrance: rows trail the sheet from the side it came from, staggered by --drawer-i (set on open). */
+@keyframes drawer-row-in {
+  from {
+    opacity: 0;
+    translate: calc(-1.25rem * var(--motion-travel)) 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:is([data-motion="lively"], [data-motion="subtle"]) .drawer-sheet[data-state="open"] [style*="--drawer-i"] {
+    animation: drawer-row-in 620ms var(--ease-out-expo) backwards;
+    animation-delay: calc(70ms + var(--drawer-i, 0) * 32ms);
+  }
+
+  html:is([data-motion="lively"], [data-motion="subtle"]) .drawer-locale[open] .drawer-locale-menu {
+    animation: drawer-menu-in 260ms var(--ease-out-expo);
+  }
+}
+
+@keyframes drawer-menu-in {
+  from {
+    opacity: 0;
+    scale: 0.94;
+  }
+}
+
+/*
+  One X on screen at a time: the hamburger's X holds still while the sheet slides in, and the sheet's own
+  X takes over in the same frame once the sheet has (nearly) landed beneath it. On close the sheet's X
+  vanishes at once and the hamburger morphs back from where it stood.
+*/
+.drawer-close {
+  opacity: 0;
+}
+
+.drawer-sheet[data-state="open"] .drawer-close {
+  opacity: 1;
+  transition-property: background-color, scale, opacity;
+  transition-delay: 0s, 0s, var(--drawer-handoff);
+  transition-duration: 200ms, 200ms, 0s;
+}
+
+.drawer-sheet[data-state="open"] .drawer-close:active {
+  transition-duration: 80ms, 80ms, 0s;
+}
+
+:root {
+  --drawer-handoff: 380ms;
+}
+
+html:is([data-motion="reduced"], .motion-off) {
+  --drawer-handoff: 0ms;
+}
+
+html:has(#mobile-drawer[data-state="open"]) #mobile-menu-container {
+  opacity: 0;
+  transition: opacity 0s linear var(--drawer-handoff);
+}
+
+/* Night: the hamburger and the sheet's X share a quieter circle, still identical for the hand-off. */
+:root.dark :is(#mobile-menu-container button, .drawer-close) {
+  background-color: rgb(255 255 255 / 0.08);
+}

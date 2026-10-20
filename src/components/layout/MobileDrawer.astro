@@ -1,0 +1,272 @@
+---
+import { HomeSiderType } from '@constants/enum';
+import { Icon } from 'astro-icon/components';
+import type { BlogPost } from 'types/blog';
+import { getAlternateUrl, getLocaleFromUrl, getLocaleLabel, localeEntries, t } from '@/i18n';
+import HomeSider from './HomeSider.astro';
+
+interface Props {
+  type?: HomeSiderType;
+  post?: BlogPost;
+}
+
+const { type = HomeSiderType.HOME, post } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url.pathname);
+---
+
+<div id="drawer-overlay" class="drawer-overlay" role="presentation" aria-hidden="true"></div>
+
+<div
+  id="mobile-drawer"
+  class="drawer-sheet tablet:flex hidden"
+  role="dialog"
+  aria-label={t(locale, 'drawer.navMenu')}
+  aria-modal="true"
+  data-state="closed"
+  tabindex="-1"
+>
+  {/* The close button sits exactly where the hamburger morphs into an X, so the hand-off reads as one control. */}
+  <div class="drawer-head">
+    <button id="close-drawer" type="button" aria-label={t(locale, 'drawer.close')} class="drawer-close text-shoka">
+      <svg viewBox="0 0 24 24" class="size-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <line x1="5.64" y1="5.64" x2="18.36" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="5.64" y2="18.36" />
+      </svg>
+    </button>
+    {
+      localeEntries.length > 1 && (
+        <details class="drawer-locale group relative">
+          <summary aria-label={t(locale, 'common.language')}>
+            <Icon name="ri:translate" class="size-4" />
+            <span>{getLocaleLabel(locale)}</span>
+            <Icon name="ri:arrow-down-s-line" class="size-4 transition-transform duration-200 group-open:rotate-180" />
+          </summary>
+          <div class="drawer-locale-menu">
+            {localeEntries.map((entry) => {
+              const isActive = entry.code === locale;
+              return (
+                <a href={getAlternateUrl(Astro.url.pathname, entry.code)} aria-current={isActive ? 'true' : undefined}>
+                  {entry.label}
+                </a>
+              );
+            })}
+          </div>
+        </details>
+      )
+    }
+  </div>
+  <HomeSider isDrawer type={type} post={post} />
+</div>
+
+<script>
+  import { DRAWER_RELEASE_EASE, type DragSample, dragOffset, dragVelocity, resolveDragAxis, resolveDrawerRelease } from '@lib/drawer-gesture';
+  import { $isDrawerOpen, closeDrawer } from '@store/modal';
+
+  /** Rows that follow the sheet in on open, in reading order. */
+  const ENTRANCE_ROWS =
+    '[data-home-profile] > *, [data-home-nav] > *, .sider-slot:not(.hidden) .toc-container > :not([data-toc-rail]), .sider-slot:not(.hidden) [data-series-list] > *, [data-sider-segmented]';
+
+  let lastInputWasKeyboard = false;
+  document.addEventListener('keydown', () => (lastInputWasKeyboard = true), true);
+  document.addEventListener('pointerdown', () => (lastInputWasKeyboard = false), true);
+
+  class DrawerController {
+    private drawer: HTMLElement;
+    private overlay: HTMLElement;
+    private closeBtn: HTMLElement;
+    private unsubscribe: () => void;
+    private inerted: HTMLElement[] = [];
+    private returnFocus: HTMLElement | null = null;
+
+    private pointerId: number | null = null;
+    private start = { x: 0, y: 0 };
+    private axis: 'x' | 'y' | null = null;
+    private samples: DragSample[] = [];
+    private offset = 0;
+    private width = 0;
+    private suppressClick = false;
+
+    constructor(drawer: HTMLElement, overlay: HTMLElement, closeBtn: HTMLElement) {
+      this.drawer = drawer;
+      this.overlay = overlay;
+      this.closeBtn = closeBtn;
+      document.addEventListener('keydown', this.onKeyDown);
+      closeBtn.addEventListener('click', closeDrawer);
+      overlay.addEventListener('click', closeDrawer);
+      drawer.addEventListener('click', this.onDrawerClick, true);
+      drawer.addEventListener('pointerdown', this.onPointerDown);
+      drawer.addEventListener('pointermove', this.onPointerMove);
+      drawer.addEventListener('pointerup', this.onPointerEnd);
+      drawer.addEventListener('pointercancel', this.onPointerEnd);
+      drawer.addEventListener('transitionend', this.onTransitionEnd);
+      // The modal store owns scroll locking; an inactive drawer may coexist with another open modal.
+      this.unsubscribe = $isDrawerOpen.subscribe((isOpen) => (isOpen ? this.open() : this.close()));
+    }
+
+    destroy() {
+      document.removeEventListener('keydown', this.onKeyDown);
+      this.closeBtn.removeEventListener('click', closeDrawer);
+      this.overlay.removeEventListener('click', closeDrawer);
+      this.drawer.removeEventListener('click', this.onDrawerClick, true);
+      this.drawer.removeEventListener('pointerdown', this.onPointerDown);
+      this.drawer.removeEventListener('pointermove', this.onPointerMove);
+      this.drawer.removeEventListener('pointerup', this.onPointerEnd);
+      this.drawer.removeEventListener('pointercancel', this.onPointerEnd);
+      this.drawer.removeEventListener('transitionend', this.onTransitionEnd);
+      this.unsubscribe();
+      this.releaseBackground();
+    }
+
+    private open() {
+      if (this.drawer.dataset.state === 'open') return;
+      this.clearRelease();
+      const active = document.activeElement;
+      this.returnFocus = active instanceof HTMLElement && active !== document.body ? active : null;
+      this.indexEntranceRows();
+      this.drawer.dataset.state = 'open';
+      this.overlay.classList.add('is-open');
+      this.isolateBackground();
+      // Keyboard users land on the close button; a tap or click focuses the sheet itself, so no focus
+      // ring lights up on a pointer-opened drawer (and later taps don't inherit "keyboard" modality).
+      (lastInputWasKeyboard ? this.closeBtn : this.drawer).focus({ preventScroll: true });
+    }
+
+    private close() {
+      if (this.drawer.dataset.state !== 'open') return;
+      this.drawer.dataset.state = 'closed';
+      this.overlay.classList.remove('is-open');
+      this.drawer.querySelector('details[open]')?.removeAttribute('open');
+      const hadFocus = this.drawer.contains(document.activeElement);
+      this.releaseBackground();
+      if (hadFocus) (this.returnFocus ?? document.querySelector<HTMLElement>('#mobile-menu-container button'))?.focus({ preventScroll: true });
+      this.returnFocus = null;
+    }
+
+    /** Everything but the drawer goes inert: focus stays inside, and taps on the hamburger fall through to the close button beneath it. */
+    private isolateBackground() {
+      let node: HTMLElement = this.drawer;
+      while (node.parentElement && node !== document.body) {
+        for (const sibling of node.parentElement.children) {
+          if (sibling === node || sibling === this.overlay || !(sibling instanceof HTMLElement) || sibling.inert) continue;
+          if (sibling.tagName === 'SCRIPT' || sibling.tagName === 'STYLE') continue;
+          sibling.inert = true;
+          this.inerted.push(sibling);
+        }
+        node = node.parentElement;
+      }
+    }
+
+    private releaseBackground() {
+      for (const element of this.inerted) element.inert = false;
+      this.inerted = [];
+    }
+
+    /** Numbers the rows visible on open, so the entrance stagger follows what the reader actually sees. */
+    private indexEntranceRows() {
+      const viewBottom = window.innerHeight;
+      let index = 0;
+      for (const row of this.drawer.querySelectorAll<HTMLElement>(ENTRANCE_ROWS)) {
+        const box = row.getBoundingClientRect();
+        const visible = box.height > 0 && box.top < viewBottom;
+        row.style.setProperty('--drawer-i', String(visible ? Math.min(index++, 12) : 12));
+      }
+    }
+
+    private onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && $isDrawerOpen.get()) closeDrawer();
+    };
+
+    private onDrawerClick = (event: MouseEvent) => {
+      if (this.suppressClick) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.suppressClick = false;
+        return;
+      }
+      const details = this.drawer.querySelector('details[open]');
+      if (details && !details.contains(event.target as Node)) details.removeAttribute('open');
+    };
+
+    private onPointerDown = (event: PointerEvent) => {
+      if (event.pointerType === 'mouse' || this.pointerId !== null || this.drawer.dataset.state !== 'open') return;
+      // The series rail scrubs horizontally under the finger; it must not drag the drawer shut.
+      if ((event.target as Element).closest('.series-progress-rail')) return;
+      this.pointerId = event.pointerId;
+      this.start = { x: event.clientX, y: event.clientY };
+      this.axis = null;
+      this.samples = [{ x: event.clientX, t: event.timeStamp }];
+      this.offset = 0;
+    };
+
+    private onPointerMove = (event: PointerEvent) => {
+      if (event.pointerId !== this.pointerId) return;
+      const dx = event.clientX - this.start.x;
+      if (this.axis === null) {
+        this.axis = resolveDragAxis(dx, event.clientY - this.start.y);
+        if (this.axis === 'y') {
+          this.pointerId = null;
+          return;
+        }
+        if (this.axis === null) return;
+        this.width = this.drawer.getBoundingClientRect().width;
+        this.drawer.setPointerCapture(event.pointerId);
+        this.drawer.dataset.dragging = '';
+        this.overlay.dataset.dragging = '';
+      }
+      this.samples.push({ x: event.clientX, t: event.timeStamp });
+      if (this.samples.length > 8) this.samples.shift();
+      this.offset = dragOffset(dx, this.width);
+      this.drawer.style.translate = `${this.offset}px 0`;
+      this.overlay.style.opacity = String(1 + this.offset / this.width);
+    };
+
+    private onPointerEnd = (event: PointerEvent) => {
+      if (event.pointerId !== this.pointerId) return;
+      this.pointerId = null;
+      if (this.axis !== 'x') return;
+      this.suppressClick = event.type === 'pointerup';
+      // The release itself is a sample: a finger that stopped before lifting has no velocity left.
+      this.samples.push({ x: event.clientX, t: event.timeStamp });
+      const { close, duration } = resolveDrawerRelease(this.offset, dragVelocity(this.samples), this.width);
+      // Hand the inline drag position to a CSS transition that starts at the finger's speed.
+      this.drawer.style.setProperty('--drawer-dur', `${duration}ms`);
+      this.drawer.style.setProperty('--drawer-ease', DRAWER_RELEASE_EASE);
+      this.overlay.style.setProperty('--drawer-dur', `${duration}ms`);
+      delete this.drawer.dataset.dragging;
+      delete this.overlay.dataset.dragging;
+      this.drawer.style.translate = '';
+      this.overlay.style.opacity = '';
+      if (close) closeDrawer();
+      // A drag that ends without a click (cancel, or released outside) must not swallow the next tap.
+      setTimeout(() => (this.suppressClick = false), 0);
+    };
+
+    /** Drops a drag release's timing; reduced motion transitions opacity only, so translate never ends there. */
+    private clearRelease() {
+      this.drawer.style.removeProperty('--drawer-dur');
+      this.drawer.style.removeProperty('--drawer-ease');
+      this.overlay.style.removeProperty('--drawer-dur');
+    }
+
+    private onTransitionEnd = (event: TransitionEvent) => {
+      if (event.target !== this.drawer || !['translate', 'opacity'].includes(event.propertyName)) return;
+      this.clearRelease();
+    };
+  }
+
+  let controller: DrawerController | null = null;
+
+  function init() {
+    controller?.destroy();
+    controller = null;
+    const drawer = document.getElementById('mobile-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+    const closeBtn = document.getElementById('close-drawer');
+    if (drawer && overlay && closeBtn) controller = new DrawerController(drawer, overlay, closeBtn);
+  }
+
+  if (document.readyState !== 'loading') init();
+  document.addEventListener('astro:page-load', init);
+  // Close before navigating so the drawer never rides along into the next page.
+  document.addEventListener('astro:before-preparation', () => closeDrawer());
+</script>

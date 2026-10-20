@@ -1,0 +1,80 @@
+.tag-filter input {
+  width: 14rem;
+  max-width: 100%;
+  height: 2.25rem;
+  padding: 0 0.875rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 999px;
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  font-size: 0.875rem;
+}
+.tag-filter input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+.tag-filter input:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+.tag-cloud-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.125rem 1rem;
+}
+/* Text-only cloud: weight comes from size and ink, not from pills. */
+.index-tag {
+  padding-block: 0.25rem;
+  overflow-wrap: anywhere;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  transition: color 160ms var(--ease-out-quart);
+}
+.index-tag sup {
+  margin-left: 0.125rem;
+  font-size: 0.625rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--muted-foreground));
+}
+.index-tag[data-tier="1"] {
+  font-size: 0.875rem;
+  color: hsl(var(--foreground) / 0.65);
+}
+.index-tag[data-tier="2"] {
+  font-size: 0.9375rem;
+  color: hsl(var(--foreground) / 0.8);
+}
+.index-tag[data-tier="3"] {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: hsl(var(--foreground) / 0.88);
+}
+.index-tag[data-tier="4"] {
+  font-size: 1.3125rem;
+  font-weight: 700;
+  color: hsl(var(--primary));
+}
+.index-tag:is(:hover, :focus-visible) {
+  color: var(--index-ink);
+}
+.index-tag[hidden] {
+  display: none;
+}
+.tag-singletons {
+  margin-top: 1.25rem;
+}
+.tag-singletons summary {
+  padding-block: 0.5rem;
+  cursor: pointer;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+}
+.tag-singletons[open] summary {
+  margin-bottom: 0.5rem;
+}
+.tag-empty {
+  padding-block: 1rem;
+  font-size: 0.875rem;
+}

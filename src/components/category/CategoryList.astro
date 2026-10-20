@@ -1,0 +1,40 @@
+---
+import PageIntro from '@components/common/PageIntro.astro';
+import { buildCategoryPath, type Category, translateCategoryName } from '@lib/content';
+import { postsInCategoryPath } from '@lib/content/index-categories';
+import { PETAL_MASK } from '@lib/sakura/petal';
+import type { BlogPost } from 'types/blog';
+import { localizedPath, t } from '@/i18n';
+
+interface Props {
+  categories: Category[];
+  posts: BlogPost[];
+  totalCount: number;
+  locale: string;
+}
+const { categories, posts, totalCount, locale } = Astro.props;
+const catalogPosts = posts.filter(({ data }) => data.catalog);
+const count = (path: string[]) => postsInCategoryPath(catalogPosts, path).length;
+const href = (path: string[]) => localizedPath(buildCategoryPath(path), locale);
+const name = (category: Category) => translateCategoryName(category.name, locale);
+---
+<div class="index-surface shadow-box" style={{ '--petal-mask': PETAL_MASK }}>
+  <PageIntro stats={[{ value: totalCount, label: t(locale, 'index.categories') }, { value: posts.length, label: t(locale, 'index.posts') }]} />
+  <ol class="category-toc">
+    {categories.map((category) => <li class="motion-reveal">
+      <a class="category-toc-head" href={href([category.name])}>
+        <span class="category-toc-name">{name(category)}</span>
+        <span class="category-toc-leader" aria-hidden="true"></span>
+        <span class="category-toc-count">{count([category.name])}</span>
+      </a>
+      {category.children?.length && <ul class="category-toc-children">
+        {category.children.map((child) => <li>
+          <a href={href([category.name, child.name])}>{name(child)}<sup>{count([category.name, child.name])}</sup></a>
+          {child.children?.length && <span class="category-toc-grand">
+            {child.children.map((grandchild) => <a href={href([category.name, child.name, grandchild.name])}>{name(grandchild)}<sup>{count([category.name, child.name, grandchild.name])}</sup></a>)}
+          </span>}
+        </li>)}
+      </ul>}
+    </li>)}
+  </ol>
+</div>

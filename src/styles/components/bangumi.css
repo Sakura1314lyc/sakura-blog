@@ -1,0 +1,132 @@
+/* A poster shelf: covers carry the color, text stays quiet underneath them. */
+.bangumi-type-tabs {
+  font-size: 0.9375rem;
+}
+.bangumi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.75rem 1.25rem;
+}
+.bangumi-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+.bangumi-poster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: hsl(var(--muted));
+  box-shadow:
+    inset 0 0 0 1px hsl(var(--foreground) / 0.06),
+    0 8px 18px -12px hsl(var(--foreground) / 0.45);
+  transition:
+    transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.bangumi-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+/* Currently watching gets the one accent on the shelf: a ribbon folded over the top-left corner. */
+.bangumi-ribbon {
+  position: absolute;
+  top: 0.625rem;
+  left: 0;
+  padding: 0.125rem 0.625rem 0.125rem 0.5rem;
+  border-radius: 0 999px 999px 0;
+  background: hsl(var(--badge-primary));
+  color: hsl(var(--primary-foreground));
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.375rem;
+  letter-spacing: 0.04em;
+  box-shadow:
+    0 0 0 1px hsl(0 0% 100% / 0.35),
+    0 4px 12px -2px hsl(0 0% 0% / 0.35);
+}
+.dark .bangumi-ribbon {
+  color: hsl(var(--card));
+}
+.bangumi-title {
+  display: -webkit-box;
+  margin-top: 0.75rem;
+  overflow: hidden;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: hsl(var(--foreground));
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  transition: color 160ms var(--ease-out-quart);
+}
+.bangumi-meta {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+.bangumi-meta > span + span::before {
+  content: "·";
+  margin-inline: 0.375rem;
+  opacity: 0.6;
+}
+.bangumi-card:focus-visible {
+  outline: none;
+}
+.bangumi-card:focus-visible .bangumi-poster {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 3px;
+}
+.bangumi-card:is(:hover, :focus-visible) .bangumi-title {
+  color: var(--index-ink);
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="reduced"]) .bangumi-card:hover .bangumi-poster {
+    transform: translateY(-4px);
+    box-shadow:
+      inset 0 0 0 1px hsl(var(--foreground) / 0.06),
+      0 16px 28px -14px hsl(var(--primary) / 0.55);
+  }
+  html:not([data-motion="reduced"]) .bangumi-card:hover .bangumi-poster img {
+    transform: scale(1.05);
+  }
+}
+@media (width <= 1199px) {
+  .bangumi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (width <= 767px) {
+  .bangumi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.375rem 0.75rem;
+  }
+  .bangumi-poster {
+    border-radius: 0.5rem;
+  }
+  .bangumi-ribbon {
+    top: 0.375rem;
+    padding-inline: 0.375rem 0.5rem;
+    font-size: 0.6875rem;
+    line-height: 1.25rem;
+  }
+  .bangumi-title {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+  }
+  .bangumi-meta {
+    font-size: 0.6875rem;
+  }
+}
+.bangumi-meta .bangumi-own-score {
+  color: var(--index-ink);
+  font-weight: 700;
+}
+.bangumi-shelf {
+  scroll-margin-top: 5rem;
+}

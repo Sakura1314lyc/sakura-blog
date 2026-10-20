@@ -1,0 +1,111 @@
+---
+import type { PageMeta } from './page-meta';
+
+interface Props {
+  meta: PageMeta;
+}
+
+import { getImage } from 'astro:assets';
+import RoundedFonts from '@components/common/RoundedFonts.astro';
+import { siteConfig } from '@constants/site-config';
+import {
+  defaultHeroImage,
+  defaultHeroSrcset,
+  portraitHeroMedia,
+  portraitHeroTransform,
+  resolveResponsiveImage,
+  responsiveImageQuality,
+  wideHeroMedia,
+} from '@lib/responsive-image';
+import { getOgImageUrl } from '@lib/seo/og-image';
+import { SEO } from 'astro-seo';
+import { defaultLocale, getAlternateUrl, getHtmlLang, isI18nEnabled, localeList, localizedPath } from '@/i18n';
+
+const { meta } = Astro.props;
+const { locale, title, description, openGraph, robots, includeLocaleAlternates = true } = meta;
+
+const resolveAbsoluteUrl = (value: string | undefined) => (value ? new URL(value, Astro.site).href : undefined);
+
+const ogImage = resolveAbsoluteUrl(openGraph?.image) ?? getOgImageUrl(meta.coverImage, Astro.site);
+const ogTitle = openGraph?.title ?? title;
+const ogDescription = openGraph?.description ?? description;
+const canonicalHref = meta.canonical ?? Astro.url.href;
+const ogUrl = resolveAbsoluteUrl(openGraph?.url) ?? canonicalHref;
+
+const keywords = meta.keywords || siteConfig.keywords || [siteConfig.title];
+const rssFeeds = meta.rssFeeds ?? [
+  { href: new URL(localizedPath('/rss.xml', locale), Astro.site).href, title: siteConfig.title },
+];
+
+const showLocaleAlternates = includeLocaleAlternates && isI18nEnabled;
+const alternateUrl = (target: string) => new URL(getAlternateUrl(Astro.url.pathname, target), Astro.site).href;
+const hreflangLinks = showLocaleAlternates
+  ? localeList.map((loc) => ({ lang: getHtmlLang(loc), href: alternateUrl(loc) }))
+  : [];
+// Dynamic routes use the existing static variants so their first visitor need not wait for AVIF encoding.
+const runtimeHero = !Astro.isPrerendered && meta.heroImage !== null && (!meta.heroImage || meta.heroImage === defaultHeroImage);
+const hero =
+  meta.heroImage === null || runtimeHero ? undefined : await resolveResponsiveImage(meta.heroImage ?? defaultHeroImage);
+const heroImages = hero
+  ? await Promise.all(
+      hero.widths.map(async (width) => ({
+        width,
+        image: await getImage({ src: hero.src, width, format: 'avif', quality: responsiveImageQuality }),
+      })),
+    )
+  : [];
+const portraitHero =
+  // Every prerendered Cover draws the default artwork through HeroImage, portrait crop included.
+  hero && (meta.heroImage ?? defaultHeroImage) === defaultHeroImage
+    ? await getImage({ src: hero.src, ...portraitHeroTransform, format: 'avif', quality: responsiveImageQuality })
+    : undefined;
+---
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+<meta name="generator" content={Astro.generator} />
+{heroImages.length > 0 && <link rel="preload" as="image" type="image/avif" media={portraitHero ? wideHeroMedia : undefined} imagesrcset={heroImages.map(({ width, image }) => `${image.src} ${width}w`).join(', ')} imagesizes="100vw" fetchpriority="high" />}
+{portraitHero && <link rel="preload" as="image" type="image/avif" media={portraitHeroMedia} href={portraitHero.src} imagesrcset={portraitHero.srcSet.attribute} fetchpriority="high" />}
+{runtimeHero && <link rel="preload" as="image" type="image/webp" imagesrcset={defaultHeroSrcset} imagesizes="100vw" fetchpriority="high" />}
+<RoundedFonts locale={locale} />
+
+<!-- SEO 元数据由 astro-seo 管理 -->
+<SEO
+  title={title}
+  description={description}
+  canonical={canonicalHref}
+  openGraph={{
+    basic: {
+      title: ogTitle,
+      type: openGraph?.type ?? 'website',
+      image: ogImage || '',
+      url: ogUrl,
+    },
+    optional: {
+      siteName: siteConfig.name,
+      description: ogDescription,
+    },
+  }}
+  twitter={{
+    card: ogImage ? 'summary_large_image' : 'summary',
+    title: ogTitle,
+    description: ogDescription,
+    ...(ogImage && { image: ogImage }),
+  }}
+  extend={{
+    meta: [{ name: 'author', content: siteConfig.author || '' }],
+  }}
+/>
+{/* astro-seo 暂不支持管理 keywords */}
+<meta name="keywords" content={keywords.join(', ')} />
+{robots && <meta name="robots" content={robots} />}
+
+{rssFeeds.map((feed) => (
+  <link rel="alternate" type="application/rss+xml" title={feed.title} href={feed.href} />
+))}
+{/* hreflang alternate links for SEO — only output when multiple locales are configured */}
+{hreflangLinks.map(({ lang, href }) => (
+  <link rel="alternate" hreflang={lang} href={href} />
+))}
+{showLocaleAlternates && <link rel="alternate" hreflang="x-default" href={alternateUrl(defaultLocale)} />}

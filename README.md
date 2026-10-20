@@ -1,50 +1,57 @@
-# 🌸 Mizuki Sakura
+# Sakuraの博客
 
-欢迎来到我的个人博客源代码仓库！这里不仅是我记录技术笔记和生活日常的赛博空间，也是我折腾现代前端工程化的试验田。
+个人博客，使用 [astro-koharu](https://github.com/cosZone/astro-koharu) 的完整主题框架。
 
-[**🖥️ 点击访问我的博客**](https://sakura-two-xi.vercel.app)
+- 线上地址：<https://sakura-two-xi.vercel.app>
+- 文章目录：`src/content/blog`
+- 站点设置：`config/site.yaml`
+- 关于页面：`src/pages/about.md`
 
-## 👨‍💻 关于我
+## 本地开发
 
-- 🎓 计算机科学与技术专业在读
-- ⌨️ 专注于算法竞赛 (C++) 与后端架构设计 (Go)
-- 🐳 日常折腾后端基建 (Docker / PostgreSQL)
-- 🎮 ACG 爱好者 / 术力口
+需要 Node.js 24（最低 22.20）和 pnpm 10.28.2。
 
-## 🛠️ 博客技术栈
-
-本站抛弃了传统的动态博客架构，全面拥抱现代化的静态站点生成与自动化部署：
-
-- **核心框架:** [Astro](https://astro.build) (提供极致的首屏加载性能)
-- **UI 样式:** [Tailwind CSS](https://tailwindcss.com)
-- **包管理器:** pnpm
-- **自动化部署:** [Vercel](https://vercel.com) (基于 GitOps 工作流，Push 即发布)
-
-## 🚀 本地开发备忘录
-
-_(仅供博主本人在其他设备上同步开发时参考)_
-
-```bash
-# 1. 安装依赖
-pnpm install
-
-# 2. 启动本地开发服务器 (http://localhost:4321)
+```sh
+pnpm install --frozen-lockfile
 pnpm dev
-
-# 3. 创建新文章
-pnpm new-post <文章文件名>
+pnpm check
+pnpm lint
+pnpm test
+pnpm test:blog-migration
+pnpm build
+pnpm preview
 ```
 
-## 🙏 致谢与开源声明
+## 主题迁移
 
-本博客的精美外观与核心逻辑并非从零手写，而是站在了巨人的肩膀上。
+基于 astro-koharu 7.7.4，上游提交 `329ce55513a8057708c93c11c5b8c096680ad83c`。
+原有 34 篇文章完整迁移，仅转换 frontmatter 以适配新主题：
+`published → date`、`category → categories`、`pinned → sticky`。
+原始正文未改写，分类、标签、日期与置顶信息保留。
 
-- 主题基于 [LyraVoid/Mizuki](https://github.com/LyraVoid/Mizuki) 深度定制。
-- Mizuki 主题衍生自优秀的 [Fuwari](https://github.com/saicaca/fuwari) 模板。
+文章的新地址为 `/post/<原相对路径>`。迁移清单 `config/migrated-posts.json`
+记录旧地址、目标地址和迁移时的正文摘要；Astro 静态跳转页和 Vercel 永久重定向兼容
+`/posts/<原相对路径>/`。Giscus 继续使用旧文章路径匹配已有讨论。
+以后新增文章不需要加入此迁移清单。
 
-特此向开源社区及原作者表达最诚挚的感谢！
+GitHub `main` 分支自动触发现有 Vercel 部署，以及 Pages 构建工作流。
+更新时请保留锁文件，并使用冻结依赖安装。
 
-**关于版权与协议：**
+## 验证记录
 
-- 本仓库中的**文章内容、图片素材及个人配置**（`src/content` 及相关静态资源）版权归本人所有，未经允许请勿随意转载。
-- 博客底层的代码框架及组件，继续严格遵循原作者的 [MIT License](LICENSE) 协议。
+迁移后已通过生产构建、Astro 类型检查、站点配置/内容渲染/索引等单元测试，
+以及 34 篇文章的存在性、旧链接跳转和正文一致性检查。
+浏览器检查覆盖桌面、390px 和 320px 视口、浅深色切换、搜索、公式、流程图及原题库跳转。
+
+上游 `test:migrate` 涉及 Unix 文件权限、符号链接、tar 路径和文件排序，
+在当前 Windows 环境有未通过用例；不要将本次验证理解为整个上游测试套件全部通过。
+`pnpm knip` 也会报告按配置关闭的编辑器/动态功能及部分测试入口，未据此移除主题模块。
+编辑器、动态归档和第三方统计默认关闭，未部署额外的服务端编辑接口。
+
+## 致谢与许可
+
+主题基于 [astro-koharu](https://github.com/cosZone/astro-koharu)，灵感来自
+[Shoka](https://github.com/amehime/hexo-theme-shoka)。
+主题代码遵循 [AGPL-3.0](LICENSE)，修改后的站点源码在本仓库公开提供。
+继承资源的原 Mizuki 许可保存在 `docs/legacy-mizuki/`。
+文章版权归其作者所有；迁移主题不改变原文章的权利归属。

@@ -1,0 +1,48 @@
+---
+/**
+ * PostPagination - 文章末尾的上一篇/下一篇翻页卡片（同一系列内）。读完正文时就在手边，纯静态渲染。
+ */
+import { Routes } from '@constants/router';
+import { routeBuilder } from '@lib/route';
+import { Icon } from 'astro-icon/components';
+import { type Locale, localizedPath, t } from '@/i18n';
+import type { PostRef } from '@/types/blog';
+
+interface Props {
+  prevPost: PostRef | null;
+  nextPost: PostRef | null;
+  locale: Locale;
+}
+
+const { prevPost, nextPost, locale } = Astro.props;
+const href = (post: PostRef) => localizedPath(routeBuilder(Routes.Post, post), locale);
+---
+
+{
+  (prevPost || nextPost) && (
+    <nav class="post-pagination" aria-label={`${t(locale, 'post.prevPost')} / ${t(locale, 'post.nextPost')}`}>
+      {prevPost ? (
+        <a href={href(prevPost)} class="post-pagination-card" data-dir="prev" rel="prev">
+          <span class="post-pagination-label">
+            <Icon name="ri:arrow-left-s-line" class="post-pagination-arrow" />
+            {t(locale, 'post.prevPost')}
+          </span>
+          <span class="post-pagination-title">{prevPost.title}</span>
+        </a>
+      ) : (
+        <span aria-hidden="true" />
+      )}
+      {nextPost ? (
+        <a href={href(nextPost)} class="post-pagination-card" data-dir="next" rel="next">
+          <span class="post-pagination-label">
+            {t(locale, 'post.nextPost')}
+            <Icon name="ri:arrow-right-s-line" class="post-pagination-arrow" />
+          </span>
+          <span class="post-pagination-title">{nextPost.title}</span>
+        </a>
+      ) : (
+        <span aria-hidden="true" />
+      )}
+    </nav>
+  )
+}

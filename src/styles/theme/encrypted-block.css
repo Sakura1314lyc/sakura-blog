@@ -1,0 +1,83 @@
+/* Encrypted block container */
+.encrypted-block {
+  @apply my-4 rounded-xl border border-primary/25 border-dashed bg-muted/50;
+}
+
+/* Locked state layout */
+.encrypted-block-locked {
+  @apply flex flex-col items-center gap-3 px-6 py-8;
+}
+
+.encrypted-block-icon {
+  @apply text-3xl text-primary/70 transition-colors;
+}
+
+.encrypted-block-icon-error {
+  @apply text-red-500 dark:text-red-400;
+}
+
+.encrypted-block-input-group {
+  @apply flex items-center gap-2;
+}
+
+.encrypted-block-input {
+  @apply h-9 w-48 rounded-lg border border-border bg-background px-3 text-foreground text-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground/70 focus:border-primary/60 focus:ring-3 focus:ring-primary/15;
+}
+
+.encrypted-block-btn {
+  @apply flex h-9 w-9 items-center justify-center rounded-lg border border-primary/30 bg-primary/10 text-primary transition-colors hover:border-primary/50 hover:bg-primary/20 disabled:opacity-50;
+}
+
+/* Unlocked content area */
+.encrypted-block-content {
+  @apply p-4;
+}
+
+/* ── Encrypted Post (full-page encryption) ─────────────────────── */
+
+/* Container - takes full content width */
+.encrypted-post {
+  @apply my-4 min-h-[300px] rounded-lg;
+}
+
+/* Locked state - centered layout, more prominent than encrypted-block */
+.encrypted-post-locked {
+  @apply flex flex-col items-center justify-center gap-4 px-8 py-16;
+}
+
+.encrypted-post-icon {
+  @apply text-5xl text-primary/70 transition-colors;
+}
+
+.encrypted-post-icon-error {
+  @apply text-red-500 dark:text-red-400;
+}
+
+.encrypted-post-title {
+  @apply font-semibold text-foreground text-lg;
+}
+
+.encrypted-post-subtitle {
+  @apply text-muted-foreground text-sm;
+}
+
+.encrypted-post-input-group {
+  @apply flex items-center gap-2;
+}
+
+.encrypted-post-input {
+  @apply h-10 w-56 rounded-lg border border-border bg-background px-3 text-foreground text-sm outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground/70 focus:border-primary/60 focus:ring-3 focus:ring-primary/15;
+}
+
+.encrypted-post-btn {
+  @apply flex h-10 items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-4 text-primary text-sm transition-colors hover:border-primary/50 hover:bg-primary/20 disabled:opacity-50;
+}
+
+.encrypted-post-error-text {
+  @apply text-sm text-red-500 dark:text-red-400;
+}
+
+/* Shake animation for wrong password */
+.encrypted-shake {
+  animation: shake 0.6s ease-in-out;
+}

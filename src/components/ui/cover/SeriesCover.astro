@@ -1,0 +1,72 @@
+---
+import ResponsiveImage from '@components/common/ResponsiveImage.astro';
+import { motionConfig } from '@constants/site-config';
+import type { FeaturedSeriesItem } from '@lib/config/types';
+import { translateSeriesField } from '@lib/content';
+import { getLqipStyle } from '@lib/lqip';
+import { getSanitizeHtml } from '@lib/sanitize';
+import { Icon } from 'astro-icon/components';
+import { marked } from 'marked';
+import { MAX_WIDTH } from '@/constants/layout';
+import { getLocaleFromUrl, t } from '@/i18n';
+import SakuraPetals from './SakuraPetals.astro';
+import WaveSvg from './wave';
+
+interface Props {
+  series: FeaturedSeriesItem;
+}
+
+const { series } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url.pathname);
+
+// Translate series fields with fallback to YAML values
+const seriesLabel = translateSeriesField(series.slug, 'label', series.label, locale);
+const seriesFullName = translateSeriesField(series.slug, 'fullName', series.fullName, locale);
+const seriesTitle = seriesFullName || seriesLabel || series.categoryName;
+
+// Convert Markdown description to HTML and sanitize for XSS protection
+const rawHtml = series.description ? await marked.parse(series.description) : '';
+const descriptionHtml = getSanitizeHtml(rawHtml);
+
+const links = [
+  { href: series.links?.github, icon: 'ri:github-fill', label: 'GitHub' },
+  { href: series.links?.rss, icon: 'ri:rss-line', label: t(locale, 'series.rss'), reload: true },
+  { href: series.links?.chrome, icon: 'ri:chrome-fill', label: t(locale, 'series.chromeExtension') },
+  { href: series.links?.docs, icon: 'ri:book-open-line', label: t(locale, 'series.docs') },
+].filter((link) => link.href);
+---
+
+<div class="cover-hero relative z-0 flex h-[52svh] max-h-140 min-h-96 overflow-hidden tablet:h-auto tablet:min-h-[26rem]">
+  <div class="cover-scrim absolute inset-0 h-full"></div>
+  {motionConfig.heroPetals && <SakuraPetals />}
+  <div class={`cover-copy relative z-10 mx-auto flex w-full flex-col items-center justify-center px-6 pt-20 pb-[max(4.5rem,9svh)] text-white ${MAX_WIDTH.content}`}>
+    <h1 class="motion-rise shadow-text text-center text-4xl/[1.2] font-bold tracking-[0.08em] text-balance tablet:text-3xl/[1.2]">
+      {seriesTitle}
+    </h1>
+    {
+      series.description && (
+        <div class="series-cover-description motion-rise mt-4 max-w-xl text-center" style="--i: 1" set:html={descriptionHtml} />
+      )
+    }
+    {
+      links.length > 0 && (
+        <div class="motion-rise mt-6 flex flex-wrap items-center justify-center gap-2.5" style="--i: 2">
+          {links.map((link) => (
+            <a href={link.href} target="_blank" rel="noopener" data-astro-reload={link.reload} class="series-cover-link">
+              <Icon name={link.icon} class="size-4" aria-hidden="true" />
+              <span>{link.label}</span>
+            </a>
+          ))}
+        </div>
+      )
+    }
+  </div>
+  {
+    series.cover && (
+      <div class="series-cover-art absolute inset-0 -z-10" style={getLqipStyle(series.cover)}>
+        <ResponsiveImage src={series.cover} alt="" sizes="100vw" class="h-full w-full object-cover" loading="eager" fetchpriority="high" decoding="async" />
+      </div>
+    )
+  }
+  <WaveSvg />
+</div>

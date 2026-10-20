@@ -1,0 +1,30 @@
+---
+import PageIntro from '@components/common/PageIntro.astro';
+import PostYears from '@components/common/PostYears.astro';
+import HomeSider from '@components/layout/HomeSider.astro';
+import Cover from '@components/ui/cover/Cover.astro';
+import { siteConfig } from '@constants/site-config';
+import { Layout, TwoColumnLayout } from '@layouts/index';
+import { getSortedPosts, normalizeTag } from '@lib/content';
+import { localizedPath, t } from '@/i18n';
+import { tagRoute } from '../_shared/routes';
+
+export const getStaticPaths = tagRoute.root;
+interface Props {
+  tag: string;
+  locale: string;
+}
+const { tag, locale } = Astro.props;
+const allPosts = await getSortedPosts(locale);
+const posts = allPosts.filter((post) => post.data.tags?.some((tg) => normalizeTag(tg) === tag));
+---
+<Layout articleTools={false} locale={locale} title={`${t(locale, 'tag.postsWithTag', { name: tag })} | ${siteConfig.title}`} description={t(locale, 'tag.postsWithTag', { name: tag })}>
+  <TwoColumnLayout showPostFooter={false}>
+    <Cover compact slot="cover" title={t(locale, 'tag.postsWithTag', { name: tag })} />
+    <HomeSider slot="sider" />
+    <div class="index-surface shadow-box">
+      <PageIntro stats={[{ value: posts.length, label: t(locale, 'index.posts') }]} breadcrumbs={[{ label: t(locale, 'nav.tags'), href: localizedPath('/tags', locale) }, { label: tag }]} />
+      <PostYears posts={posts} locale={locale} />
+    </div>
+  </TwoColumnLayout>
+</Layout>

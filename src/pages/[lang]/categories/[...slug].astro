@@ -1,0 +1,16 @@
+---
+import type { Category } from '@lib/content';
+import { categoryRoute } from '../../_shared/routes';
+import CategoryPage from '../../categories/[...slug].astro';
+
+export const getStaticPaths = categoryRoute.mirror;
+
+interface Props {
+  category: Category | null;
+  path: string[];
+  locale: string;
+}
+
+const { category, path, locale } = Astro.props;
+---
+<CategoryPage category={category} path={path} locale={locale} />

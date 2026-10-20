@@ -1,0 +1,19 @@
+---
+import { cn } from '@lib/utils';
+
+interface Props {
+  stats: { value: string | number; label: string; labelFirst?: boolean }[];
+  breadcrumbs?: { label: string; href?: string }[];
+  className?: string;
+}
+const { stats, breadcrumbs = [], className } = Astro.props;
+---
+<header class={cn('page-intro', className)}>
+  {breadcrumbs.length > 0 && <nav class="page-crumbs" aria-label={breadcrumbs[0].label}>
+    {breadcrumbs.map((crumb) => crumb.href ? <a href={crumb.href}>{crumb.label}</a> : <span aria-current="page">{crumb.label}</span>)}
+  </nav>}
+  <p class="page-summary">
+    {stats.map(({ value, label, labelFirst }) => <span>{labelFirst ? <>{label} <b>{value}</b></> : <><b>{value}</b> {label}</>}</span>)}
+  </p>
+  {Astro.slots.has('tools') && <div class="page-intro-tools"><slot name="tools" /></div>}
+</header>

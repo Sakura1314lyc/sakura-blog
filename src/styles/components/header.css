@@ -1,0 +1,305 @@
+/*
+  Site header. Over the cover it stays transparent; once scrolled (.with-background) the
+  desktop header condenses into a floating capsule while the mobile header keeps its bar.
+  The capsule is an absolutely positioned sibling of the content, so the change never
+  touches layout.
+
+  The view-transition-name is set here rather than with transition:name: a named element is a
+  backdrop root, so on desktop only the content is named and the capsule, outside it, can still
+  blur the page. The mobile bar blurs itself and stays named as a whole.
+
+  The capsule is named too, so a navigation never paints the incoming page over it. Its group copies
+  the capsule's live backdrop-filter every frame, which is why the blur is part of the capsule's state
+  and fades with it.
+*/
+
+#site-header {
+  view-transition-name: site-header;
+  transition: translate 480ms var(--ease-out-expo);
+}
+
+.header-capsule {
+  display: none;
+}
+
+/* Hiding accelerates away quickly; revealing settles in more slowly. */
+#site-header.-translate-y-full {
+  transition-duration: 260ms;
+  transition-timing-function: var(--ease-in-quart);
+}
+
+/* Text and icons inherit the header color through one transition, so they turn together with the capsule. */
+.header-content {
+  transition: color 320ms var(--ease-out-quart);
+}
+
+/* A theme switch reveals the new colors from a snapshot, which must not catch the text mid-transition. */
+html.theme-transition .header-content {
+  transition: none;
+}
+
+#site-header :is(nav a, nav button, .site-logo) {
+  transition: text-shadow 320ms var(--ease-out-quart);
+}
+
+/*
+  Sliding pill behind the hovered, focused or current navigation item. useGlideIndicator springs its
+  translate and width; CSS blooms it open where it first lands and shrinks it away when nothing is
+  targeted.
+*/
+.nav-indicator {
+  position: absolute;
+  inset-block: 0.25rem;
+  left: 0;
+  z-index: -1;
+  border-radius: 9999px;
+  background-color: color-mix(in oklab, currentColor 18%, transparent);
+  pointer-events: none;
+}
+
+.nav-indicator[data-visible="false"] {
+  opacity: 0;
+  scale: 0.8 0.6;
+}
+
+#site-header.with-background .nav-indicator {
+  background-color: hsl(var(--primary) / 0.14);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:is([data-motion="lively"], [data-motion="subtle"]) .nav-indicator {
+    transition:
+      opacity 200ms var(--ease-out-quart),
+      scale 480ms var(--ease-out-expo),
+      background-color 320ms var(--ease-out-quart);
+  }
+
+  html:is([data-motion="lively"], [data-motion="subtle"]) .nav-indicator[data-visible="false"] {
+    transition:
+      opacity 160ms var(--ease-in-quart),
+      scale 180ms var(--ease-in-quart),
+      background-color 320ms var(--ease-out-quart);
+  }
+}
+
+/* Set in both states: inheriting would chase the content's own color transition. */
+#site-header nav [aria-current="page"] {
+  color: #fff;
+  transition:
+    color 320ms var(--ease-out-quart),
+    text-shadow 320ms var(--ease-out-quart);
+}
+
+#site-header.with-background nav [aria-current="page"] {
+  color: hsl(var(--primary));
+}
+
+@media (width > 992px) {
+  #site-header {
+    view-transition-name: none;
+  }
+
+  .header-content {
+    view-transition-name: site-header;
+  }
+
+  #site-header.-translate-y-full {
+    translate: 0 calc(-100% - 1.5rem);
+  }
+
+  /*
+    The capsule reaches 1.25rem past the 80rem content box. Below ~82.5rem that would run off the
+    viewport, so it stops 1rem short of the window edge (100vw counts the scrollbar, so the gap reads a little smaller) and the content pads inward to keep clear
+    of the pill's rounded ends. --header-gutter is the space beside the content box.
+  */
+  .header-inner {
+    --header-gutter: max(0px, (100vw - 80rem) / 2);
+    position: relative;
+    isolation: isolate;
+    padding-inline: max(1.5rem, calc(3rem - var(--header-gutter)));
+    transition: translate 520ms var(--ease-out-expo);
+  }
+
+  .header-capsule {
+    display: block;
+    position: absolute;
+    inset-block: -0.375rem;
+    inset-inline: max(-1.25rem, calc(1rem - var(--header-gutter)));
+    z-index: -1;
+    view-transition-name: site-header-capsule;
+    border: 1px solid hsl(var(--primary) / 0.16);
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--gradient-bg-start) 78%, transparent);
+    box-shadow:
+      0 0.75rem 2rem -1rem rgb(233 84 107 / 0.3),
+      0 0.25rem 0.75rem -0.5rem rgb(40 20 40 / 0.12);
+    opacity: 0;
+    scale: 0.96 0.85;
+    pointer-events: none;
+    transition:
+      opacity 320ms var(--ease-out-quart),
+      scale 560ms var(--ease-out-expo),
+      backdrop-filter 320ms var(--ease-out-quart);
+  }
+
+  .dark .header-capsule {
+    border-color: hsl(var(--primary) / 0.22);
+    box-shadow:
+      0 0.75rem 2rem -1rem rgb(0 0 0 / 0.65),
+      inset 0 1px 0 rgb(255 255 255 / 0.04);
+  }
+
+  #site-header.with-background {
+    border-bottom-color: transparent;
+  }
+
+  #site-header.with-background::before {
+    opacity: 0;
+  }
+
+  #site-header.with-background .header-inner {
+    translate: 0 0.375rem;
+  }
+
+  #site-header.with-background .header-capsule {
+    opacity: 1;
+    scale: 1;
+    backdrop-filter: blur(16px) saturate(1.5);
+  }
+
+  /*
+    Across a navigation the header layers are shown live rather than as two cross-faded snapshots:
+    the groups follow the live boxes, so the state change plays through the transitions above
+    (see src/lib/header-continuity.ts). The mobile bar keeps its cross-fade, which covers the
+    client-only heading island rendering in.
+  */
+  ::view-transition-group(site-header),
+  ::view-transition-group(site-header-capsule) {
+    animation: none;
+  }
+
+  ::view-transition-old(site-header),
+  ::view-transition-old(site-header-capsule) {
+    display: none;
+  }
+
+  ::view-transition-new(site-header),
+  ::view-transition-new(site-header-capsule) {
+    animation: none;
+  }
+}
+
+@media (992px >= width) {
+  #site-header.with-background {
+    border-bottom-color: transparent;
+    box-shadow: 0 0.5rem 1.5rem -1rem rgb(233 84 107 / 0.4);
+  }
+
+  #site-header.with-background::before {
+    opacity: 0.92;
+  }
+}
+
+.site-logo img {
+  transition:
+    scale 420ms var(--ease-out-expo),
+    rotate 420ms var(--ease-out-expo);
+}
+
+@media (hover: hover) {
+  .site-logo:hover img {
+    scale: 1.06;
+    rotate: -3deg;
+  }
+}
+
+/*
+  Portaled header menus are cut from the capsule's glass, a little denser so they stay legible over
+  the cover. One highlight glides between their items like the nav pill (NavMenu): it rests on the
+  current page and follows the pointer or keyboard focus.
+*/
+.nav-popover {
+  border: 1px solid hsl(var(--primary) / 0.16);
+  border-radius: 1rem;
+  background: color-mix(in oklab, var(--gradient-bg-start) 86%, transparent);
+  box-shadow:
+    0 0.75rem 2rem -1rem rgb(233 84 107 / 0.3),
+    0 0.25rem 0.75rem -0.5rem rgb(40 20 40 / 0.12);
+  backdrop-filter: blur(16px) saturate(1.5);
+}
+
+.dark .nav-popover {
+  border-color: hsl(var(--primary) / 0.22);
+  box-shadow:
+    0 0.75rem 2rem -1rem rgb(0 0 0 / 0.65),
+    inset 0 1px 0 rgb(255 255 255 / 0.04);
+}
+
+.nav-dropdown {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-width: 9rem;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.375rem;
+}
+
+.nav-dropdown-indicator {
+  position: absolute;
+  top: 0;
+  inset-inline: 0.375rem;
+  z-index: -1;
+  border-radius: 0.625rem;
+  background: hsl(var(--primary) / 0.12);
+  pointer-events: none;
+}
+
+.nav-dropdown-indicator[data-visible="false"] {
+  opacity: 0;
+  scale: 0.92 0.7;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:is([data-motion="lively"], [data-motion="subtle"]) .nav-dropdown-indicator {
+    transition:
+      opacity 200ms var(--ease-out-quart),
+      scale 420ms var(--ease-out-expo);
+  }
+
+  html:is([data-motion="lively"], [data-motion="subtle"]) .nav-dropdown-indicator[data-visible="false"] {
+    transition:
+      opacity 140ms var(--ease-in-quart),
+      scale 160ms var(--ease-in-quart);
+  }
+}
+
+.nav-dropdown-item {
+  display: flex;
+  min-height: 2.25rem;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.625rem;
+  color: hsl(var(--popover-foreground) / 0.78);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  letter-spacing: 0.04em;
+  text-shadow: none;
+  white-space: nowrap;
+  transition: color 160ms var(--ease-out-quart);
+}
+
+.nav-dropdown-item:is(:hover, :focus-visible) {
+  color: hsl(var(--foreground));
+}
+
+.nav-dropdown-item[aria-current="page"] {
+  color: hsl(var(--primary));
+  font-weight: 500;
+}
+
+.nav-dropdown-item:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: -2px;
+}

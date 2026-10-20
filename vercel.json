@@ -1,39 +1,221 @@
 {
-	"buildCommand": "pnpm build",
-	"outputDirectory": "dist",
-	"installCommand": "pnpm install",
-	"framework": "astro",
-	"headers": [
-		{
-			"source": "/(.*)",
-			"headers": [
-				{
-					"key": "X-Content-Type-Options",
-					"value": "nosniff"
-				},
-				{
-					"key": "X-Frame-Options",
-					"value": "DENY"
-				},
-				{
-					"key": "X-XSS-Protection",
-					"value": "1; mode=block"
-				},
-				{
-					"key": "Referrer-Policy",
-					"value": "strict-origin-when-cross-origin"
-				}
-			]
-		},
-		{
-			"source": "/_astro/(.*)",
-			"headers": [
-				{
-					"key": "Cache-Control",
-					"value": "public, max-age=31536000, immutable"
-				}
-			]
-		}
-	],
-	"cleanUrls": true
+  "buildCommand": "pnpm build",
+  "outputDirectory": "dist",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "framework": "astro",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    },
+    {
+      "source": "/_astro/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/posts/动态规划/dp-digit",
+      "destination": "/post/动态规划/dp-digit",
+      "permanent": true
+    },
+    {
+      "source": "/posts/动态规划/dp-interval",
+      "destination": "/post/动态规划/dp-interval",
+      "permanent": true
+    },
+    {
+      "source": "/posts/动态规划/dp-knapsack",
+      "destination": "/post/动态规划/dp-knapsack",
+      "permanent": true
+    },
+    {
+      "source": "/posts/动态规划/dp-state-compression",
+      "destination": "/post/动态规划/dp-state-compression",
+      "permanent": true
+    },
+    {
+      "source": "/posts/动态规划/dp-tree",
+      "destination": "/post/动态规划/dp-tree",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大学物理1复习/00-常见二级结论汇总",
+      "destination": "/post/大学物理1复习/00-常见二级结论汇总",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大学物理1复习/00-常见公式汇总",
+      "destination": "/post/大学物理1复习/00-常见公式汇总",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大学物理1复习/01-质点运动学",
+      "destination": "/post/大学物理1复习/01-质点运动学",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大学物理1复习/02-质点动力学",
+      "destination": "/post/大学物理1复习/02-质点动力学",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大学物理1复习/03-刚体力学",
+      "destination": "/post/大学物理1复习/03-刚体力学",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大学物理1复习/04-相对论基础",
+      "destination": "/post/大学物理1复习/04-相对论基础",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大学物理1复习/05-静电场",
+      "destination": "/post/大学物理1复习/05-静电场",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大学物理1复习/06-恒定电流",
+      "destination": "/post/大学物理1复习/06-恒定电流",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大学物理1复习/07-磁场",
+      "destination": "/post/大学物理1复习/07-磁场",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大学物理1复习/08-电磁感应",
+      "destination": "/post/大学物理1复习/08-电磁感应",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大模型/llm-agent-in-im-system",
+      "destination": "/post/大模型/llm-agent-in-im-system",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大模型/llm-context-engineering",
+      "destination": "/post/大模型/llm-context-engineering",
+      "permanent": true
+    },
+    {
+      "source": "/posts/大模型/llm-post-training-roadmap",
+      "destination": "/post/大模型/llm-post-training-roadmap",
+      "permanent": true
+    },
+    {
+      "source": "/posts/日常学习/data-structures-review",
+      "destination": "/post/日常学习/data-structures-review",
+      "permanent": true
+    },
+    {
+      "source": "/posts/日常学习/data-structures-theory-review",
+      "destination": "/post/日常学习/data-structures-theory-review",
+      "permanent": true
+    },
+    {
+      "source": "/posts/日常学习/linear-algebra",
+      "destination": "/post/日常学习/linear-algebra",
+      "permanent": true
+    },
+    {
+      "source": "/posts/日常学习/军事理论题库",
+      "destination": "/post/日常学习/军事理论题库",
+      "permanent": true
+    },
+    {
+      "source": "/posts/算法/algorithm-binary-lifting",
+      "destination": "/post/算法/algorithm-binary-lifting",
+      "permanent": true
+    },
+    {
+      "source": "/posts/算法/algorithm-binary-search",
+      "destination": "/post/算法/algorithm-binary-search",
+      "permanent": true
+    },
+    {
+      "source": "/posts/算法/algorithm-fenwick-tree",
+      "destination": "/post/算法/algorithm-fenwick-tree",
+      "permanent": true
+    },
+    {
+      "source": "/posts/算法/algorithm-roadmap",
+      "destination": "/post/算法/algorithm-roadmap",
+      "permanent": true
+    },
+    {
+      "source": "/posts/算法/algorithm-segment-tree",
+      "destination": "/post/算法/algorithm-segment-tree",
+      "permanent": true
+    },
+    {
+      "source": "/posts/算法/algorithm-sorting",
+      "destination": "/post/算法/algorithm-sorting",
+      "permanent": true
+    },
+    {
+      "source": "/posts/计算机学习/cs-database",
+      "destination": "/post/计算机学习/cs-database",
+      "permanent": true
+    },
+    {
+      "source": "/posts/计算机学习/cs-git",
+      "destination": "/post/计算机学习/cs-git",
+      "permanent": true
+    },
+    {
+      "source": "/posts/计算机学习/cs-linux",
+      "destination": "/post/计算机学习/cs-linux",
+      "permanent": true
+    },
+    {
+      "source": "/posts/计算机学习/cs-markdown",
+      "destination": "/post/计算机学习/cs-markdown",
+      "permanent": true
+    },
+    {
+      "source": "/posts/计算机学习/cs-network",
+      "destination": "/post/计算机学习/cs-network",
+      "permanent": true
+    },
+    {
+      "source": "/posts/计算机学习/cs-operating-system",
+      "destination": "/post/计算机学习/cs-operating-system",
+      "permanent": true
+    },
+    {
+      "source": "/archive",
+      "destination": "/archives",
+      "permanent": true
+    },
+    {
+      "source": "/atom.xml",
+      "destination": "/rss.xml",
+      "permanent": true
+    }
+  ]
 }

@@ -1,254 +1,357 @@
-import sitemap from "@astrojs/sitemap";
-import mdx from '@astrojs/mdx';
-import svelte, { vitePreprocess } from "@astrojs/svelte";
-import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
-import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
-import swup from "@swup/astro";
-import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "astro/config";
-import expressiveCode from "astro-expressive-code";
-import icon from "astro-icon";
-import { oddmisc } from "oddmisc";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeComponents from "rehype-components";
-import rehypeExternalLinks from "rehype-external-links";
-import rehypeKatex from "rehype-katex";
-import rehypeSlug from "rehype-slug";
-import remarkDirective from "remark-directive";
-import remarkMath from "remark-math";
-import remarkSectionize from "remark-sectionize";
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import { unified } from '@astrojs/markdown-remark';
+import node from '@astrojs/node';
+import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
+import yaml from '@rollup/plugin-yaml';
+import tailwindcss from '@tailwindcss/vite';
+import { defineConfig, memoryCache } from 'astro/config';
+import icon from 'astro-icon';
+import pagefind from 'astro-pagefind';
+import robotsTxt from 'astro-robots-txt';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypeKatex from 'rehype-katex';
+import rehypeSlug from 'rehype-slug';
+import remarkDirective from 'remark-directive';
+import remarkMath from 'remark-math';
+import Sonda from 'sonda/vite';
+import { loadEnv } from 'vite';
+import svgr from 'vite-plugin-svgr';
+import YAML from 'yaml';
+import { editorIntegration } from './src/features/editor/integration.ts';
+import { momentsRoutes } from './src/features/moments/integration/momentsRoutes.ts';
+import { normalizeContentConfig } from './src/lib/config/content.ts';
+import { normalizeEditorConfig } from './src/lib/config/editor.ts';
+import { enabledFeaturedSeriesSlugs, normalizeFeaturedSeries } from './src/lib/config/featured-series.ts';
+import { BUNDLED_ICON_SETS } from './src/lib/config/icon-sets.ts';
+import { normalizeMomentsConfig } from './src/lib/config/moments.ts';
+import { RESERVED_ROUTES } from './src/lib/config/reserved-routes.ts';
+import { lazyMermaid } from './src/lib/markdown/lazy-mermaid.ts';
+import { mermaidThemeCSS } from './src/lib/markdown/mermaid-theme.ts';
+import { rehypeEncryptedBlock } from './src/lib/markdown/rehype-encrypted-block.ts';
+import { rehypeEncryptedPost } from './src/lib/markdown/rehype-encrypted-post.ts';
+import { rehypeImagePlaceholder } from './src/lib/markdown/rehype-image-placeholder.ts';
+import { rehypeShokaAttrs } from './src/lib/markdown/rehype-shoka-attrs.ts';
+import { remarkEncryptedDirective } from './src/lib/markdown/remark-encrypted-directive.ts';
+import { remarkLinkEmbed } from './src/lib/markdown/remark-link-embed.ts';
+import { remarkIns, remarkMark } from './src/lib/markdown/remark-shoka-effects.ts';
+import { remarkShokaPreprocess } from './src/lib/markdown/remark-shoka-preprocess.ts';
+import { remarkShokaRuby } from './src/lib/markdown/remark-shoka-ruby.ts';
+import { remarkShokaSpoiler } from './src/lib/markdown/remark-shoka-spoiler.ts';
+import { collapsibleCodeTransformer } from './src/lib/markdown/shiki-collapsible-transformer.ts';
+import { shokaMetaTransformer } from './src/lib/markdown/shiki-meta-transformer.ts';
+import { SHIKI_THEMES } from './src/lib/markdown/shiki-themes.ts';
 
-import { siteConfig } from "./src/config/index.ts";
-import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
-import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.ts";
-import { AdmonitionComponent } from "./src/plugins/rehype-component-admonition.mjs";
-import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.mjs";
-import { rehypeImageWidth } from "./src/plugins/rehype-image-width.mjs";
-import { rehypeMermaid } from "./src/plugins/rehype-mermaid.mjs";
-import { rehypeWrapTable } from "./src/plugins/rehype-wrap-table.mjs";
-import { remarkContent } from "./src/plugins/remark-content.mjs";
-import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
-import { remarkFixGithubAdmonitions } from "./src/plugins/remark-fix-github-admonitions.js";
-import { remarkMermaid } from "./src/plugins/remark-mermaid.js";
+// Load YAML config directly with Node.js (before Vite plugins are available)
+// This is only used in astro.config.mjs - other files use @rollup/plugin-yaml
+function loadConfigForAstro() {
+  const configPath = path.join(process.cwd(), 'config', 'site.yaml');
+  const content = fs.readFileSync(configPath, 'utf8');
+  return YAML.parse(content);
+}
+
+const yamlConfig = loadConfigForAstro();
+const migratedPosts = JSON.parse(fs.readFileSync(new URL('./config/migrated-posts.json', import.meta.url), 'utf8'));
+const legacyRedirects = Object.fromEntries(
+  migratedPosts.map(({ oldPath, newPath }) => [oldPath.replace(/\/$/, ''), { status: 301, destination: newPath }]),
+);
+const editorConfig = normalizeEditorConfig(yamlConfig.editor);
+
+// Bundle analysis mode: ANALYZE=true pnpm build
+// Use loadEnv to read .env file (astro.config.mjs runs before Vite loads .env)
+const env = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
+const { ANALYZE } = env;
+const isAnalyze = ANALYZE === 'true';
+// Get robots.txt config from YAML
+const robotsConfig = yamlConfig.seo?.robots;
+
+// i18n configuration from YAML
+const i18nYaml = yamlConfig.i18n;
+const i18nDefaultLocale = i18nYaml?.defaultLocale ?? 'zh';
+const i18nLocales = (i18nYaml?.locales ?? [{ code: 'zh' }]).map((l) => l.code);
+const hasMultipleLocales = i18nLocales.length > 1;
+const enabledI18nLocales = (i18nYaml?.locales ?? [{ code: 'zh' }])
+  .filter((locale) => locale.enabled !== false)
+  .map((locale) => locale.code);
+
+const featuredSeries = normalizeFeaturedSeries(yamlConfig.featuredSeries, {
+  categoryMap: yamlConfig.categoryMap,
+  reservedRoutes: RESERVED_ROUTES,
+});
+const momentsConfig = normalizeMomentsConfig(yamlConfig.moments, {
+  reservedRoutes: RESERVED_ROUTES,
+  localeCodes: enabledI18nLocales,
+  seriesSlugs: enabledFeaturedSeriesSlugs(featuredSeries),
+});
+
+function assertMomentsOgImage(image, field) {
+  if (!image?.startsWith('/')) return;
+  const publicFile = path.join(process.cwd(), 'public', image.slice(1));
+  if (!fs.existsSync(publicFile) || !fs.statSync(publicFile).isFile()) {
+    throw new Error(`Moments configuration error: "${field}" does not exist in public: ${image}`);
+  }
+}
+
+if (momentsConfig.enabled) {
+  assertMomentsOgImage(momentsConfig.ogImage, 'ogImage');
+  for (const [index, channel] of momentsConfig.channels.entries()) {
+    assertMomentsOgImage(channel.ogImage, `channels[${index}].ogImage`);
+  }
+  const suiteUrl = env.KOHARU_SUITE_URL;
+  if (!suiteUrl) throw new Error('KOHARU_SUITE_URL is required when moments.enabled is true.');
+  const parsedSuiteUrl = new URL(suiteUrl);
+  if (
+    !['http:', 'https:'].includes(parsedSuiteUrl.protocol) ||
+    parsedSuiteUrl.username ||
+    parsedSuiteUrl.password ||
+    parsedSuiteUrl.pathname !== '/' ||
+    parsedSuiteUrl.search ||
+    parsedSuiteUrl.hash
+  ) {
+    throw new Error('KOHARU_SUITE_URL must be an HTTP(S) origin without credentials, query, or fragment.');
+  }
+}
+
+/**
+ * Vite plugin for conditional Three.js bundling
+ * When christmas snowfall is disabled, replaces SnowfallCanvas with a noop component
+ * This saves ~879KB from the bundle
+ */
+function conditionalSnowfall() {
+  const VIRTUAL_ID = 'virtual:snowfall-canvas';
+  const RESOLVED_ID = `\0${VIRTUAL_ID}`;
+  const christmas = yamlConfig.christmas || { enabled: false, features: {} };
+  const isEnabled = christmas.enabled && christmas.features?.snowfall;
+
+  return {
+    name: 'conditional-snowfall',
+    resolveId(id) {
+      if (id === VIRTUAL_ID) return RESOLVED_ID;
+      // Redirect the alias import to virtual module when disabled
+      if (!isEnabled && id === '@components/christmas/SnowfallCanvas') {
+        return RESOLVED_ID;
+      }
+    },
+    load(id) {
+      if (id === RESOLVED_ID) {
+        // Return noop component when christmas is disabled
+        return 'export function SnowfallCanvas() { return null; }';
+      }
+    },
+  };
+}
+
+// Build conditional plugin lists based on content config
+const contentConfig = normalizeContentConfig(yamlConfig.content);
+
+// KaTeX's browser parser needs DOMParser; its official worker/default entry uses the same DOM-free parser as builds.
+const configRequire = createRequire(import.meta.url);
+const katexRequire = createRequire(configRequire.resolve('rehype-katex'));
+const katexHtmlParser = katexRequire.resolve('hast-util-from-html-isomorphic');
+const markdownRequire = createRequire(configRequire.resolve('remark-parse'));
+const markdownEntities = markdownRequire.resolve('decode-named-character-reference');
+
+// Remark plugins — order matters
+// remarkShokaPreprocess MUST be first: it re-parses raw text to fix GFM/remark conflicts
+// (+++, ~sub~, {% links %} YAML etc.) before any AST-level plugin runs.
+const remarkPlugins = [];
+if (contentConfig.enableShokaContainers || contentConfig.enableShokaHexoTags || contentConfig.enableShokaEffects) {
+  remarkPlugins.push([
+    remarkShokaPreprocess,
+    {
+      enableContainers: contentConfig.enableShokaContainers,
+      enableHexoTags: contentConfig.enableShokaHexoTags,
+      // The plugin option is named after what it parses (super/subscript);
+      // `enableShokaEffects` gates the whole ++ins++/==mark==/~sub~/^sup^ family.
+      enableSuperSub: contentConfig.enableShokaEffects,
+      enableMath: contentConfig.enableMath,
+      enableEncryptedBlock: contentConfig.enableEncryptedBlock,
+    },
+  ]);
+}
+// remarkMath must run BEFORE ruby/spoiler/effects so that $...$ content
+// is already parsed into inlineMath/math nodes and won't be touched by text-scanning plugins.
+if (contentConfig.enableMath) remarkPlugins.push(remarkMath);
+if (contentConfig.enableShokaSpoiler) remarkPlugins.push(remarkShokaSpoiler);
+if (contentConfig.enableShokaRuby) remarkPlugins.push(remarkShokaRuby);
+if (contentConfig.enableShokaEffects) {
+  remarkPlugins.push(remarkIns, remarkMark);
+}
+// Encrypted block: remarkDirective is registered in BOTH places —
+// here for the main Astro pipeline (when remarkShokaPreprocess skips re-parse),
+// and inside remarkShokaPreprocess's re-parse pipeline (when it does re-parse).
+if (contentConfig.enableEncryptedBlock) {
+  remarkPlugins.push(remarkDirective, remarkEncryptedDirective);
+}
+// Link embed is always on (existing feature)
+remarkPlugins.push([
+  remarkLinkEmbed,
+  {
+    enableLinkEmbed: contentConfig.enableLinkEmbed,
+    enableTweetEmbed: contentConfig.enableTweetEmbed,
+    enableOGPreview: contentConfig.enableOGPreview,
+    enableCodePenEmbed: contentConfig.enableCodePenEmbed,
+    previewCacheTime: contentConfig.previewCacheTime,
+  },
+]);
+
+// Rehype plugins — order matters
+const rehypePlugins = [
+  rehypeSlug,
+  [
+    rehypeAutolinkHeadings,
+    {
+      behavior: 'append',
+      properties: {
+        className: ['anchor-link'],
+        ariaLabel: 'Link to this section',
+      },
+    },
+  ],
+];
+if (contentConfig.enableShokaAttrs) rehypePlugins.push(rehypeShokaAttrs);
+rehypePlugins.push(rehypeImagePlaceholder);
+if (contentConfig.enableMath) rehypePlugins.push(rehypeKatex);
+// Encrypted block/post MUST be last rehype plugins — encrypt fully-rendered children
+if (contentConfig.enableEncryptedBlock) {
+  rehypePlugins.push(rehypeEncryptedBlock);
+  rehypePlugins.push(rehypeEncryptedPost);
+}
+
+// Shiki transformers
+const shikiTransformers = [];
+if (contentConfig.enableCodeMeta) shikiTransformers.push(shokaMetaTransformer());
+if (contentConfig.enhanceCodeBlock) shikiTransformers.push(collapsibleCodeTransformer());
 
 // https://astro.build/config
 export default defineConfig({
-	site: siteConfig.siteURL,
-	base: "/",
-	trailingSlash: "always",
-
-	output: "static",
-
-	image: {
-		layout: "constrained",
-	},
-
-	server: {
-		port: 3000,
-	},
-
-	integrations: [
-		oddmisc({
-			umami: {
-				shareUrl: false,
-			},
-		}),
-		swup({
-			theme: false,
-			animationClass: "transition-swup-",
-			containers: ["main"],
-			smoothScrolling: false, // 禁用平滑滚动以提升性能，避免与锚点导航冲突
-			cache: true,
-			preload: false, // 禁用预加载以提升性能
-			accessibility: true,
-			updateHead: process.env.NODE_ENV === "production",
-			updateBodyClass: false,
-			globalInstance: true,
-			// 滚动相关配置优化
-			resolveUrl: (url) => url,
-			animateHistoryBrowsing: false,
-			skipPopStateHandling: (event) => {
-				// 跳过锚点链接的处理，让浏览器原生处理
-				return (
-					event.state &&
-					event.state.url &&
-					event.state.url.includes("#")
-				);
-			},
-		}),
-		icon(),
-		expressiveCode({
-			themes: ["github-light", "github-dark"],
-			plugins: [
-				pluginCollapsibleSections(),
-				pluginLineNumbers(),
-				pluginLanguageBadge(),
-				pluginCustomCopyButton(),
-			],
-			defaultProps: {
-				wrap: true,
-				overridesByLang: {
-					shellsession: { showLineNumbers: false },
-					bash: { frame: "code" },
-					shell: { frame: "code" },
-					sh: { frame: "code" },
-					zsh: { frame: "code" },
-				},
-			},
-			styleOverrides: {
-				codeBackground: "var(--codeblock-bg)",
-				borderRadius: "0.75rem",
-				borderColor: "none",
-				codeFontSize: "0.875rem",
-				codeFontFamily:
-					"'JetBrains Mono Variable', SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', 'Microsoft JhengHei', '微軟正黑體', 'Microsoft YaHei', '微软雅黑', 'Noto Sans HK', 'Noto Sans TC', 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans KR', ui-monospace, monospace",
-				codeLineHeight: "1.5rem",
-				frames: {
-					editorBackground: "var(--codeblock-bg)",
-					terminalBackground: "var(--codeblock-bg)",
-					terminalTitlebarBackground: "var(--codeblock-bg)",
-					editorTabBarBackground: "var(--codeblock-bg)",
-					editorActiveTabBackground: "none",
-					editorActiveTabIndicatorBottomColor: "var(--primary)",
-					editorActiveTabIndicatorTopColor: "none",
-					editorTabBarBorderBottomColor: "var(--codeblock-bg)",
-					terminalTitlebarBorderBottomColor: "none",
-				},
-				textMarkers: {
-					delHue: 0,
-					insHue: 180,
-					markHue: 250,
-				},
-			},
-			frames: {
-				showCopyToClipboardButton: false,
-			},
-		}),
-		svelte({
-			preprocess: vitePreprocess(),
-		}),
-		sitemap(),
-		mdx(),
-	],
-	markdown: {
-		remarkPlugins: [
-			remarkMath,
-			remarkContent,
-			remarkFixGithubAdmonitions,
-			remarkDirective,
-			remarkSectionize,
-			parseDirectiveNode,
-			remarkMermaid,
-		],
-		rehypePlugins: [
-			rehypeKatex,
-			[
-				rehypeExternalLinks,
-				{
-					target: "_blank",
-					rel: ["nofollow", "noopener", "noreferrer"],
-				},
-			],
-			rehypeSlug,
-			rehypeWrapTable,
-			rehypeMermaid,
-			[
-				rehypeComponents,
-				{
-					components: {
-						github: GithubCardComponent,
-						note: (x, y) => AdmonitionComponent(x, y, "note"),
-						tip: (x, y) => AdmonitionComponent(x, y, "tip"),
-						important: (x, y) =>
-							AdmonitionComponent(x, y, "important"),
-						caution: (x, y) => AdmonitionComponent(x, y, "caution"),
-						warning: (x, y) => AdmonitionComponent(x, y, "warning"),
-					},
-				},
-			],
-			[
-				rehypeAutolinkHeadings,
-				{
-					behavior: "append",
-					properties: {
-						className: ["anchor"],
-					},
-					content: {
-						type: "element",
-						tagName: "span",
-						properties: {
-							className: ["anchor-icon"],
-							"data-pagefind-ignore": true,
-						},
-						children: [{ type: "text", value: "#" }],
-					},
-				},
-			],
-			rehypeImageWidth,
-		],
-	},
-	vite: {
-		plugins: [tailwindcss()],
-		// 开发环境预打包优化：将常用依赖提前编译，避免首次页面加载时 on-demand 编译导致 8s+ 的等待
-		optimizeDeps: {
-			include: [
-				"@iconify/svelte",
-				"svelte",
-				"svelte/transition",
-				"svelte/easing",
-				"overlayscrollbars",
-				"@fancyapps/ui",
-				"marked",
-				"sanitize-html",
-				"qrcode",
-			],
-		},
-		// 预热常用入口文件，让 Vite 在服务器启动后立即开始转换，而不是等到浏览器请求
-		server: {
-			warmup: {
-				clientFiles: [
-					"src/layouts/Layout.astro",
-					"src/pages/index.astro",
-					"src/components/widgets/music-player/MusicPlayer.svelte",
-					"src/components/organisms/navigation/Search.svelte",
-					"src/components/control/ThemeSwitch.svelte",
-					"src/components/features/settings/DisplaySettings.svelte",
-					"src/scripts/swup-manager.ts",
-				],
-			},
-		},
-		build: {
-			// 静态资源处理优化，防止小图片转 base64 导致 HTML 体积过大
-			assetsInlineLimit: 4096,
-			// CSS 代码分割
-			cssCodeSplit: true,
-			cssMinify: "esbuild",
-			// 内联小型 CSS 文件以减少网络请求
-			inlineStylesheets: "auto",
-			// 生产环境移除 console 和 debugger
-			minify: "esbuild",
-			rollupOptions: {
-				onwarn(warning, warn) {
-					if (
-						warning.message.includes(
-							"is dynamically imported by",
-						) &&
-						warning.message.includes(
-							"but also statically imported by",
-						)
-					) {
-						return;
-					}
-					warn(warning);
-				},
-			},
-		},
-		// 生产环境移除 console.log 和 debugger
-		esbuildOptions: {
-			drop:
-				process.env.NODE_ENV === "production"
-					? ["console", "debugger"]
-					: [],
-		},
-	},
+  site: yamlConfig.site.url,
+  output: 'static',
+  redirects: {
+    ...legacyRedirects,
+    '/archive': '/archives',
+    '/atom.xml': '/rss.xml',
+  },
+  compressHTML: true,
+  markdown: {
+    processor: unified({
+      gfm: true,
+      remarkPlugins,
+      rehypePlugins,
+    }),
+    syntaxHighlight: {
+      type: 'shiki',
+      excludeLangs: ['mermaid'],
+    },
+    shikiConfig: {
+      themes: SHIKI_THEMES,
+      transformers: shikiTransformers,
+    },
+  },
+  integrations: [
+    ...(editorConfig.enabled ? [editorIntegration()] : []),
+    {
+      name: 'content-hydration',
+      hooks: {
+        'astro:config:setup': ({ addClientDirective }) => {
+          addClientDirective({ name: 'content', entrypoint: path.resolve('src/lib/markdown/client-content.ts') });
+          addClientDirective({ name: 'panel', entrypoint: path.resolve('src/lib/client-panel.ts') });
+        },
+      },
+    },
+    react(),
+    sitemap(),
+    icon({
+      include: Object.fromEntries(BUNDLED_ICON_SETS.map((set) => [set, ['*']])),
+    }),
+    pagefind(),
+    lazyMermaid({
+      autoTheme: true,
+      mermaidConfig: { themeCSS: mermaidThemeCSS },
+    }),
+    robotsTxt(robotsConfig || {}),
+    ...(momentsConfig.enabled ? [momentsRoutes(momentsConfig)] : []),
+  ],
+  ...(momentsConfig.enabled
+    ? {
+        adapter: node({ mode: 'standalone' }),
+        cache: { provider: memoryCache({ max: 1000 }) },
+      }
+    : {}),
+  devToolbar: {
+    enabled: true,
+  },
+  vite: {
+    environments: {
+      client: {
+        build: {
+          rolldownOptions: {
+            output: {
+              codeSplitting: {
+                // Shared React imports should not add separate network round trips to island hydration.
+                groups: [
+                  { name: 'react-runtime', test: /node_modules[/]\b(?:react|react-dom|scheduler)[/]/ },
+                  {
+                    name: 'motion-runtime',
+                    test: /node_modules[/](?:motion|framer-motion|motion-dom|motion-utils)[/]/,
+                    minShareCount: 2,
+                    entriesAware: true,
+                    entriesAwareMergeThreshold: 8 * 1024,
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+    worker: { format: 'es' },
+    build: {
+      // Inline small style sheets without changing caching for images or larger assets.
+      assetsInlineLimit: (filePath, content) => (filePath.endsWith('.css') ? content.length < 8192 : undefined),
+      // Enable sourcemap for Sonda bundle analysis
+      sourcemap: isAnalyze,
+      // Astro builds for "esnext", which leaves the CSS minifier (lightningcss) without browser
+      // targets; it then folds `animation-timeline` into the `animation` shorthand, which browsers
+      // reject, dropping every scroll-driven animation. Minify for Tailwind v4's browser floor.
+      cssTarget: ['chrome111', 'edge111', 'firefox128', 'safari16.4'],
+    },
+    plugins: [...(isAnalyze ? [Sonda({ open: false })] : []), yaml(), conditionalSnowfall(), svgr(), tailwindcss()],
+    resolve: {
+      alias: {
+        'hast-util-from-html-isomorphic': katexHtmlParser,
+        'decode-named-character-reference': markdownEntities,
+      },
+      noExternal: ['react-tweet'],
+    },
+    optimizeDeps: {
+      include: [
+        '@antv/infographic',
+        '@floating-ui/react',
+        '@hookform/resolvers/zod',
+        '@tanstack/react-virtual',
+        'react-hook-form',
+        'zod',
+      ],
+    },
+  },
+  // Only enable Astro i18n routing when multiple locales are configured.
+  // Single-locale sites skip this entirely — no /[lang]/ routes are generated.
+  ...(hasMultipleLocales && {
+    i18n: {
+      defaultLocale: i18nDefaultLocale,
+      locales: i18nLocales,
+      routing: {
+        prefixDefaultLocale: false,
+      },
+    },
+  }),
+  prefetch: {
+    prefetchAll: true,
+    // Visible-link prefetch competes with the current page's cold load.
+    defaultStrategy: 'hover',
+  },
+  trailingSlash: 'ignore',
 });

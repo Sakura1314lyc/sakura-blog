@@ -1,0 +1,351 @@
+/*
+  Silk-ribbon table of contents. Each level steps the ribbon, its knot and the text one lane to the
+  right; the ribbon folds in the gap between two rows (src/lib/toc-ribbon.ts), so a row's own
+  stretch of ribbon lies inside the row, where the wash and the petal stay while it is read.
+  Numbers hang right-aligned against the text on its first line. The ribbon and petal carry the
+  visible section progress; its numeric value remains available to screen readers.
+*/
+.toc-silk-container {
+  --toc-axis: 0.625rem;
+  --toc-lane: 1rem;
+  position: relative;
+}
+
+/*
+  --toc-indent runs from the ribbon to the text. Deeper numbers grow a segment per level ("6.1",
+  "6.1.2"), so the indent grows with them and they never reach the knot or the petal.
+*/
+.heading-tree-item {
+  --toc-x: calc(var(--toc-axis) + var(--toc-depth, 0) * var(--toc-lane));
+  --toc-indent: calc(1.5rem + var(--toc-depth, 0) * 0.5rem);
+  --toc-pad: 0.3125rem;
+  --toc-line: 1.25rem;
+  --toc-knot: 4px;
+  --toc-ink: hsl(var(--foreground) / 0.6);
+  --toc-size: 0.8125rem;
+  --toc-weight: 400;
+  position: relative;
+}
+
+.heading-tree-item[data-depth="0"] {
+  --toc-indent: 1.75rem;
+  --toc-pad: 0.4375rem;
+  --toc-line: 1.375rem;
+  --toc-knot: 5px;
+  --toc-ink: hsl(var(--foreground) / 0.82);
+  --toc-size: 0.84375rem;
+  --toc-weight: 500;
+}
+
+/* Without numbers the text moves up to the ribbon. */
+.toc-no-numbering .heading-tree-item {
+  --toc-indent: 1.125rem;
+}
+
+@media (pointer: coarse) {
+  .heading-tree-item {
+    --toc-pad: 0.5rem;
+  }
+
+  .heading-tree-item[data-depth="0"] {
+    --toc-pad: 0.625rem;
+  }
+}
+
+.toc-heading-row {
+  position: relative;
+  z-index: 2;
+}
+
+.silk-heading-link {
+  position: relative;
+  display: block;
+  padding: var(--toc-pad) 0.5rem var(--toc-pad) calc(var(--toc-x) + var(--toc-indent));
+  border-radius: 0.5rem;
+  color: var(--toc-ink);
+  font-size: var(--toc-size);
+  font-weight: var(--toc-weight);
+  line-height: var(--toc-line);
+  transition: color 160ms;
+}
+
+/*
+  Hover and focus share the wash's shape: a quiet layer that starts just right of the ribbon, so the
+  thread and the petal never sit inside a box. Hover is neutral; only the current row is tinted.
+*/
+.silk-heading-link::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 calc(var(--toc-x) + 5px);
+  z-index: -1;
+  border-radius: 0.5rem;
+  background: hsl(var(--foreground) / 0.045);
+  opacity: 0;
+  transition:
+    opacity 160ms,
+    box-shadow 160ms;
+  pointer-events: none;
+}
+
+.silk-heading-link:hover:not([aria-current])::after {
+  opacity: 1;
+}
+
+.silk-heading-link .heading-text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  text-wrap: pretty;
+}
+
+.toc-number {
+  position: absolute;
+  top: var(--toc-pad);
+  right: calc(100% - var(--toc-x) - var(--toc-indent) + 0.3125rem);
+  color: hsl(var(--muted-foreground) / 0.8);
+  font-size: 0.65625rem;
+  line-height: var(--toc-line);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: color 160ms;
+}
+
+.toc-node {
+  position: absolute;
+  top: calc(var(--toc-pad) + var(--toc-line) / 2);
+  left: var(--toc-x);
+  width: var(--toc-knot);
+  height: var(--toc-knot);
+  margin: calc(var(--toc-knot) / -2) 0 0 calc(var(--toc-knot) / -2);
+  border-radius: 9999px;
+  background: var(--sider-surface, hsl(var(--background)));
+  box-shadow: inset 0 0 0 1px hsl(var(--foreground) / 0.28);
+  transition:
+    background-color 240ms,
+    box-shadow 240ms,
+    opacity 200ms,
+    scale 320ms var(--ease-out-expo);
+  pointer-events: none;
+}
+
+/* Read rows keep a soft filled bead, the same mark the series rail uses for read posts. */
+.silk-heading-link[data-passed] .toc-node {
+  background-color: hsl(var(--primary) / 0.5);
+  box-shadow: none;
+}
+
+/* The petal stands in for the current row's knot. */
+.silk-heading-link[aria-current] .toc-node {
+  opacity: 0;
+  scale: 0.4;
+}
+
+.silk-heading-link:hover:not([aria-current]) .toc-node {
+  scale: 1.6;
+}
+
+/* Only the row being read is pink; its open parent is set in full ink with a pink number. */
+.silk-heading-link[aria-current],
+.silk-heading-link:is([aria-current], [data-ancestor]) .toc-number {
+  color: hsl(var(--primary));
+}
+
+.silk-heading-link[data-ancestor] {
+  color: hsl(var(--foreground) / 0.92);
+}
+
+.silk-heading-link[aria-current] {
+  font-weight: 500;
+}
+
+.silk-heading-link:hover:not([aria-current], [data-ancestor]) {
+  color: hsl(var(--foreground));
+}
+
+.silk-heading-link:focus-visible {
+  outline: none;
+}
+
+.silk-heading-link:focus-visible::after {
+  opacity: 1;
+  box-shadow: inset 0 0 0 1.5px hsl(var(--primary) / 0.5);
+}
+
+.silk-heading-children {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 240ms var(--ease-in-quart);
+}
+
+.silk-heading-children[data-open] {
+  grid-template-rows: 1fr;
+  transition-duration: 420ms;
+  transition-timing-function: var(--ease-out-expo);
+}
+
+.silk-heading-children-inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 160ms;
+}
+
+.silk-heading-children[data-open] > .silk-heading-children-inner {
+  padding-block: 0.125rem;
+  opacity: 1;
+  transition-duration: 320ms;
+  transition-delay: 80ms;
+}
+
+.toc-ribbon {
+  position: absolute;
+  z-index: 1;
+  inset: 0 auto auto 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* The read stretch is the same thread dyed, so both strokes share one width. */
+.toc-ribbon-thread,
+.toc-ribbon-tail {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.toc-ribbon-thread {
+  stroke: hsl(var(--primary) / 0.2);
+}
+
+.toc-ribbon-tail {
+  opacity: 0;
+  transition: opacity 220ms;
+}
+
+.toc-ribbon-start {
+  stop-color: var(--gradient-shoka-button-start);
+}
+
+.toc-ribbon-end {
+  stop-color: var(--gradient-shoka-button-end);
+}
+
+/* src/hooks/useTocGlide.ts springs the wash's position and size and the petal's place on the ribbon. */
+.toc-wash,
+.toc-petal {
+  position: absolute;
+  top: 0;
+  opacity: 0;
+  transition: opacity 220ms;
+  pointer-events: none;
+}
+
+.toc-silk-container[data-toc-live] :is(.toc-wash, .toc-ribbon-tail, .toc-petal) {
+  opacity: 1;
+}
+
+.toc-wash {
+  right: 0;
+  border-radius: 0.5rem;
+  background: hsl(var(--primary) / 0.08);
+}
+
+.dark .toc-wash {
+  background: hsl(var(--primary) / 0.12);
+}
+
+.toc-petal {
+  z-index: 3;
+  left: 0;
+  margin-left: -5.5px;
+  width: 11px;
+  height: 13.2px;
+  margin-top: -6.6px;
+  rotate: calc(-18deg + var(--toc-lean, 0deg));
+  filter: drop-shadow(0 0 2px hsl(var(--primary) / 0.4));
+}
+
+.toc-petal > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(#ffc5d4, #ef7396);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+.dark .toc-petal > span {
+  background: linear-gradient(#ffe0e9, #f7879f);
+}
+
+/*
+  Overflow shows as the list fading out at whichever edge has more to scroll. The fade lengths
+  follow the scroller's own scroll timeline; without scroll timelines, or with nothing to scroll,
+  they stay at 0 and the list is not masked.
+*/
+@property --toc-fade-top {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --toc-fade-bottom {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.toc-scroll-fade {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 var(--toc-fade-top),
+    #000 calc(100% - var(--toc-fade-bottom)),
+    transparent
+  );
+}
+
+@supports (animation-timeline: scroll()) {
+  .toc-scroll-fade {
+    animation:
+      toc-fade-top linear both,
+      toc-fade-bottom linear both;
+    animation-timeline: scroll(self), scroll(self);
+    animation-range:
+      0 1.5rem,
+      calc(100% - 1.5rem) 100%;
+  }
+}
+
+@keyframes toc-fade-top {
+  from {
+    --toc-fade-top: 0px;
+  }
+
+  to {
+    --toc-fade-top: 1.5rem;
+  }
+}
+
+@keyframes toc-fade-bottom {
+  from {
+    --toc-fade-bottom: 1.5rem;
+  }
+
+  to {
+    --toc-fade-bottom: 0px;
+  }
+}
+
+html.motion-off :is(.silk-heading-children, .silk-heading-children-inner, .toc-node, .toc-wash, .toc-ribbon-tail, .toc-petal) {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.silk-heading-children, .silk-heading-children-inner, .toc-node, .toc-wash, .toc-ribbon-tail, .toc-petal) {
+    transition: none;
+  }
+}

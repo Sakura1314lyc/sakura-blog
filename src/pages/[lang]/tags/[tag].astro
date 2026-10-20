@@ -1,0 +1,14 @@
+---
+import { tagRoute } from '../../_shared/routes';
+import TagPage from '../../tags/[tag].astro';
+
+export const getStaticPaths = tagRoute.mirror;
+
+interface Props {
+  tag: string;
+  locale: string;
+}
+
+const { tag, locale } = Astro.props;
+---
+<TagPage tag={tag} locale={locale} />

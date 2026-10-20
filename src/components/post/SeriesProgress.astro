@@ -1,0 +1,275 @@
+---
+/**
+ * SeriesProgress - 侧栏底部的系列进度：一把刻度尺。每篇是一道主刻度（读过的染粉，当前篇是一颗珠子），
+ * 篇间补上细短的副刻度，让短系列和长系列的疏密一致。悬停时刻度随指针泛起波浪，上方信息行就地换成目标标题；
+ * 触屏可沿刻度拖动预览、松手跳转。
+ */
+import { Routes } from '@constants/router';
+import { routeBuilder } from '@lib/route';
+import { railWindowStart } from '@lib/series-rail';
+import { Icon } from 'astro-icon/components';
+import { type Locale, localizedPath, t } from '@/i18n';
+import type { PostRef } from '@/types/blog';
+
+interface Props {
+  posts: PostRef[];
+  currentSlug: string;
+  seriesName: string;
+  locale: Locale;
+}
+
+/** Ticks shown at most; a longer series shows a window around the current post with faded ends. */
+const MAX_TICKS = 40;
+/** Minor ticks on each side of a post: a short series gets more, so the ruler's density stays even. */
+const minorsPerSide = (count: number) => (count <= 3 ? 3 : count <= 6 ? 2 : count <= 12 ? 1 : 0);
+
+const { posts, currentSlug, seriesName, locale } = Astro.props;
+const current = posts.findIndex((post) => post.slug === currentSlug);
+const prev = current > 0 ? posts[current - 1] : null;
+const next = current >= 0 && current < posts.length - 1 ? posts[current + 1] : null;
+const total = posts.length;
+
+const start = railWindowStart(current, total, MAX_TICKS);
+const ticks = posts.slice(start, start + MAX_TICKS).map((post, offset) => ({ post, index: start + offset }));
+const href = (post: PostRef) => localizedPath(routeBuilder(Routes.Post, post), locale);
+const position = (index: number) => `${index + 1} / ${total}`;
+const minors = Array.from({ length: minorsPerSide(ticks.length) });
+---
+
+{
+  current >= 0 && total > 1 && (
+    <nav class="series-progress" aria-label={seriesName}>
+      <div class="series-progress-meta">
+        <div class="series-progress-default">
+          <span class="series-progress-name">{seriesName}</span>
+          <span class="series-progress-count">{t(locale, 'series.position', { current: current + 1, total })}</span>
+        </div>
+        <div class="series-progress-preview" aria-hidden="true">
+          <span class="series-progress-preview-label" />
+          <span class="series-progress-preview-title" />
+        </div>
+      </div>
+      <div class="series-progress-track">
+        {prev ? (
+          <a
+            href={href(prev)}
+            class="series-progress-arrow"
+            data-dir="prev"
+            data-title={prev.title}
+            data-label={t(locale, 'post.prevPost')}
+            aria-label={`${t(locale, 'post.prevPost')}: ${prev.title}`}
+          >
+            <Icon name="ri:arrow-left-s-line" />
+          </a>
+        ) : (
+          <span class="series-progress-arrow" aria-hidden="true">
+            <Icon name="ri:arrow-left-s-line" />
+          </span>
+        )}
+        <ol
+          class="series-progress-rail"
+          style={`--tick-count: ${ticks.length}`}
+          data-clipped-start={start > 0 || undefined}
+          data-clipped-end={start + ticks.length < total || undefined}
+        >
+          {ticks.map(({ post, index }) => (
+            <li>
+              <a
+                href={href(post)}
+                class="series-progress-tick"
+                data-title={post.title}
+                data-label={position(index)}
+                data-read={index < current || undefined}
+                aria-current={index === current ? 'page' : undefined}
+                aria-label={`${position(index)} ${post.title}`}
+              >
+                {minors.map(() => <span class="series-progress-mark" data-minor aria-hidden="true" />)}
+                <span class="series-progress-mark series-progress-major" aria-hidden="true" />
+                {minors.map(() => <span class="series-progress-mark" data-minor aria-hidden="true" />)}
+              </a>
+            </li>
+          ))}
+        </ol>
+        {next ? (
+          <a
+            href={href(next)}
+            class="series-progress-arrow"
+            data-dir="next"
+            data-title={next.title}
+            data-label={t(locale, 'post.nextPost')}
+            aria-label={`${t(locale, 'post.nextPost')}: ${next.title}`}
+          >
+            <Icon name="ri:arrow-right-s-line" />
+          </a>
+        ) : (
+          <span class="series-progress-arrow" aria-hidden="true">
+            <Icon name="ri:arrow-right-s-line" />
+          </span>
+        )}
+      </div>
+    </nav>
+  )
+}
+
+<script>
+  import { readMotionLevel } from '@lib/motion-level';
+  import { nearestTick, RAIL_WAVE_SIGMA, railWaveScale } from '@lib/series-rail';
+  import { navigate } from 'astro:transitions/client';
+
+  /** Delegated, so every sider copy (desktop and drawer) works across page swaps without rebinding. */
+
+  function showPreview(target: HTMLElement) {
+    const root = target.closest<HTMLElement>('.series-progress');
+    if (!root) return;
+    root.querySelector('.series-progress-preview-label')!.textContent = target.dataset.label ?? '';
+    root.querySelector('.series-progress-preview-title')!.textContent = target.dataset.title ?? '';
+    root.dataset.previewing = '';
+    for (const tick of root.querySelectorAll('[data-targeted]')) tick.removeAttribute('data-targeted');
+    target.dataset.targeted = '';
+  }
+
+  function hidePreview(root: HTMLElement) {
+    delete root.dataset.previewing;
+    for (const tick of root.querySelectorAll('[data-targeted]')) tick.removeAttribute('data-targeted');
+  }
+
+  // ── Magnification wave ─────────────────────────────────────
+  // Post centres (for scrubbing) and mark centres (for the wave, minor ticks included) are cached per hover.
+  let railCenters = new WeakMap<HTMLElement, number[]>();
+  let markCenters = new WeakMap<HTMLElement, number[]>();
+  let frame = 0;
+  let pending: { rail: HTMLElement; x: number } | null = null;
+
+  const centerX = (element: Element) => {
+    const box = element.getBoundingClientRect();
+    return box.left + box.width / 2;
+  };
+
+  function centersOf(rail: HTMLElement): number[] {
+    let centers = railCenters.get(rail);
+    if (!centers) {
+      centers = [...rail.querySelectorAll('.series-progress-tick')].map(centerX);
+      railCenters.set(rail, centers);
+    }
+    return centers;
+  }
+
+  function marksOf(rail: HTMLElement): number[] {
+    let centers = markCenters.get(rail);
+    if (!centers) {
+      centers = [...rail.querySelectorAll('.series-progress-mark')].map(centerX);
+      markCenters.set(rail, centers);
+    }
+    return centers;
+  }
+
+  function paintWave() {
+    frame = 0;
+    if (!pending) return;
+    const { rail, x } = pending;
+    const centers = marksOf(rail);
+    // Sparse marks widen the wave so neighbours still answer; dense ones keep it tight.
+    const pitch = centers.length > 1 ? (centers[centers.length - 1] - centers[0]) / (centers.length - 1) : 0;
+    const sigma = Math.max(RAIL_WAVE_SIGMA, pitch * 0.85);
+    rail.querySelectorAll<HTMLElement>('.series-progress-mark').forEach((mark, i) => {
+      mark.style.setProperty('--wave', railWaveScale(x - centers[i], sigma).toFixed(3));
+    });
+  }
+
+  function wave(rail: HTMLElement, x: number) {
+    if (readMotionLevel() === 'reduced') return;
+    pending = { rail, x };
+    frame ||= requestAnimationFrame(paintWave);
+  }
+
+  function calm(rail: HTMLElement) {
+    pending = null;
+    for (const mark of rail.querySelectorAll<HTMLElement>('.series-progress-mark')) mark.style.removeProperty('--wave');
+    railCenters.delete(rail);
+    markCenters.delete(rail);
+  }
+
+  document.addEventListener('pointerover', (event) => {
+    const target = (event.target as Element | null)?.closest?.<HTMLElement>('.series-progress [data-title]');
+    if (target) showPreview(target);
+  });
+
+  document.addEventListener('pointerout', (event) => {
+    const track = (event.target as Element | null)?.closest?.<HTMLElement>('.series-progress-track');
+    if (!track || track.contains(event.relatedTarget as Node | null)) return;
+    const root = track.closest<HTMLElement>('.series-progress');
+    if (root && !scrub) hidePreview(root);
+  });
+
+  document.addEventListener('pointermove', (event) => {
+    if (event.pointerType !== 'mouse' && !scrub) return;
+    const rail = (event.target as Element | null)?.closest?.<HTMLElement>('.series-progress-rail') ?? scrub?.rail;
+    if (rail) wave(rail, event.clientX);
+  });
+
+  document.addEventListener('pointerout', (event) => {
+    const rail = (event.target as Element | null)?.closest?.<HTMLElement>('.series-progress-rail');
+    if (rail && !rail.contains(event.relatedTarget as Node | null) && !scrub) calm(rail);
+  });
+
+  document.addEventListener('focusin', (event) => {
+    const target = (event.target as Element | null)?.closest?.<HTMLElement>('.series-progress [data-title]');
+    if (target) showPreview(target);
+  });
+
+  document.addEventListener('focusout', (event) => {
+    const root = (event.target as Element | null)?.closest?.<HTMLElement>('.series-progress');
+    if (root && !root.contains(event.relatedTarget as Node | null)) hidePreview(root);
+  });
+
+  // ── Touch scrubbing: drag along the rail to preview, lift to go ──
+  let scrub: { rail: HTMLElement; pointerId: number; startX: number; moved: boolean; index: number } | null = null;
+
+  document.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'mouse') return;
+    const rail = (event.target as Element | null)?.closest?.<HTMLElement>('.series-progress-rail');
+    if (!rail) return;
+    railCenters.delete(rail);
+    scrub = { rail, pointerId: event.pointerId, startX: event.clientX, moved: false, index: -1 };
+  });
+
+  document.addEventListener('pointermove', (event) => {
+    if (!scrub || event.pointerId !== scrub.pointerId) return;
+    if (!scrub.moved && Math.abs(event.clientX - scrub.startX) < 6) return;
+    scrub.moved = true;
+    const ticks = scrub.rail.querySelectorAll<HTMLElement>('.series-progress-tick');
+    const index = nearestTick(centersOf(scrub.rail), event.clientX);
+    if (index !== scrub.index && ticks[index]) {
+      scrub.index = index;
+      showPreview(ticks[index]);
+    }
+  });
+
+  const endScrub = (event: PointerEvent) => {
+    if (!scrub || event.pointerId !== scrub.pointerId) return;
+    const { rail, moved, index } = scrub;
+    scrub = null;
+    calm(rail);
+    const root = rail.closest<HTMLElement>('.series-progress');
+    if (root) hidePreview(root);
+    if (!moved || event.type !== 'pointerup') return;
+    const tick = rail.querySelectorAll<HTMLAnchorElement>('.series-progress-tick')[index];
+    if (tick && tick.getAttribute('aria-current') !== 'page') {
+      // The finger lifted after a scrub: swallow the click it would land on and go to the scrubbed post.
+      // The swallower only lives for this lift's click (dispatched within a few hundred ms), so a failed
+      // navigation never eats a later tap.
+      const swallow = (click: MouseEvent) => click.preventDefault();
+      document.addEventListener('click', swallow, { once: true, capture: true });
+      setTimeout(() => document.removeEventListener('click', swallow, { capture: true }), 400);
+      void navigate(tick.href);
+    }
+  };
+  document.addEventListener('pointerup', endScrub);
+  document.addEventListener('pointercancel', endScrub);
+
+  document.addEventListener('astro:after-swap', () => {
+    railCenters = new WeakMap();
+    markCenters = new WeakMap();
+  });
+
+</script>

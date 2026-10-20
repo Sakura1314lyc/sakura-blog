@@ -1,0 +1,22 @@
+---
+import PageIntro from '@components/common/PageIntro.astro';
+import FriendRequestForm from '@components/friends/FriendRequestForm';
+import FriendsGrid from '@components/friends/FriendsGrid.astro';
+import { friendsData } from '@constants/friends-config';
+import { Comment } from '@/components/comment';
+import { defaultLocale, t } from '@/i18n';
+
+interface Props {
+  locale?: string;
+}
+const { locale = defaultLocale } = Astro.props;
+---
+
+<div class="index-surface shadow-box flex flex-col gap-8">
+  <PageIntro className="page-intro-flush" stats={[{ value: friendsData.length, label: t(locale, 'friends.countUnit') }]} />
+  <FriendsGrid locale={locale} />
+  <div class="mb-4">
+    <FriendRequestForm locale={locale} client:visible />
+    <Comment />
+  </div>
+</div>

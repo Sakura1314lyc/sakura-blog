@@ -1,0 +1,43 @@
+---
+import PageIntro from '@components/common/PageIntro.astro';
+import PostYears from '@components/common/PostYears.astro';
+import { buildCategoryPath, type Category, translateCategoryName } from '@lib/content';
+import { postsInCategoryPath } from '@lib/content/index-categories';
+import type { BlogPost } from 'types/blog';
+import { localizedPath, t } from '@/i18n';
+
+interface Props {
+  category: Category | null;
+  path: string[];
+  allPosts: BlogPost[];
+  locale: string;
+}
+const { category, path, allPosts, locale } = Astro.props;
+const posts = postsInCategoryPath(allPosts, path);
+/** The child branch a post sits in under this category, matched by the sub-tabs. */
+const childOf = (post: BlogPost) => {
+  const first = post.data.categories?.[0];
+  const ancestry = Array.isArray(first) ? first : first ? [first] : [];
+  return ancestry[path.length];
+};
+const breadcrumbs = [
+  { label: t(locale, 'nav.categories'), href: localizedPath('/categories', locale) },
+  ...path.map((name, index) => ({
+    label: translateCategoryName(name, locale),
+    href: index === path.length - 1 ? undefined : localizedPath(buildCategoryPath(path.slice(0, index + 1)), locale),
+  })),
+];
+---
+<div class="index-surface shadow-box" data-category-filter-root>
+  <PageIntro stats={[{ value: posts.length, label: t(locale, 'index.posts') }]} breadcrumbs={breadcrumbs}>
+    {category?.children?.length && <div class="index-tabs" slot="tools" role="group" aria-label={t(locale, 'category.filter')}>
+      <button type="button" data-category-filter="" aria-pressed="true">{t(locale, 'tag.all')}<sup>{posts.length}</sup></button>
+      {category.children.map((child) => <button type="button" data-category-filter={child.name} aria-pressed="false">{translateCategoryName(child.name, locale)}<sup>{postsInCategoryPath(allPosts, [...path, child.name]).length}</sup></button>)}
+    </div>}
+  </PageIntro>
+  <PostYears posts={posts} locale={locale} showCategory={Boolean(category?.children?.length)} filterKeyOf={childOf} />
+</div>
+<script>
+  import { setupCategoryFilter } from '@lib/category-filter';
+  setupCategoryFilter();
+</script>

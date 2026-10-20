@@ -1,0 +1,12 @@
+---
+import { getLocaleStaticPaths } from '../_shared/utils';
+import HomePage from '../index.astro';
+export const getStaticPaths = getLocaleStaticPaths;
+
+interface Props {
+  locale: string;
+}
+
+const { locale } = Astro.props;
+---
+<HomePage locale={locale} />

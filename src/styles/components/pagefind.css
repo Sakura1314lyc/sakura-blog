@@ -1,0 +1,186 @@
+/* Pagefind Component UI theme overrides */
+
+:root {
+  --pf-text: #393939;
+  --pf-text-secondary: #666;
+  --pf-text-muted: #767676;
+  --pf-background: var(--gradient-bg-start);
+  --pf-border: #e5e5e5;
+  --pf-border-focus: hsl(var(--primary));
+  --pf-hover: hsl(var(--accent));
+  --pf-mark: hsl(var(--primary));
+  --pf-outline-focus: hsl(var(--primary));
+  --pf-font: inherit;
+  --pf-input-height: 2.5rem;
+  --pf-input-font-size: 1rem;
+  --pf-border-radius: 0.5rem;
+  --pf-searchbox-max-width: 100%;
+  --pf-searchbox-dropdown-max-height: calc(80dvh - 13rem);
+}
+
+.dark {
+  --pf-text: #e5e5e5;
+  --pf-text-secondary: #b7b7b7;
+  --pf-text-muted: #a0a0a0;
+  --pf-border: rgba(255, 255, 255, 0.15);
+  --pf-border-focus: hsl(var(--primary));
+  --pf-hover: rgba(255, 255, 255, 0.08);
+  --pf-mark: hsl(var(--primary));
+}
+
+#search-for-dialog,
+#search-for-dialog pagefind-searchbox {
+  display: block;
+  width: 100%;
+}
+
+/*
+  Search dialog. The Pagefind input is the dialog's header row and its results flow below it
+  instead of floating in a dropdown, so the panel stays a compact bar until there is something
+  to show. Pagefind scopes its own rules with :is(*, #\#) three times, hence the same prefix.
+*/
+.search-dialog {
+  --pf-text: hsl(var(--foreground));
+  --pf-text-secondary: hsl(var(--muted-foreground));
+  --pf-text-muted: hsl(var(--muted-foreground));
+  --pf-input-height: 3.5rem;
+  --pf-input-font-size: 1.0625rem;
+  --pf-searchbox-dropdown-max-height: min(58dvh, 32rem);
+}
+
+/* Keyboard hints only mean something once there is a result to move through. */
+.search-dialog:not(:has(.pf-searchbox.open .pf-searchbox-result:not(.pf-searchbox-placeholder))) .search-dialog-footer {
+  display: none;
+}
+
+.search-dialog .kbd {
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--muted));
+  border-color: hsl(var(--border));
+  box-shadow: 0 1px 0 hsl(var(--border));
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-input-wrapper::before {
+  inset-inline-start: 1.125rem;
+  top: calc((var(--pf-input-height) - 1.125rem) / 2);
+  width: 1.125rem;
+  height: 1.125rem;
+  background-color: hsl(var(--primary));
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-input {
+  padding-inline: 3rem 5rem;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  caret-color: hsl(var(--primary));
+  transition: border-color 200ms var(--ease-out-quart);
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox.open .pf-searchbox-input {
+  border-bottom-color: color-mix(in oklab, currentColor 10%, transparent);
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-dropdown {
+  position: static;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-results {
+  padding: 0.5rem;
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result {
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  transition: background-color 160ms var(--ease-out-quart);
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result:hover {
+  background: hsl(var(--primary) / 0.06);
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result[data-pf-selected] {
+  outline: none;
+  background: hsl(var(--primary) / 0.1);
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: color 160ms var(--ease-out-quart);
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result[data-pf-selected] .pf-searchbox-result-title {
+  color: hsl(var(--primary));
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result-excerpt {
+  display: -webkit-box;
+  margin-top: 0.25rem;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  white-space: normal;
+  text-overflow: clip;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog .pf-searchbox-result-excerpt mark {
+  padding: 0 0.1em;
+  border-radius: 0.2em;
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+}
+
+:is(*, #\#):is(*, #\#):is(*, #\#) .search-dialog :is(.pf-searchbox-empty, .pf-searchbox-loading) {
+  padding: 2rem 1rem;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .search-dialog {
+    /* 16px keeps iOS from zooming the page when the input takes focus. */
+    --pf-input-font-size: 1rem;
+    --pf-searchbox-dropdown-max-height: calc(100dvh - 7rem);
+  }
+}
+
+/* Each new result list cascades in top to bottom (capped so long lists do not lag). */
+@media (prefers-reduced-motion: no-preference) {
+  html:is([data-motion="lively"], [data-motion="subtle"])
+    .search-dialog
+    :is(.pf-searchbox-group, .pf-searchbox-result:not(.pf-searchbox-group *)) {
+    --rise-y: 0.5rem;
+    animation: motion-rise 380ms var(--ease-out-expo) both;
+    animation-delay: calc(var(--result-i, 7) * 30ms);
+  }
+}
+
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(1) {
+  --result-i: 0;
+}
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(2) {
+  --result-i: 1;
+}
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(3) {
+  --result-i: 2;
+}
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(4) {
+  --result-i: 3;
+}
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(5) {
+  --result-i: 4;
+}
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(6) {
+  --result-i: 5;
+}
+.search-dialog :is(.pf-searchbox-group, .pf-searchbox-result):nth-child(7) {
+  --result-i: 6;
+}

@@ -1,0 +1,166 @@
+# Sakura · astro-koharu
+# 文章保留在 src/content/blog，站点设置统一从这里读取。
+site:
+  title: Sakuraの博客
+  alternate: Sakura
+  subtitle: 我们都是小怪兽，有一天会被正义的奥特曼杀死
+  name: Sakura
+  description: Sakura 的学习笔记，记录算法、计算机基础、大模型与日常。
+  avatar: /img/avatar.webp
+  showLogo: false
+  author: Sakura
+  url: https://sakura-two-xi.vercel.app
+  defaultOgImage: /img/avatar.webp
+  startYear: 2026
+  timezone: Asia/Shanghai
+  enableSlugTransliteration: false
+  keywords: [Sakura, 博客, 算法, 动态规划, 计算机, 大模型, 学习笔记]
+
+i18n:
+  defaultLocale: zh
+  locales:
+    - code: zh
+      label: 中文
+
+categoryMap:
+  算法: algorithms
+  动态规划: dynamic-programming
+  大模型: llm
+  计算机学习: computer-science
+  日常学习: study
+  大学物理1复习: physics
+  数学: mathematics
+
+featuredCategories:
+  - link: algorithms
+    label: 算法
+    image: /img/cover/2.webp
+    description: 从二分、倍增到数据结构
+  - link: dynamic-programming
+    label: 动态规划
+    image: /img/cover/4.webp
+    description: 状态设计与转移的学习记录
+  - link: llm
+    label: 大模型
+    image: /img/cover/1.webp
+    description: Agent、上下文工程与后训练
+  - link: computer-science
+    label: 计算机学习
+    image: /img/cover/11.webp
+    description: 操作系统、网络与开发工具
+
+featuredSeries: []
+
+social:
+  github:
+    url: https://github.com/Sakura1314lyc
+    icon: ri:github-fill
+    color: '#191717'
+  bilibili:
+    url: https://space.bilibili.com/198170603
+    icon: ri:bilibili-fill
+    color: '#00A1D6'
+  rss:
+    url: /rss.xml
+    icon: ri:rss-fill
+    color: '#F78422'
+
+friends:
+  intro:
+    title: 友链
+    subtitle: 相遇在文字之间
+  data: []
+announcements: []
+
+content:
+  addBlankTarget: true
+  smoothScroll: true
+  addHeadingLevel: true
+  enhanceCodeBlock: true
+  enableCodeCopy: true
+  enableCodeFullscreen: true
+  enableLinkEmbed: true
+  enableCodePenEmbed: false
+  enableTweetEmbed: false
+  enableOGPreview: false
+  lazyLoadEmbeds: true
+  postCardImagePosition: alternating
+  enableShokaContainers: true
+  enableShokaAttrs: true
+  enableShokaEffects: true
+  enableShokaSpoiler: true
+  enableShokaRuby: true
+  enableShokaHexoTags: true
+  enableMath: true
+  enableCodeMeta: true
+  enableQuiz: true
+  enableEncryptedBlock: true
+
+motion:
+  level: lively
+  heroPetals: true
+  clickBurst: true
+
+moments:
+  enabled: false
+editor:
+  enabled: false
+colophon:
+  enabled: false
+postActions:
+  copyMarkdown: true
+  downloadMarkdown: true
+  openInEditor: off
+
+navigation:
+  - name: 首页
+    nameKey: nav.home
+    path: /
+    icon: ri:home-heart-fill
+  - name: 文章
+    nameKey: nav.posts
+    icon: ri:quill-pen-ai-fill
+    children:
+      - name: 分类
+        nameKey: nav.categories
+        path: /categories
+        icon: ri:grid-fill
+      - name: 标签
+        nameKey: nav.tags
+        path: /tags
+        icon: fa6-solid:tags
+      - name: 归档
+        nameKey: nav.archives
+        path: /archives
+        icon: ri:archive-2-fill
+  - name: 关于
+    nameKey: nav.about
+    path: /about
+    icon: fa6-regular:circle-user
+
+comment:
+  provider: giscus
+  giscus:
+    repo: Sakura1314lyc/sakura-blog
+    repoId: R_kgDOSzOeqw
+    category: Announcements
+    categoryId: DIC_kwDOSzOeq84C_cvP
+    mapping: pathname
+    strict: '0'
+    reactionsEnabled: '1'
+    emitMetadata: '0'
+    inputPosition: bottom
+    lang: zh-CN
+
+analytics:
+  umami:
+    enabled: false
+seo:
+  robots:
+    policy:
+      - userAgent: '*'
+        allow: /
+bgm:
+  enabled: false
+christmas:
+  enabled: false

@@ -1,0 +1,272 @@
+/* biome-ignore-all lint/complexity/noImportantStyles: Reader and system motion preferences must override component, utility and inline animation styles. */
+
+/*
+  Motion system.
+
+  Easing and duration tokens are mirrored for Tailwind (`ease-out-expo`, …) and Motion
+  (`animation.bezier`) in src/constants/design-tokens.ts.
+
+  <html data-motion> is written before first paint by BootScripts:
+  - lively  — entrance choreography, scroll reveals (prose included), sakura effects
+  - subtle  — entrances and reveals with half the travel; no prose reveals, no petals
+  - reduced — no decorative motion; html.motion-off also reflects the OS preference
+  prefers-reduced-motion: reduce always behaves like `reduced`, and a page without the
+  attribute (scripts disabled) renders every element static and fully visible.
+*/
+
+:root {
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-quart: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --dur-instant: 120ms;
+  --dur-fast: 200ms;
+  --dur-base: 320ms;
+  --dur-slow: 480ms;
+  --dur-enter: 760ms;
+
+  /* Scales entrance travel and blur; the subtle level halves it. */
+  --motion-travel: 1;
+}
+
+html[data-motion="subtle"] {
+  --motion-travel: 0.5;
+}
+
+@keyframes motion-rise {
+  from {
+    opacity: 0;
+    translate: 0 calc(var(--rise-y, 1.5rem) * var(--motion-travel));
+  }
+}
+
+@keyframes motion-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Rise with a focus pull; reserve for a few large elements, blur is costly and flattens 3D children. */
+@keyframes motion-rise-focus {
+  from {
+    opacity: 0;
+    translate: 0 calc(var(--rise-y, 1.5rem) * var(--motion-travel));
+    filter: blur(calc(var(--rise-blur, 8px) * var(--motion-travel)));
+  }
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  /* Load-time entrance: stagger with `--i` (and an optional `--rise-delay` offset). */
+  html:is([data-motion="lively"], [data-motion="subtle"]) .motion-rise {
+    animation: motion-rise var(--dur-enter) var(--ease-out-expo) both;
+    animation-delay: calc(var(--rise-delay, 0ms) + var(--i, 0) * var(--stagger, 90ms));
+  }
+
+  /* Scroll reveals; src/lib/scroll-reveal.ts marks which elements wait and when they play. */
+  html:is([data-motion="lively"], [data-motion="subtle"]) [data-reveal="pending"] {
+    opacity: 0;
+  }
+
+  html:is([data-motion="lively"], [data-motion="subtle"]) [data-reveal="in"] {
+    animation: motion-rise var(--dur-enter) var(--ease-out-expo) backwards;
+    animation-delay: calc(var(--reveal-i, 0) * 70ms);
+  }
+
+  /* Prose only fades: a moving block suppresses scroll anchoring while embeds above it are still growing. */
+  html[data-motion="lively"] .motion-reveal-lively > [data-reveal="in"] {
+    animation-name: motion-fade;
+  }
+}
+
+/* Shared-element morphs (e.g. post card title → cover title) between ClientRouter pages. */
+::view-transition-group(*) {
+  animation-duration: 520ms;
+  animation-timing-function: var(--ease-in-out-quart);
+}
+
+/* Group morphs scale their image pair from the top-left (see compositeGroupMorphs). */
+::view-transition-image-pair(*) {
+  transform-origin: 0 0;
+}
+
+/* A nonzero global duration must not introduce transitions on positioning or other unanimated styles.
+   The lowest layer lets explicit component transitions keep their completion events. */
+@layer motion-defaults {
+  html.motion-off,
+  html.motion-off *,
+  html.motion-off *::before,
+  html.motion-off *::after {
+    transition-property: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-property: none;
+    }
+  }
+}
+
+/* Keep completion events (e.g. tooltip unmount) while making transitions imperceptible. */
+html.motion-off,
+html.motion-off *,
+html.motion-off *::before,
+html.motion-off *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+  will-change: auto !important;
+}
+
+/* Continuous decoration stays in its authored static state, without a final animation frame. */
+html.motion-off
+:is(
+  .animate-spin,
+  .hover\:animate-shake,
+  .rainbow,
+  .typewriter-cursor,
+  .audio-player-disc,
+  .lightrope li,
+  .animate-ping,
+  .sider-slot.entering,
+  .cat-404 *
+) {
+  animation: none !important;
+}
+
+html.motion-off .cat-404 :is(.face-features, .digit-0-bg) {
+  opacity: 0;
+}
+
+html.motion-off [data-moments-entering] {
+  opacity: 1;
+  transform: none;
+}
+
+html.motion-off::view-transition-group(*),
+html.motion-off::view-transition-old(*),
+html.motion-off::view-transition-new(*),
+html.motion-off [data-astro-transition-scope] {
+  animation: none !important;
+}
+
+/* CSS also honors the OS before JS loads, and if scripts are unavailable. */
+@media (prefers-reduced-motion: reduce) {
+  html,
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+    will-change: auto !important;
+  }
+
+  :is(
+      .animate-spin,
+      .hover\:animate-shake,
+      .rainbow,
+      .typewriter-cursor,
+      .audio-player-disc,
+      .lightrope li,
+      .animate-ping,
+      .sider-slot.entering,
+      .cat-404 *
+    ) {
+    animation: none !important;
+  }
+
+  .cat-404 :is(.face-features, .digit-0-bg) {
+    opacity: 0;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  [data-astro-transition-scope] {
+    animation: none !important;
+  }
+}
+
+/*
+  Section dividers: rules draw outward from the title and the blossoms unfurl as they scroll in.
+  Wrappers must use overflow: clip, not hidden, or they become the (static) scroller of the view timeline.
+*/
+@supports (animation-timeline: view()) {
+  @media screen and (prefers-reduced-motion: no-preference) {
+    html:is([data-motion="lively"], [data-motion="subtle"]) .section-divider {
+      view-timeline: --section-divider block;
+    }
+
+    html:is([data-motion="lively"], [data-motion="subtle"]) :is(.section-divider-line, .section-divider-title) {
+      animation-timeline: --section-divider;
+      animation-range: entry 0% entry 10rem;
+      animation-fill-mode: both;
+      animation-timing-function: var(--ease-out-quart);
+    }
+
+    html:is([data-motion="lively"], [data-motion="subtle"]) .section-divider-line {
+      animation-name: divider-draw;
+    }
+
+    html:is([data-motion="lively"], [data-motion="subtle"]) .section-divider-title {
+      --rise-y: 0.5rem;
+      animation-name: motion-rise;
+    }
+
+    html[data-motion="lively"] .section-divider-bloom {
+      animation: divider-bloom var(--ease-out-quart) both;
+      animation-timeline: --section-divider;
+      animation-range: entry 0% entry 12rem;
+    }
+  }
+}
+
+@keyframes divider-draw {
+  from {
+    scale: 0 1;
+  }
+}
+
+@keyframes divider-bloom {
+  from {
+    opacity: 0;
+    rotate: -120deg;
+    scale: 0.3;
+  }
+}
+
+/* Click petal burst layer (see src/lib/sakura/petal-burst.ts). */
+.petal-burst-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.petal-burst {
+  position: absolute;
+  top: 0;
+  left: 0;
+  mask: var(--petal-mask) center / contain no-repeat;
+  will-change: transform, opacity;
+}
+
+/* During a view transition the layer is shown live above both pages, never from its frozen snapshot. */
+::view-transition-group(petal-burst),
+::view-transition-new(petal-burst) {
+  animation: none;
+}
+
+::view-transition-old(petal-burst) {
+  display: none;
+}

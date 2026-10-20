@@ -1,0 +1,14 @@
+---
+import { postRoute } from '../../_shared/routes';
+import PostPage from '../../post/[...slug].astro';
+
+export const getStaticPaths = postRoute.mirror;
+
+interface Props {
+  postId: string;
+  locale: string;
+}
+
+const { postId, locale } = Astro.props;
+---
+<PostPage postId={postId} locale={locale} />

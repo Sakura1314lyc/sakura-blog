@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -33,15 +33,10 @@ jobs:
           run_install: false
           
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
       
       - name: Build site
         run: pnpm run build
-        env:
-          # 如果需要启用内容分离,取消以下注释并配置
-          # ENABLE_CONTENT_SYNC: true
-          # CONTENT_REPO_URL: ${{ secrets.CONTENT_REPO_URL }}
-          # USE_SUBMODULE: true
       
       - name: Deploy to pages branch
         uses: JamesIves/github-pages-deploy-action@v4

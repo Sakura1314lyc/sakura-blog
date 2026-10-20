@@ -1,0 +1,1049 @@
+.prose {
+  /* Typography plugin colors mapped to theme tokens, so light and dark prose share the site palette. */
+  --tw-prose-body: hsl(var(--foreground) / 0.9);
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-lead: hsl(var(--muted-foreground));
+  --tw-prose-links: hsl(var(--primary));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-counters: hsl(var(--primary));
+  --tw-prose-bullets: hsl(var(--primary) / 0.7);
+  --tw-prose-hr: hsl(var(--border));
+  --tw-prose-quotes: hsl(var(--foreground) / 0.78);
+  --tw-prose-quote-borders: hsl(var(--primary) / 0.45);
+  --tw-prose-captions: hsl(var(--muted-foreground));
+  --tw-prose-kbd: hsl(var(--foreground));
+  --tw-prose-code: hsl(var(--primary));
+  --tw-prose-th-borders: hsl(var(--border));
+  --tw-prose-td-borders: hsl(var(--border) / 0.7);
+
+  /* Reader variables are set by src/store/settings.ts and the inline Layout.astro script. */
+  font-size: var(--reader-font-size, 1rem);
+  line-height: var(--reader-line-height, 1.8);
+
+  /* Preserve the original full-width layout until the reader chooses a custom measure.
+     JavaScript converts that measure to px so differently sized children share one width. */
+  width: 100%;
+  min-width: 0;
+  max-width: var(--reader-measure, none);
+  margin-inline: auto;
+
+  /* Emergency wrapping keeps unknown long text from widening the document. */
+  overflow-wrap: anywhere;
+
+  /* Progressive CJK typography enhancements. */
+  word-break: auto-phrase;
+  line-break: strict;
+  hanging-punctuation: first allow-end;
+  text-spacing-trim: space-start;
+
+  a {
+    @apply text-primary hover:text-blue no-underline transition-colors duration-300 hover:underline;
+  }
+
+  /* Inline links carry a quiet underline so they are recognizable without relying on color alone. */
+  :where(p, li, td, th, blockquote, figcaption, dd, dt) > a:not(.anchor-link) {
+    text-decoration-line: underline;
+    text-decoration-color: hsl(var(--primary) / 0.35);
+    text-decoration-thickness: 0.075em;
+    text-underline-offset: 0.24em;
+    transition:
+      color var(--dur-fast) var(--ease-out-quart),
+      text-decoration-color var(--dur-fast) var(--ease-out-quart);
+
+    &:hover {
+      text-decoration-color: currentColor;
+    }
+  }
+
+  /* CJK text has no true italic; keep quotes upright and let the border mark them. */
+  blockquote {
+    font-style: normal;
+    font-weight: 400;
+
+    p:first-of-type::before,
+    p:last-of-type::after {
+      content: none;
+    }
+  }
+
+  /* ========== 行内代码样式 ========== */
+  /* 移除 Typography 默认的反引号 */
+  :not(pre) > code::before,
+  :not(pre) > code::after {
+    content: none;
+  }
+
+  :not(pre) > code {
+    /* 背景色和圆角 */
+    background: hsl(var(--primary) / 0.08);
+    border-radius: 0.375rem;
+    color: hsl(var(--primary) / 0.8);
+
+    /* 阴影 */
+    box-shadow: 0 1px 2px 0 hsl(var(--primary) / 0.05);
+
+    /* 内边距 */
+    padding: 0.15rem 0.375rem;
+
+    /* 字体 */
+    font-size: 0.9em;
+    font-weight: 500;
+
+    word-break: break-word;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+
+    /* Hover 效果 */
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  :not(pre) > code:hover {
+    background: hsl(var(--primary) / 0.12);
+    border-color: hsl(var(--primary) / 0.2);
+    box-shadow: 0 2px 4px 0 hsl(var(--primary) / 0.1);
+  }
+
+  /* Anchor link styles for Astro's automatic heading links */
+  .anchor-link {
+    @apply relative;
+    text-decoration: none;
+    opacity: 1;
+    &:hover {
+      text-decoration: none;
+    }
+
+    &:hover::before {
+      opacity: 1;
+    }
+  }
+
+  /* ========== 标题样式优化 ========== */
+
+  /* For headings with anchor links */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    position: relative;
+    scroll-margin-top: 4rem;
+    &:hover .anchor-link::before {
+      opacity: 1;
+    }
+  }
+
+  /* 级别标签 */
+  h1::before,
+  h2::before,
+  h3::before,
+  h4::before,
+  h5::before,
+  h6::before {
+    content: attr(data-level);
+    position: absolute;
+    left: -1.5em;
+    bottom: 0;
+
+    /* 样式 */
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: hsl(var(--muted-foreground));
+    opacity: 0.5;
+
+    /* 等宽字体 */
+    font-family: ui-monospace, SFMono-Regular, monospace;
+
+    transition: opacity 0.3s ease;
+  }
+
+  h1:hover::before,
+  h2:hover::before,
+  h3:hover::before,
+  h4:hover::before,
+  h5:hover::before,
+  h6:hover::before {
+    opacity: 0.8;
+  }
+
+  /* The level label sits in the gutter, which is too narrow on phones. */
+  @media (max-width: 768px) {
+    :is(h1, h2, h3, h4, h5, h6)::before {
+      display: none;
+    }
+  }
+
+  /* 调整锚点链接居中对齐 */
+  a.anchor-link {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+  }
+
+  a.anchor-link > span::before {
+    display: block;
+    content: "";
+    width: 1em;
+    height: 1em;
+    --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z'/%3E%3Cpath fill='%23000' d='M9.686 2.512a1.5 1.5 0 0 1 1.303 1.674L10.637 7h3.976l.399-3.186a1.5 1.5 0 0 1 2.977.372L17.637 7H20a1.5 1.5 0 0 1 0 3h-2.738l-.5 4H19.5a1.5 1.5 0 0 1 0 3h-3.113l-.398 3.186a1.5 1.5 0 0 1-2.977-.372L13.363 17H9.388l-.398 3.186a1.5 1.5 0 1 1-2.977-.372L6.363 17H4.5a1.5 1.5 0 1 1 0-3h2.238l.5-4H5a1.5 1.5 0 1 1 0-3h2.613l.399-3.186A1.5 1.5 0 0 1 9.686 2.51ZM13.74 14l.5-4h-3.977l-.5 4z'/%3E%3C/g%3E%3C/svg%3E");
+    background-color: currentColor;
+    -webkit-mask-image: var(--svg);
+    mask-image: var(--svg);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    /* 调整为相对定位，配合 flex 居中 */
+    position: relative;
+    top: -0.075em;
+    right: auto;
+    margin-left: 0.5rem;
+    @apply opacity-0 transition-opacity duration-300;
+  }
+
+  h1:hover .anchor-link > span::before,
+  h2:hover .anchor-link > span::before,
+  h3:hover .anchor-link > span::before,
+  h4:hover .anchor-link > span::before,
+  h5:hover .anchor-link > span::before,
+  h6:hover .anchor-link > span::before {
+    opacity: 1;
+  }
+
+  /* ========== 列表样式优化 ========== */
+
+  /* 无序列表 - 覆盖 Typography 默认样式 */
+  ul {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  ul > li {
+    position: relative;
+    padding-left: 1.75rem;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    transition: background-color 0.2s ease;
+    transition-delay: 50ms; /* 避免快速移动闪烁 */
+    border-radius: 0.375rem;
+  }
+
+  ul > li:hover:not(:has(li:hover)) {
+    background: hsl(var(--primary) / 0.05);
+  }
+
+  /* 隐藏默认 marker */
+  ul > li::marker {
+    content: none;
+    color: transparent;
+  }
+
+  /* 自定义项目符号 */
+  ul > li::before {
+    content: "";
+    position: absolute;
+    left: 0.5rem;
+    top: 0.625em; /* 使用 em 单位，相对于行高居中 */
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background: hsl(var(--primary));
+    opacity: 0.7;
+  }
+
+  /* 嵌套列表缩进 */
+  ul ul {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-left: 1rem;
+  }
+
+  /* 嵌套列表使用空心圆 */
+  ul ul > li::before {
+    background: transparent;
+    border: 1.5px solid hsl(var(--primary));
+    opacity: 0.6;
+  }
+
+  /* 有序列表 - 覆盖 Typography 默认样式 */
+  ol {
+    list-style: none;
+    counter-reset: list-counter;
+    padding-left: 0;
+    /* padding-inline-start: 0; */
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  ol > li {
+    position: relative;
+    counter-increment: list-counter;
+    padding-left: 2.5rem;
+    /* padding-inline-start: 0; */
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    transition: background-color 0.2s ease;
+    transition-delay: 50ms; /* 避免快速移动闪烁 */
+    border-radius: 0.375rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-right: 0.5rem;
+  }
+
+  ol > li:hover:not(:has(li:hover)) {
+    background: hsl(var(--primary) / 0.05);
+  }
+
+  /* 隐藏默认 marker */
+  ol > li::marker {
+    content: none;
+    color: transparent;
+  }
+
+  /* 自定义数字样式 */
+  ol > li::before {
+    content: counter(list-counter);
+    position: absolute;
+    left: 0.5rem;
+    top: 0.5em;
+
+    /* 样式 - 支持两位数 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    width: auto;
+    height: 1.5rem;
+    padding: 0 0.25rem;
+
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: hsl(var(--primary));
+
+    background: hsl(var(--primary) / 0.1);
+    border-radius: 9999px;
+  }
+
+  /* 嵌套有序列表 - 第二层（字母样式） */
+  ol ol {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-left: 1rem;
+    counter-reset: nested-list-counter;
+  }
+
+  ol ol > li {
+    counter-increment: nested-list-counter;
+  }
+
+  ol ol > li::before {
+    content: counter(nested-list-counter, lower-alpha);
+    background: hsl(var(--primary) / 0.12);
+    border: none;
+    font-size: 0.75rem;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 0.3rem;
+  }
+
+  /* 嵌套有序列表 - 第三层（罗马数字样式） */
+  ol ol ol {
+    counter-reset: deep-nested-counter;
+  }
+
+  ol ol ol > li {
+    counter-increment: deep-nested-counter;
+  }
+
+  ol ol ol > li::before {
+    content: counter(deep-nested-counter, lower-roman);
+    background: hsl(var(--primary) / 0.08);
+    border: none;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: hsl(var(--primary) / 0.8);
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.2rem;
+    border-radius: 0.25rem;
+  }
+
+  ol,
+  li p {
+    margin: 0;
+  }
+
+  /* ========== 代码块 Mac 窗口样式 ========== */
+
+  /* 代码块容器 - 覆盖 Typography 默认样式 */
+  pre {
+    position: relative;
+    border-radius: 0 0 0.75rem 0.75rem;
+    border: 1px solid var(--code-border);
+    /* 重置 Typography 默认 padding */
+    padding: 0;
+    padding-inline-end: 0;
+    overflow: hidden;
+    margin: 0;
+    /* biome-ignore lint/complexity/noImportantStyles: Shiki writes its theme background inline on every block. */
+    background-color: var(--code-surface) !important;
+  }
+
+  pre code {
+    display: block;
+    padding: 1rem 1.5rem;
+    overflow-x: auto;
+    /* The parent pre already carries Typography's relative code scale. */
+    font-size: inherit;
+    line-height: 1.7;
+    tab-size: 2;
+    /* 覆盖 Typography 默认值 */
+    background-color: transparent;
+    color: inherit;
+  }
+
+  /* Collapsible code blocks; long blocks are wrapped in their initial state during highlighting. */
+
+  /* Keep the grid wrapper so expanded blocks retain their existing layout. */
+  .code-block-wrapper > pre {
+    display: grid;
+    grid-template-rows: 1fr;
+  }
+
+  .code-block-wrapper > pre > code {
+    min-height: 0;
+  }
+
+  /* Expanding glides to the full height where interpolate-size is supported; elsewhere it snaps open. */
+  .code-block-wrapper.code-collapsible > pre > code {
+    interpolate-size: allow-keywords;
+    transition: height 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Keep an eight-line preview so collapsed blocks still reveal useful context. */
+  .code-block-wrapper.code-collapsed > pre > code {
+    height: calc(13.6em + 2rem);
+    content-visibility: auto;
+    contain-intrinsic-height: auto calc(13.6em + 2rem);
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* Fade the tail out instead of laying a card-colored gradient over it. */
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 4.5rem), transparent calc(100% - 0.5rem));
+  }
+
+  /* Reserve the toolbar row before the idle-hydrated controls mount. */
+  .code-block-wrapper > .code-block-wrapper-toolbar-mount {
+    min-height: 3.3125rem;
+  }
+
+  /* Toolbar-shaped skeleton until hydration fills the mount (mirrors MacToolbar chrome). */
+  .code-block-wrapper > .code-block-wrapper-toolbar-mount:empty {
+    border: 1px solid var(--code-border);
+    border-bottom: 0;
+    border-radius: 0.75rem 0.75rem 0 0;
+    background-color: var(--code-toolbar);
+  }
+
+  /* Make the full toolbar a collapse toggle. */
+  .code-block-wrapper.code-collapsible .code-block-wrapper-toolbar-mount > div {
+    cursor: pointer;
+  }
+
+  .code-block-expand-overlay {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    height: 4.5rem;
+    cursor: pointer;
+    align-items: flex-end;
+    justify-content: center;
+    border: 0;
+    border-radius: 0 0 0.75rem 0.75rem;
+    padding-bottom: 0.625rem;
+    background: transparent;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .code-block-expand-overlay-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    border: 1px solid var(--code-border);
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem 0.25rem 0.5rem;
+    background-color: var(--code-toolbar);
+    box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.18);
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .code-block-expand-overlay:hover .code-block-expand-overlay-icon {
+    border-color: hsl(var(--primary) / 0.45);
+    color: hsl(var(--primary));
+    transform: translateY(-0.125rem);
+  }
+
+  .code-block-expand-overlay:active .code-block-expand-overlay-icon {
+    transform: translateY(0) scale(0.96);
+  }
+
+  .code-block-expand-overlay:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: -2px;
+  }
+
+  /* 移除 pre code 的 Typography ::before/::after */
+  pre code::before,
+  pre code::after {
+    content: none;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ========== Code/Mermaid/Infographic wrapper layout ========== */
+
+:root {
+  /* One window surface for code, mermaid and infographic blocks: toolbar and body read as one piece. */
+  --code-surface: color-mix(in oklab, hsl(var(--card)) 97%, hsl(var(--primary)));
+  --code-toolbar: color-mix(in oklab, var(--code-surface) 96%, hsl(var(--foreground)));
+  --code-border: hsl(var(--border) / 0.8);
+}
+
+.dark {
+  --code-surface: color-mix(in oklab, hsl(var(--card)) 80%, #000);
+  /* Lifted with the accent, not white: a white mix reads as cool grey against the night-sakura plum. */
+  --code-toolbar: color-mix(in oklab, color-mix(in oklab, hsl(var(--card)) 88%, #000) 93%, hsl(var(--primary)));
+  --code-border: hsl(var(--border) / 0.9);
+}
+
+.code-block-wrapper {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+/* The window casts one shadow; the toolbar and body inside it stay flat so no seam shows between them. */
+:is(.code-block-wrapper, .mermaid-wrapper, .infographic-wrapper) {
+  border-radius: 0.75rem;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 10px 24px -14px rgb(0 0 0 / 0.22);
+}
+
+.dark :is(.code-block-wrapper, .mermaid-wrapper, .infographic-wrapper) {
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.2),
+    0 12px 28px -14px rgb(0 0 0 / 0.55);
+}
+
+/* Traffic lights rest as gray dots, like an unfocused macOS window, and light up with the block. */
+.traffic-lights > * {
+  transition: background-color 0.25s ease;
+}
+
+@media (hover: hover) {
+  :is(.code-block-wrapper, .mermaid-wrapper, .infographic-wrapper):not(:hover, :focus-within) .traffic-lights > * {
+    background-color: hsl(var(--foreground) / 0.14);
+  }
+}
+
+/* 如果第一个子节点就是标题 */
+.custom-content:first-child > :is(h1, h2, h3, h4, h5, h6) {
+  margin-top: 1rem;
+}
+
+/* ========== Markdown 图片占位符和加载样式 ========== */
+
+/* 图片容器 */
+.prose .markdown-image-wrapper {
+  position: relative;
+  display: block;
+  margin: 1.5rem auto;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background-color: hsl(var(--muted));
+}
+
+/* Image styles — default 4:3 placeholder aspect ratio */
+.prose .markdown-image {
+  display: block;
+  width: 100%;
+  height: auto;
+
+  /* Default 4:3 ratio to prevent layout shift, balanced for landscape & portrait */
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+
+  /* 淡入动画 */
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+
+  /* 加载时的背景色 */
+  background-color: hsl(var(--muted));
+}
+
+/* 图片加载完成状态 - 使用实际尺寸，限制最大高度 */
+.prose .markdown-image.loaded {
+  opacity: 1;
+  aspect-ratio: auto;
+  max-height: 70vh;
+}
+
+/* 全屏按钮样式 */
+.prose .markdown-image-fullscreen {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 0.375rem;
+  background: hsl(var(--background) / 0.8);
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  opacity: 0;
+  backdrop-filter: blur(4px);
+  transition:
+    opacity 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.prose .markdown-image-fullscreen:hover {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.prose .markdown-image-fullscreen:active {
+  transform: scale(0.95);
+}
+
+/* 悬停时显示按钮 */
+.prose .markdown-image-wrapper:hover .markdown-image-fullscreen {
+  opacity: 1;
+}
+
+/* Image caption */
+/* Hide caption before image loads but preserve space to reduce CLS */
+.prose .markdown-image-caption {
+  visibility: hidden;
+  margin-top: 0;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: hsl(var(--muted-foreground));
+  text-align: center;
+}
+
+.prose .markdown-image.loaded ~ .markdown-image-caption {
+  visibility: visible;
+}
+
+/* ========== Portrait image centering ========== */
+
+.prose .markdown-image-wrapper.portrait {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.prose .markdown-image-wrapper.portrait .markdown-image.loaded {
+  width: auto;
+  max-width: 100%;
+}
+
+/* ========== 竖图并排显示 ========== */
+
+.prose .markdown-image-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.prose .markdown-image-row .markdown-image-wrapper {
+  flex: 1;
+  margin: 0;
+  min-width: 0;
+  width: auto;
+}
+
+.prose .markdown-image-row .markdown-image.loaded {
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  object-fit: contain;
+}
+
+/* Portrait specificity override: portrait rule (0,5,0) sets width:auto which
+   beats the row rule (0,4,0) above. This (0,6,0) selector restores width:100%. */
+.prose .markdown-image-row .markdown-image-wrapper.portrait .markdown-image.loaded {
+  width: 100%;
+}
+
+/* Lightbox is now React-based (ImageLightbox.tsx), styles handled by Tailwind */
+
+/* 图片加载失败状态 - 隐藏损坏图片 */
+.prose .markdown-image.error {
+  display: none;
+}
+
+/* 图片加载失败占位符 */
+.prose .markdown-image-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 200px;
+  padding: 2rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* 错误图标 */
+.prose .markdown-image-error-icon {
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23888' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z'/%3E%3C/svg%3E");
+  background-color: currentColor;
+  opacity: 0.5;
+  -webkit-mask-image: var(--svg);
+  mask-image: var(--svg);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+/* 错误文字 */
+.prose .markdown-image-error-text {
+  font-size: 0.875rem;
+  opacity: 0.7;
+}
+
+/* ========== 深色模式样式 ========== */
+
+/* 深色模式 - 行内代码 */
+.dark .prose :not(pre) > code {
+  background: hsl(var(--background) / 0.8);
+}
+
+.dark .prose :not(pre) > code:hover {
+  background: hsl(var(--background) / 0.4);
+}
+
+/* 深色模式 - 列表 hover */
+.dark .prose ul > li:hover:not(:has(li:hover)),
+.dark .prose ol > li:hover:not(:has(li:hover)) {
+  background: hsl(var(--primary) / 0.1);
+}
+
+/* ========== Mermaid layout styles ========== */
+
+/* Screens outside the viewport should not keep the loading skeleton animating. */
+.custom-content pre.mermaid:not([data-mermaid-visible]) {
+  animation: none;
+}
+
+.mermaid-wrapper {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+/* Mermaid pre styling when in wrapper; the bottom padding holds the resize grip */
+.mermaid-wrapper > pre.mermaid {
+  border-radius: 0 0 0.75rem 0.75rem;
+  border: 1px solid var(--code-border);
+  padding: 1rem 1rem 1.5rem;
+  margin: 0;
+  overflow: hidden;
+  background-color: var(--code-surface);
+}
+
+/* Once useDiagramScale sizes it, the same canvas as infographics: centered, scrolling sideways when zoomed past the column.
+   Block layout instead of astro-mermaid's flex centering, which would clip the left edge of an overflowing diagram. */
+.mermaid-wrapper > pre.mermaid[data-diagram-sized] {
+  display: block;
+  overflow: auto hidden;
+  overscroll-behavior-x: contain;
+
+  & > svg {
+    display: block;
+    width: var(--diagram-width);
+    height: var(--diagram-height);
+    /* biome-ignore lint/complexity/noImportantStyles: mermaid writes max-width inline on every SVG, which would stop zooming at natural size. */
+    max-width: none !important;
+    margin-inline: auto;
+  }
+}
+
+/* Fullscreen SVG container */
+.mermaid-svg-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.mermaid-svg-container svg {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* ========== Infographic layout styles ========== */
+
+.infographic-wrapper {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+/* Infographic container */
+.infographic-container {
+  border-radius: 0 0 0.75rem 0.75rem;
+  border: 1px solid var(--code-border);
+  margin: 0;
+  overflow: auto;
+  background-color: var(--code-surface);
+  min-height: 200px;
+  min-width: min(920px, 100%);
+}
+
+/* In-article canvas (the fullscreen viewer reuses .infographic-container): useDiagramScale sizes the SVG,
+   it centers in the column and scrolls sideways once zoomed past it. The bottom padding holds the resize grip. */
+.infographic-wrapper > .infographic-container {
+  padding: 1rem 1rem 1.5rem;
+  overflow: auto hidden;
+  /* Panning a zoomed diagram to its edge must not turn into a trackpad back-navigation swipe. */
+  overscroll-behavior-x: contain;
+
+  &:not(:empty) {
+    min-height: 0;
+  }
+
+  & > svg {
+    display: block;
+    width: var(--diagram-width, 100%);
+    height: var(--diagram-height, auto);
+    margin-inline: auto;
+    /* The viewBox hugs the content, so item drop shadows paint into the padding instead of being clipped. */
+    overflow: visible;
+  }
+}
+
+/* Override infographic text wrapping - prevent title and label wrapping */
+.infographic-container foreignObject[data-element-type="title"] span,
+.infographic-container foreignObject[data-element-type="desc"] span {
+  letter-spacing: -1px;
+}
+
+/* Fullscreen SVG container */
+.infographic-svg-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 1.5rem;
+}
+
+.infographic-svg-container svg {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: visible;
+}
+
+/* ========== View Source Toggle Styles ========== */
+
+/* Mermaid source view styling */
+.mermaid-source {
+  color: hsl(var(--card-foreground));
+  padding: 1rem 1.5rem;
+  overflow-x: auto;
+  font-size: 0.875em;
+  line-height: 1.7;
+  font-family: var(--font-mono);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.mermaid-fallback {
+  border: 1px solid hsl(var(--border));
+  border-top: none;
+  border-radius: 0 0 0.75rem 0.75rem;
+  background-color: hsl(var(--card));
+  overflow: hidden;
+}
+
+.mermaid-error {
+  padding: 1rem 1.5rem;
+  white-space: normal;
+
+  & span {
+    display: block;
+    margin: 0 0 0.5rem;
+  }
+
+  & > button {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+
+    &:hover {
+      background-color: hsl(var(--accent));
+    }
+
+    &:focus-visible {
+      outline: 2px solid hsl(var(--ring));
+      outline-offset: 2px;
+    }
+  }
+}
+
+/* ========== Code block meta enhancements ========== */
+
+/* Title bar for code blocks with data-title */
+.code-block-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35em 1em;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  /* The code body's top border closes the toolbar, so the title only needs a quiet divider above it. */
+  border-top: 1px dashed var(--code-border);
+}
+
+.code-block-title a,
+.code-block-title-link {
+  color: hsl(var(--shoka-info));
+  text-decoration: none;
+  font-size: 0.85em;
+}
+.code-block-title a:hover {
+  text-decoration: underline;
+}
+
+/* Match the hydrated title row, including wrapping, until its portal takes over. */
+.code-block-title-placeholder {
+  border-inline: 1px solid var(--code-border);
+  background-color: var(--code-toolbar);
+}
+
+.code-block-wrapper-toolbar-mount:not(:empty) + .code-block-title-placeholder {
+  display: none;
+}
+
+/* Line highlighting (mark) */
+:is(.prose pre, .code-fullscreen-content) code .line-highlight {
+  background: hsl(var(--shoka-warning) / 0.12);
+  margin: 0 calc(-1 * var(--code-gutter, 1.5rem));
+  padding: 0 var(--code-gutter, 1.5rem);
+  display: inline-block;
+  width: calc(100% + 2 * var(--code-gutter, 1.5rem));
+  border-left: 3px solid hsl(var(--shoka-warning));
+  padding-left: calc(var(--code-gutter, 1.5rem) - 3px);
+}
+
+/* Command prompt */
+:is(.prose pre, .code-fullscreen-content) code .has-prompt::before {
+  content: attr(data-prompt) " ";
+  color: hsl(var(--muted-foreground));
+  user-select: none;
+}
+
+/* The portal lives outside .prose. Keep one scroll surface for both code axes. */
+.code-fullscreen-content {
+  --code-gutter: 1.25rem;
+  /* biome-ignore lint/complexity/noImportantStyles: same surface as the in-article window; Shiki writes its theme background inline. */
+  background-color: var(--code-surface) !important;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 1rem var(--code-gutter);
+  overflow: auto;
+  overscroll-behavior: contain;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.code-fullscreen-content > code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  font: inherit;
+}
+
+.code-fullscreen-content[data-wrap] > code {
+  width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 992px) {
+  .code-fullscreen-content {
+    flex: 0 1 auto;
+  }
+}
+
+/* Reader font presets */
+
+/* The default rounded preset inherits the existing Han Chan and Gen Jyuu rules. */
+/* The system preset preserves Gen Jyuu on Japanese pages. */
+html[data-font-preset="system"]:not(:lang(ja)) .prose,
+html[data-font-preset="system"]:not(:lang(ja)) .prose :is(h1, h2, h3, h4, h5, h6) {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+    sans-serif;
+}
+
+html[data-font-preset="serif"] .prose,
+html[data-font-preset="serif"] .prose :is(h1, h2, h3, h4, h5, h6) {
+  font-family: "Songti SC", "Noto Serif CJK SC", "Noto Serif SC", "Source Han Serif SC", serif;
+}
+
+html[data-font-preset="wenkai"] .prose,
+html[data-font-preset="wenkai"] .prose :is(h1, h2, h3, h4, h5, h6) {
+  font-family: "LXGW WenKai", "LXGW WenKai Screen", "寒蝉全圆体", serif;
+}
+
+html[data-reader-font="local"]:not(:lang(ja)) .prose,
+html[data-reader-font="local"]:not(:lang(ja)) .prose :is(h1, h2, h3, h4, h5, h6) {
+  font-family:
+    var(--reader-font-family), "寒蝉全圆体", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+}
+
+html[data-reader-font="local"]:lang(ja) .prose,
+html[data-reader-font="local"]:lang(ja) .prose :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--reader-font-family), "Gen Jyuu Gothic P", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+}
+
+/* Reader text justification */
+
+html.reader-justify .prose {
+  text-align: justify;
+}

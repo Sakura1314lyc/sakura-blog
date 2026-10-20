@@ -1,51 +1,81 @@
-import { defineCollection } from "astro:content";
-import { glob } from "astro/loaders";
-import { z } from "astro/zod";
+import { defineCollection } from 'astro:content';
+import { COLOPHON_PLACEMENTS, COLOPHON_TONES } from '@lib/config/colophon';
+import { BLOG_CONTENT_GLOB_PATTERN } from '@lib/content/glob';
+import { parseDateInSiteTimezone, reinterpretUtcAsTimezone } from '@lib/date';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
+import type { BlogSchema, BlogSchemaInput } from 'types/blog';
 
-const postsCollection = defineCollection({
-	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/posts" }),
-	schema: z.object({
-		title: z.string(),
-		published: z.date(),
-		updated: z.date().optional(),
-		draft: z.boolean().optional().default(false),
-		description: z.string().optional().default(""),
-		image: z.string().optional().default(""),
-		tags: z.array(z.string()).optional().default([]),
-		category: z.string().optional().nullable().default(""),
-		lang: z.string().optional().default(""),
-		pinned: z.boolean().optional().default(false),
-		comment: z.boolean().optional().default(true),
-		priority: z.number().optional(),
-		author: z.string().optional().default(""),
-		sourceLink: z.string().optional().default(""),
-		licenseName: z.string().optional().default(""),
-		licenseUrl: z.string().optional().default(""),
+/**
+ * Custom date schema that parses date strings in the site's configured timezone.
+ * This ensures consistent date handling regardless of build environment.
+ *
+ * Accepts:
+ * - Date objects (reinterpreted from UTC to site timezone, since gray-matter
+ *   incorrectly parses "2025-12-29 21:55:00" as UTC)
+ * - Date strings like "2025-12-29 21:55:00" (parsed as site timezone)
+ * - ISO strings like "2025-12-29T21:55:00+08:00" (parsed correctly with offset)
+ */
+const dateInSiteTimezone = z
+  .string()
+  .or(z.date())
+  .transform((val) => {
+    if (val instanceof Date) {
+      // gray-matter has already parsed the date string as UTC, but user intended site timezone.
+      // Reinterpret the UTC values as site timezone to get correct timestamp.
+      return reinterpretUtcAsTimezone(val);
+    }
+    return parseDateInSiteTimezone(val);
+  });
 
-		/* Page encryption fields */
-		encrypted: z.boolean().optional().default(false),
-		password: z.string().optional().default(""),
-		passwordHint: z.string().optional().default(""),
-		hideHomeContent: z.boolean().optional(),
+const colophonPlacementSchema = z.enum(COLOPHON_PLACEMENTS);
+const colophonEntrySchema = z.union([
+  z.string(),
+  z.object({ id: z.string(), note: z.string().optional() }),
+  z.object({
+    icon: z.string(),
+    label: z.string(),
+    description: z.string().optional(),
+    note: z.string().optional(),
+    tone: z.enum(COLOPHON_TONES).optional(),
+    placement: colophonPlacementSchema.or(z.array(colophonPlacementSchema)).optional(),
+  }),
+]);
 
-		/* Posts alias */
-		alias: z.string().optional(),
-
-		/* Custom permalink - 自定义固定链接，优先级高于 alias */
-		permalink: z.string().optional(),
-
-		/* For internal use */
-		prevTitle: z.string().default(""),
-		prevSlug: z.string().default(""),
-		nextTitle: z.string().default(""),
-		nextSlug: z.string().default(""),
-	}),
+const blogCollection = defineCollection({
+  loader: glob({ pattern: BLOG_CONTENT_GLOB_PATTERN, base: './src/content/blog' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    link: z.string().optional(),
+    date: dateInSiteTimezone,
+    updated: dateInSiteTimezone.optional(),
+    cover: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    // Preserve compatibility with posts migrated from Hexo.
+    subtitle: z.string().optional(),
+    catalog: z.boolean().optional().default(true),
+    categories: z
+      .array(z.string())
+      .or(z.array(z.array(z.string())))
+      .optional(),
+    sticky: z.boolean().optional(),
+    draft: z.boolean().optional(),
+    // Allow posts to opt out of numbered table-of-contents headings.
+    tocNumbering: z.boolean().optional().default(true),
+    // Allow posts to opt out of AI-generated summaries.
+    excludeFromSummary: z.boolean().optional(),
+    // Shoka features per-post toggle
+    math: z.boolean().optional(),
+    quiz: z.boolean().optional(),
+    password: z.string().optional(),
+    /** Keywords for SEO */
+    keywords: z.array(z.string()).optional(),
+    // Colophon marks; ids resolve against `colophon.marks` in config/site.yaml.
+    colophon: z.array(colophonEntrySchema).optional(),
+  }) satisfies z.ZodType<BlogSchema, BlogSchemaInput>,
 });
-const specCollection = defineCollection({
-	loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/spec" }),
-	schema: z.object({}),
-});
+
 export const collections = {
-	posts: postsCollection,
-	spec: specCollection,
+  blog: blogCollection,
 };
