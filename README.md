@@ -19,6 +19,7 @@ pnpm lint
 pnpm test
 pnpm test:blog-migration
 pnpm build
+pnpm test:built-blog
 pnpm preview
 ```
 
@@ -42,6 +43,8 @@ GitHub `main` 分支自动触发现有 Vercel 部署，以及 Pages 构建工作
 迁移后已通过生产构建、Astro 类型检查、站点配置/内容渲染/索引等单元测试，
 以及 34 篇文章的存在性、旧链接跳转和正文一致性检查。
 浏览器检查覆盖桌面、390px 和 320px 视口、浅深色切换、搜索、公式、流程图及原题库跳转。
+Shoka 属性扩展与旧文章列表中的 LaTeX 花括号冲突，因此关闭 `enableShokaAttrs`；
+正文保持不变，构建后已核对 34 篇文章中的 2,568 处公式，KaTeX 渲染错误为零。
 
 上游 `test:migrate` 涉及 Unix 文件权限、符号链接、tar 路径和文件排序，
 在当前 Windows 环境有未通过用例；不要将本次验证理解为整个上游测试套件全部通过。

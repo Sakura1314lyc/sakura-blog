@@ -86,7 +86,8 @@ content:
   lazyLoadEmbeds: true
   postCardImagePosition: alternating
   enableShokaContainers: true
-  enableShokaAttrs: true
+  # Shoka 属性语法会把列表公式末尾的 {…} 当成属性；保留原文的 LaTeX 分组。
+  enableShokaAttrs: false
   enableShokaEffects: true
   enableShokaSpoiler: true
   enableShokaRuby: true

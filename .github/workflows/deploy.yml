@@ -37,6 +37,9 @@ jobs:
       
       - name: Build site
         run: pnpm run build
+
+      - name: Verify article rendering
+        run: pnpm test:built-blog
       
       - name: Deploy to pages branch
         uses: JamesIves/github-pages-deploy-action@v4

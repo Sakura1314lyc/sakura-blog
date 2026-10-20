@@ -84,3 +84,6 @@ jobs:
         run: pnpm build
         env:
           ENABLE_CONTENT_SYNC: false
+
+      - name: Verify article rendering
+        run: pnpm test:built-blog
