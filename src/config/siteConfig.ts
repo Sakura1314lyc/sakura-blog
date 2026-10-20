@@ -12,7 +12,7 @@ export const siteConfig: SiteConfig = {
 	lang: SITE_LANG,
 
 	themeColor: {
-		hue: 240, // 主题色的默认色相，范围从 0 到 360。例如：红色：0，青色：200，蓝绿色：250，粉色：345
+		hue: 280, // 靛紫色，与毛玻璃主题一致
 		fixed: false, // 对访问者隐藏主题色选择器
 	},
 
@@ -42,7 +42,7 @@ export const siteConfig: SiteConfig = {
 
 	// 页面自动缩放配置
 	pageScaling: {
-		enable: true, // 是否开启自动缩放
+		enable: false, // 使用响应式布局，保持文字和触控目标的实际尺寸
 		targetWidth: 2000, // 目标宽度，低于此宽度时开始缩放
 	},
 
@@ -77,9 +77,9 @@ export const siteConfig: SiteConfig = {
 		// 注意：如果侧边栏配置启用了"both"双侧边栏，则无法使用文章列表"grid"网格（双列）布局
 		defaultMode: "list",
 		// 是否启用布局切换功能
-		enable: true,
+		enable: false,
 		// 是否允许用户切换布局
-		allowSwitch: true,
+		allowSwitch: false,
 		// 文章列表页分类导航条配置
 		categoryBar: {
 			enable: true, // 是否在文章列表页显示分类导航条
@@ -95,13 +95,13 @@ export const siteConfig: SiteConfig = {
 	// 壁纸模式配置
 	wallpaperMode: {
 		// 默认壁纸模式：banner=顶部横幅，fullscreen=全屏壁纸，none=无壁纸
-		defaultMode: "banner",
+		defaultMode: "none",
 		// 整体布局方案切换按钮显示设置（默认："desktop"）
 		// "off" = 不显示
 		// "mobile" = 仅在移动端显示
 		// "desktop" = 仅在桌面端显示
 		// "both" = 在所有设备上显示
-		showModeSwitchOnMobile: "both",
+		showModeSwitchOnMobile: "off",
 	},
 
 	banner: {
@@ -173,7 +173,7 @@ export const siteConfig: SiteConfig = {
 		},
 
 		navbar: {
-			transparentMode: "semifull", // 导航栏透明模式："semi" 半透明加圆角，"full" 完全透明，"semifull" 动态透明
+			transparentMode: "semi", // 固定毛玻璃导航
 		},
 	},
 	toc: {

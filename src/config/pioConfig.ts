@@ -2,7 +2,7 @@ import type { PioConfig } from "../types/config";
 
 // Pio 看板娘配置
 export const pioConfig: PioConfig = {
-  enable: true, // 启用看板娘
+  enable: false, // 毛玻璃卡片布局默认关闭悬浮看板娘，避免遮挡阅读与卡片操作；可按需开启
   models: ["/pio/models/NOIR/noir.model3.json"], // 默认模型路径
   position: "left", // 模型位置
   width: 280, // 默认宽度

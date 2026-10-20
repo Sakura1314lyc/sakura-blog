@@ -1,0 +1,40 @@
+---
+import type { MarkdownHeading } from "astro";
+import { Icon } from "astro-icon/components";
+import { profileConfig } from "../../../config";
+import { getCategoryList, getSortedPosts } from "../../../utils/content-utils";
+import { url } from "../../../utils/url-utils";
+import Image from "../../atoms/Image/Image.astro";
+import { SidebarTOC } from "../toc";
+
+interface Props { headings?: MarkdownHeading[] }
+const { headings = [] } = Astro.props;
+const [posts, categories] = await Promise.all([getSortedPosts(), getCategoryList()]);
+---
+
+<aside class="glass-sidebar" aria-label="博客侧栏">
+	<section class="glass-panel glass-aside-profile">
+		<a href={url("/about/")} class="glass-small-avatar"><Image src={profileConfig.avatar || ""} alt={profileConfig.name} /></a>
+		<h2>{profileConfig.name}</h2>
+		<p>{profileConfig.bio}</p>
+		<div class="glass-aside-socials">
+			{profileConfig.links.map(link => <a href={link.url} title={link.name} aria-label={link.name} target="_blank" rel="noopener noreferrer"><Icon name={link.icon} /></a>)}
+		</div>
+		<a class="glass-aside-archive" href={url("/archive/")}><span>全部文章</span><strong>{posts.length}</strong><Icon name="material-symbols:arrow-forward-rounded" /></a>
+	</section>
+	<div class="glass-aside-sticky">
+		{headings.length > 0 ? (
+			<section class="glass-panel glass-aside-section">
+				<h2><Icon name="material-symbols:format-list-bulleted-rounded" />文章目录</h2>
+				<div id="toc-container"><SidebarTOC headings={headings} /></div>
+			</section>
+		) : (
+			<section class="glass-panel glass-aside-section">
+				<h2><Icon name="material-symbols:folder-open-rounded" />分类手记</h2>
+				<div id="toc-container" class="hidden"></div>
+				{categories.map(category => <a class="glass-category-row" href={category.url}><span>{category.name}</span><span>{category.count}</span></a>)}
+			</section>
+		)}
+		<a class="glass-panel glass-aside-note" href={url("/diary/")}><Icon name="mdi:flower-tulip-outline" /><span>生活中的小事，也值得记录。<small>去日记里看看 →</small></span></a>
+	</div>
+</aside>

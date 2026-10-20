@@ -17,6 +17,7 @@ import "../styles/wallpaper-navbar-transparent.css";
 import "../styles/fancybox-custom.css";
 import "../styles/expressive-code.css";
 import "../styles/panel-animations.css";
+import "../styles/glass-theme.css";
 
 // 导入新提取的 Head 组件
 import AnalyticsScripts from "./partials/AnalyticsScripts.astro";
@@ -95,7 +96,7 @@ if (!banner || typeof banner !== "string" || banner.trim() === "") {
 // TODO don't use post cover as banner for now
 banner = getDefaultBanner();
 
-const enableBanner = !!siteConfig.banner.src;
+const enableBanner = siteConfig.wallpaperMode.defaultMode === "banner" && !!siteConfig.banner.src;
 
 let pageTitle: string;
 if (title) {
@@ -238,7 +239,7 @@ if (siteConfig.font) {
 		/>
 	</head>
 	<body
-		class="min-h-screen"
+		class="min-h-screen glass-theme"
 		class:list={[
 			{ "enable-banner": enableBanner, "enable-card-border": siteConfig.card?.border },
 		]}

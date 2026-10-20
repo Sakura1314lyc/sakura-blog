@@ -1,0 +1,91 @@
+---
+import { Icon } from "astro-icon/components";
+import { musicPlayerConfig, profileConfig, siteConfig } from "../../../config";
+import { projectsData } from "../../../data/projects";
+import { getDiaryList } from "../../../data/diary";
+import { scanAlbums } from "../../../utils/album-scanner";
+import { getSortedPosts } from "../../../utils/content-utils";
+import { getPostHomeContent } from "../../../utils/post-card-content";
+import { formatDateToYYYYMMDD } from "../../../utils/date-utils";
+import { getPostUrl, url } from "../../../utils/url-utils";
+import Image from "../../atoms/Image/Image.astro";
+import GlassMusic from "./GlassMusic.svelte";
+
+const posts = await getSortedPosts();
+const latest = [...posts].sort((a, b) => b.data.published.getTime() - a.data.published.getTime()).slice(0, 3);
+const albums = (await scanAlbums()).filter(album => !album.password);
+const album = albums[0];
+const diary = getDiaryList(1)[0];
+---
+
+<section class="glass-home" aria-label="我的小小世界">
+	<div class="glass-welcome">
+		<div><span class="glass-eyebrow">JOURNAL & LITTLE THINGS</span><h1>记录所学，收藏所爱<span>。</span></h1></div>
+		<a href="#articles">慢慢读，慢慢逛 <Icon name="material-symbols:arrow-downward-rounded" /></a>
+	</div>
+	<div class="glass-bento">
+		<section class="glass-panel glass-profile">
+			<div class="glass-profile-top">
+				<a href={url("/about/")} class="glass-avatar"><Image src={profileConfig.avatar || ""} alt={profileConfig.name} loading="eager" /></a>
+				<div><span class="glass-eyebrow">HELLO, I'M</span><h2>{profileConfig.name}<span>✳</span></h2><p>{profileConfig.bio}</p></div>
+			</div>
+			<div class="glass-profile-bottom">
+				<div class="glass-stats">
+					<a href={url("/archive/")}><strong>{posts.length}</strong><span>篇文章</span></a>
+					{siteConfig.featurePages.projects && <a href={url("/projects/")}><strong>{projectsData.length}</strong><span>个项目</span></a>}
+					{siteConfig.featurePages.albums && <a href={url("/albums/")}><strong>{albums.length}</strong><span>本相册</span></a>}
+				</div>
+				<div class="glass-socials">{profileConfig.links.map(link => <a href={link.url} title={link.name} aria-label={link.name} target="_blank" rel="noopener noreferrer"><Icon name={link.icon} /></a>)}</div>
+			</div>
+		</section>
+		{musicPlayerConfig.enable ? <section class="glass-panel glass-music-panel" aria-label="音乐播放器"><GlassMusic client:load /></section> : <a class="glass-panel glass-music-panel glass-music-fallback" href={url("/archive/")}><span class="glass-eyebrow">TAKE YOUR TIME</span><h2>翻开一篇，读一会儿。</h2><span>所有文章 →</span></a>}
+		<div class="glass-quote"><Icon name="mdi:flower-tulip-outline" /><p>把思考写下来，把喜欢的事物留下来。</p><span>ONE PAGE AT A TIME</span></div>
+		<glass-latest class="glass-panel glass-latest" role="region" aria-label="最新文章推荐">
+			<div class="glass-tile-heading"><span><Icon name="material-symbols:article-outline-rounded" />最近更新</span><a href={url("/archive/")} aria-label="查看所有文章"><Icon name="material-symbols:arrow-outward-rounded" /></a></div>
+			<div class="glass-latest-slides" aria-live="polite">
+				{latest.map((post, index) => <div data-latest-slide hidden={index !== 0}>
+					<span class="glass-latest-number" aria-hidden="true">0{index + 1}</span>
+					<time datetime={post.data.published.toISOString()}>{formatDateToYYYYMMDD(post.data.published)} · {post.data.category || "随笔"}</time>
+					<h2><a href={getPostUrl(post)}>{post.data.title}</a></h2>
+					<p>{getPostHomeContent(post.data, "打开文章，继续阅读。")}</p>
+					<a class="glass-read-link" href={getPostUrl(post)}>继续阅读 <Icon name="material-symbols:arrow-forward-rounded" /></a>
+				</div>)}
+			</div>
+			<div class="glass-slide-controls">{latest.map((_, index) => <button type="button" data-latest-index={index} aria-label={`显示第 ${index + 1} 篇文章`} aria-pressed={index === 0}></button>)}</div>
+		</glass-latest>
+		<a class="glass-panel glass-photo" href={url(siteConfig.featurePages.albums ? "/albums/" : "/about/")}>
+			<img src={album?.cover || url("/assets/desktop-banner/2.webp")} alt={album?.title || "樱花庭院"} loading="eager" width="800" height="400" />
+			<div class="glass-photo-shade"></div><span class="glass-photo-label"><Icon name="material-symbols:photo-camera-outline-rounded" />光影收藏</span>
+			<div class="glass-photo-caption"><div><span>A SMALL GALLERY</span><h2>{album?.title || "留住喜欢的风景"}</h2></div><span class="glass-circle-arrow"><Icon name="material-symbols:arrow-outward-rounded" /></span></div>
+		</a>
+		<a class="glass-panel glass-diary" href={url(siteConfig.featurePages.diary ? "/diary/" : "/about/")}>
+			<div class="glass-tile-heading"><span><Icon name="material-symbols:edit-note-rounded" />日常碎片</span><Icon name="material-symbols:arrow-outward-rounded" /></div>
+			<p>{diary?.content || "生活中的小事，也值得记录。"}</p>
+			{diary && <time datetime={diary.date}>{diary.date.slice(0, 10)}</time>}
+		</a>
+		<button type="button" class="glass-panel glass-theme-tile" data-glass-theme aria-label="切换深色或浅色主题">
+			<span class="glass-theme-orbit"><Icon name="material-symbols:light-mode-outline-rounded" class="glass-sun" /><Icon name="material-symbols:dark-mode-outline-rounded" class="glass-moon" /></span>
+			<strong>换一种心情</strong><span class="glass-theme-light-label">让夜色慢慢降临 ↗</span><span class="glass-theme-dark-label">让阳光照进来 ↗</span>
+		</button>
+	</div>
+	{siteConfig.featurePages.projects && <a class="glass-project-strip" href={url("/projects/")}><span class="glass-project-icon"><Icon name="material-symbols:code-rounded" /></span><span><strong>代码里的小世界</strong><small>从 Go 到 LLM，{projectsData.length} 个项目持续记录想法与实践。</small></span><span class="glass-project-link">探索项目 <Icon name="material-symbols:arrow-forward-rounded" /></span></a>}
+</section>
+
+<script>
+	class GlassLatest extends HTMLElement {
+		connectedCallback() {
+			this.onclick = event => {
+				const button = (event.target as Element).closest<HTMLButtonElement>("[data-latest-index]");
+				if (!button) return;
+				const selected = Number(button.dataset.latestIndex);
+				this.querySelectorAll<HTMLElement>("[data-latest-slide]").forEach((slide, index) => { slide.hidden = index !== selected; });
+				this.querySelectorAll("[data-latest-index]").forEach((dot, index) => dot.setAttribute("aria-pressed", String(index === selected)));
+			};
+		}
+		disconnectedCallback() { this.onclick = null; }
+	}
+	if (!customElements.get("glass-latest")) customElements.define("glass-latest", GlassLatest);
+	document.addEventListener("click", event => {
+		if ((event.target as Element).closest("[data-glass-theme]")) document.getElementById("scheme-switch")?.click();
+	});
+</script>
