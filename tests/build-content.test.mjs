@@ -27,6 +27,30 @@ test('the musings placeholder is published with the requested title and discover
   assert.ok(categories.includes('href="/categories/musings"'));
 });
 
+test('articles and friends select the personal Waline service instead of Giscus', () => {
+  const config = load(readFileSync(new URL('../config/site.yaml', import.meta.url), 'utf8'));
+  const serverURL = 'https://sakura-waline-sooty.vercel.app';
+  assert.equal(config.comment.provider, 'waline');
+  assert.equal(config.comment.waline.serverURL, serverURL);
+
+  for (const route of ['/post/杂谈/thoughts-on-algorithms', '/friends', ...posts.map(({ newPath }) => newPath)]) {
+    const html = readFileSync(new URL(`../dist${route}/index.html`, import.meta.url), 'utf8');
+    const providers = [...html.matchAll(/<astro-island\b[^>]*\bprops="([^"]*)"[^>]*>/g)]
+      .map(([, props]) => JSON.parse(props.replaceAll('&quot;', '"').replaceAll('&amp;', '&')).provider)
+      .filter(Boolean)
+      .map(([, provider]) => provider);
+    assert.deepEqual(providers, ['waline'], `Unexpected comment provider on ${route}`);
+  }
+
+  const assets = new URL('../dist/_astro/', import.meta.url);
+  assert.ok(
+    readdirSync(assets)
+      .filter((name) => name.endsWith('.js'))
+      .some((name) => readFileSync(new URL(name, assets), 'utf8').includes(serverURL)),
+    'Personal Waline server URL is missing from the client bundle',
+  );
+});
+
 test('header variants are generated from the single maintained source, including writing-room previews', () => {
   const sourceFiles = readdirSync(new URL('../public/img/', import.meta.url)).filter((name) =>
     /^site_header_\d+\.webp$/.test(name),

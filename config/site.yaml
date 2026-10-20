@@ -153,7 +153,11 @@ navigation:
     icon: ri:edit-box-line
 
 comment:
-  provider: giscus
+  provider: waline
+  waline:
+    serverURL: https://sakura-waline-sooty.vercel.app
+    lang: zh-CN
+  # 保留旧配置以便切回；GitHub 上的历史评论不会自动迁移到 Waline。
   giscus:
     repo: Sakura1314lyc/sakura-blog
     repoId: R_kgDOSzOeqw

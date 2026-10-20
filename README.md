@@ -47,6 +47,15 @@ pnpm preview
 
 歌单和追番都只使用公开数据，不需要在仓库里存储密码、Cookie 或访问令牌。
 
+## 评论维护
+
+评论使用个人 Waline 服务：<https://sakura-waline-sooty.vercel.app>，
+管理后台：<https://sakura-waline-sooty.vercel.app/ui>。
+服务地址保存在 `config/site.yaml` 的 `comment.waline.serverURL`，切换服务后需要重新构建部署博客。
+现有 GitHub Discussions 评论不会自动迁移到 Waline；原 `comment.giscus` 配置保留，
+需要切回时将 `comment.provider` 改为 `giscus`。
+不要把管理员密码、邮件密码或数据库密钥写入仓库；服务端需要的密钥只在部署平台环境变量中配置。
+
 ## 主题迁移
 
 基于 astro-koharu 7.7.4，上游提交 `329ce55513a8057708c93c11c5b8c096680ad83c`。
@@ -56,7 +65,7 @@ pnpm preview
 
 文章的新地址为 `/post/<原相对路径>`。迁移清单 `config/migrated-posts.json`
 记录旧地址、目标地址和迁移时的正文摘要；Astro 静态跳转页和 Vercel 永久重定向兼容
-`/posts/<原相对路径>/`。Giscus 继续使用旧文章路径匹配已有讨论。
+`/posts/<原相对路径>/`。若切回 Giscus，仍使用旧文章路径匹配已有讨论。
 以后新增文章不需要加入此迁移清单。
 
 GitHub `main` 分支自动触发现有 Vercel 部署，以及 Pages 构建工作流。
