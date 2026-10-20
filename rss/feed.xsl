@@ -37,7 +37,7 @@
                             </div>
 
                             <div class="profile-info">
-                                <h1 class="site-title">Sakuraの博客</h1>
+                                <h1 class="site-title">上杉绘梨衣の博客</h1>
                                 <p class="site-subtitle">我们都是小怪兽，有一天会被正义的奥特曼杀死</p>
                                 <p class="site-bio">Sakura 看番日记 | 算法学习 | 大模型与磕盐。</p>
 

@@ -1,0 +1,1 @@
+import"./useTranslation.D2YLfSXu.js";
